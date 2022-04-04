@@ -1,10 +1,10 @@
 import socket
-import json
+import json, datetime
 
-BUF_SIZE = 1024
+BUF_SIZE = 4096
 
 def get_builds(champion, position):
-    s = socket.socket()        
+    s = socket.socket()      
 
     port = 12345               
 

@@ -1,6 +1,6 @@
 from riotwatcher import LolWatcher, ApiError
 from models.dynamics_db import SUMMONER, MATCHES, BUILDS
-import time
+import time, timeline
 
 lol_watcher = LolWatcher(API_KEY)
 
@@ -44,6 +44,7 @@ def update_summoner():
         elif err.response.status_code == 404:
             print('Summoner with that ridiculous name not found.')
         else:
+            print(err)
             raise
 
 def update_matches():
@@ -86,6 +87,7 @@ def update_matches():
         elif err.response.status_code == 404:
             print('Summoner with that ridiculous name not found.')
         else:
+            print(err)
             raise
 
 def update_builds():
@@ -113,6 +115,7 @@ def update_builds():
             if(not BUILDS.get_or_none(BUILDS.matchId == match_id)):
                 try:
                     match = lol_watcher.match.by_id(my_region, match_id)
+                    time.sleep(1.2)
                 except ApiError as err:
                     print(err)
                     time.sleep(1.2)
@@ -139,6 +142,10 @@ def update_builds():
                             item5 = "",
                             item6 = "",
 
+                            start_items = "",
+                            items = "",
+                            skills = "",
+
                             summoner1Id = "",
                             summoner2Id = "",
 
@@ -164,6 +171,10 @@ def update_builds():
 
                 for participant in match['info']['participants']:
                     if(not BUILDS.get_or_none(BUILDS.matchId == match_id, BUILDS.championId == participant['championId'])):
+                        try:
+                            timeline_info = timeline.parse_timeline(lol_watcher, my_region, match_id)
+                        except ApiError as err:
+                            continue
                         BUILDS.create(
                             matchId = match_id,
                             gameEndTimestamp = match['info']['gameEndTimestamp'],
@@ -181,6 +192,10 @@ def update_builds():
                             item4 = participant['item4'],
                             item5 = participant['item5'],
                             item6 = participant['item6'],
+
+                            start_items = timeline_info[participant['participantId']]['START_ITEMS'],
+                            items = timeline_info[participant['participantId']]['ITEMS'],
+                            skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
 
                             summoner1Id = participant['summoner1Id'],
                             summoner2Id = participant['summoner2Id'],
@@ -219,4 +234,5 @@ def update_builds():
         elif err.response.status_code == 404:
             print('Summoner with that ridiculous name not found.')
         else:
+            print(err)
             raise

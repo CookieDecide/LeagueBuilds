@@ -49,6 +49,10 @@ class BUILDS(pw.Model):
     item5 = pw.TextField()
     item6 = pw.TextField()
 
+    start_items = pw.TextField()
+    items = pw.TextField()
+    skills = pw.TextField()
+
     summoner1Id = pw.IntegerField()
     summoner2Id = pw.IntegerField()
 

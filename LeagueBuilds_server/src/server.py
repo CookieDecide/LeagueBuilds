@@ -50,6 +50,10 @@ def handle_client(c, addr):
             BUILDS.item5,
             BUILDS.item6,
 
+            BUILDS.start_items,
+            BUILDS.items,
+            BUILDS.skills,
+
             BUILDS.summoner1Id,
             BUILDS.summoner2Id,
 

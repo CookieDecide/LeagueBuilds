@@ -1,6 +1,6 @@
 from threading import local
 from models.statics_db import CHAMPIONS
-import json, sorting
+import json, sorting, datetime
 
 from lcu_driver import Connector
 
@@ -46,7 +46,7 @@ async def on_champion_selected(connection, event):
         champion = action['championId']
         actorCellId = action['actorCellId']
         
-        if(action['type'] != 'ban'):
+        if(action['type'] == 'pick'):
             if(actorCellId == localPlayerCellId):
                 if(action != old_action):
                     old_action = action
@@ -54,6 +54,8 @@ async def on_champion_selected(connection, event):
                         await set_rune_summ_item(connection, champion)
 
 async def set_rune_summ_item(connection, champion):
+    start = datetime.datetime.now()
+    
     print(CHAMPIONS.get(CHAMPIONS.key == str(champion)).name)
 
     page = await connection.request('get', '/lol-champ-select/v1/session')
@@ -66,12 +68,12 @@ async def set_rune_summ_item(connection, champion):
     summoner = json.loads(page)
     position = summoner['assignedPosition']
 
-    rune,summ,item = sorting.info(champion, position)
+    rune,summ,item,start_item,item_build = sorting.info(champion, position)
 
-    page = await connection.request('get', '/lol-summoner/v1/current-summoner')
+    page = await connection.request('get', '/lol-summoner/v1/current-summoner/account-and-summoner-ids')
     page = await page.content.read()
-    summonerId = json.loads(page)['summonerId']
     accountId = json.loads(page)['accountId']
+    summonerId = json.loads(page)['summonerId']
 
     page = await connection.request('get', '/lol-perks/v1/currentpage')
     page = await page.content.read()
@@ -100,14 +102,7 @@ async def set_rune_summ_item(connection, champion):
             {
                 "associatedChampions": [champion],
                 "associatedMaps": [],
-                "blocks": [
-                    {
-                        "hideIfSummonerSpell": "",
-                        "items": [],
-                        "showIfSummonerSpell": "",
-                        "type": "Items"
-                    }
-                ],
+                "blocks": [],
                 "map": "any",
                 "mode": "any",
                 "preferredItemSlots": [],
@@ -120,7 +115,34 @@ async def set_rune_summ_item(connection, champion):
         ],
         "timestamp": 0
     }
+
+    id = 0
+    for liste in start_item:
+        body['itemSets'][0]['blocks'].append(get_block("Start Items"))
+        for i in liste:
+            body['itemSets'][0]['blocks'][id]['items'].append({'count': 1, 'id': str(i)})
+        id += 1
+    
+    for liste in item_build:
+        body['itemSets'][0]['blocks'].append(get_block(("Build " + str(id))))
+        for i in liste:
+            body['itemSets'][0]['blocks'][id]['items'].append({'count': 1, 'id': str(i)})
+        id += 1
+
+    body['itemSets'][0]['blocks'].append(get_block("Items"))
     for i in item:
-        body['itemSets'][0]['blocks'][0]['items'].append({'count': 1, 'id': str(i)})
+        body['itemSets'][0]['blocks'][id]['items'].append({'count': 1, 'id': str(i)})
+    id += 1
 
     page = await connection.request('put', '/lol-item-sets/v1/item-sets/' + str(summonerId) + '/sets', data = body)
+
+    print(datetime.datetime.now() - start)
+
+def get_block(name):
+    block = {
+        "hideIfSummonerSpell": "",
+        "items": [],
+        "showIfSummonerSpell": "",
+        "type": str(name)
+    }
+    return block
