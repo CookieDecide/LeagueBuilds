@@ -3,11 +3,13 @@ from models.dynamics_db import BUILDS
 import json
 import time
 from threading import Thread
+import datetime
 
 BUF_SIZE = 1024
 
 def start_server():
     s = socket.socket()
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     print("Socket successfully created")
 
     port = 12345
@@ -88,6 +90,10 @@ def handle_client(c, addr):
             BUILDS.item4,
             BUILDS.item5,
             BUILDS.item6,
+            
+            BUILDS.start_items,
+            BUILDS.items,
+            BUILDS.skills,
 
             BUILDS.summoner1Id,
             BUILDS.summoner2Id,
@@ -107,14 +113,14 @@ def handle_client(c, addr):
             BUILDS.subPerk2,
         ).where(
             BUILDS.championId == str(msg[0]),
-            BUILDS.teamPosition == msg[1],
+            BUILDS.teamPosition == str(msg[1]).upper(),
             BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
         ).dicts()
 
-    buffer = []
-    for build in builds:
-        buffer.append(build)
-
+    buffer = list(builds)
+    #for build in builds:
+    #    buffer.append(build)
+    
     msg = json.dumps(buffer).encode()
     c.send(msg)
 
