@@ -4,7 +4,8 @@ import json, datetime
 BUF_SIZE = 4096
 
 def get_builds(champion, position):
-    s = socket.socket()      
+    s = socket.socket()
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     port = 12345               
 

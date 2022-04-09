@@ -68,7 +68,9 @@ async def set_rune_summ_item(connection, champion):
     summoner = json.loads(page)
     position = summoner['assignedPosition']
 
-    rune,summ,item,start_item,item_build = sorting.info(champion, position)
+    rune,summ,item,start_item,item_build,skills = sorting.info(champion, position)
+
+    skill_order(skills)
 
     page = await connection.request('get', '/lol-summoner/v1/current-summoner/account-and-summoner-ids')
     page = await page.content.read()
@@ -146,3 +148,15 @@ def get_block(name):
         "type": str(name)
     }
     return block
+
+def skill_order(skills):
+    msg = ''
+    for skill in skills:
+        if(skill == 1):
+            msg += 'Q->'
+        elif(skill == 2):
+            msg += 'W->'
+        elif(skill == 3):
+            msg += 'E->'
+    
+    print(msg[:-2])

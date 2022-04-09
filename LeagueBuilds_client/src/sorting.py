@@ -23,6 +23,7 @@ def info(champion, position):
     items = []
     start_items = []
     items_build = []
+    skills = []
     
     for build in builds:
         runes.append(json.dumps({"primaryStyle": build['primaryStyle'],
@@ -62,6 +63,12 @@ def info(champion, position):
         if(items_build_list and len(items_build_list)>2):
             items_build.append(json.dumps(items_build_list[0:3]))
 
+        skills_list = []
+        for skill in ast.literal_eval(build['skills']):
+            skills_list.append(skill['skillSlot'])
+        if(skills_list and len(skills_list)>3):
+            skills.append(json.dumps(skills_list[0:4]))
+
     rune = sort_runes(runes)
 
     summ = sort_summs(summs)
@@ -74,7 +81,9 @@ def info(champion, position):
 
     item_build = sort_items_build(items_build)
 
-    return (rune|stat, summ, item, start_item, item_build)
+    skill_order = sort_skills(skills)
+
+    return (rune|stat, summ, item, start_item, item_build, skill_order)
 
 def sort_runes(runes):
     rune, rune_count = numpy.unique(runes, return_counts=True)
@@ -121,3 +130,9 @@ def sort_items_build(items_build):
         return [json.loads(item_build[item_build_count_sort_ind][0])]
     else:
         return [json.loads(item_build[item_build_count_sort_ind][0]), json.loads(item_build[item_build_count_sort_ind][1]), json.loads(item_build[item_build_count_sort_ind][2])]
+
+def sort_skills(skills):
+    skill, skill_count = numpy.unique(skills, return_counts=True)
+    skill_count_sort_ind = numpy.argsort(-skill_count)
+
+    return json.loads(skill[skill_count_sort_ind][0])

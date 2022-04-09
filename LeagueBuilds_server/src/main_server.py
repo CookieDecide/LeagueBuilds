@@ -14,12 +14,13 @@ serverProcess.start()
 
 while True:
     try:
+        dynamics.clean_builds()
         dynamics.update_builds()
         dynamics.update_summoner()
         dynamics.update_matches()
     except KeyboardInterrupt:
         sys.exit()
-    #except Exception as exc:
-    #    print("Exception:")
-    #    print(exc)
-    #    continue
+    except Exception as exc:
+        print("Exception:")
+        print(exc)
+        continue

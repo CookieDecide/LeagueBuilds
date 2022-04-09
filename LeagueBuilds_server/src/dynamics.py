@@ -2,7 +2,19 @@ from riotwatcher import LolWatcher, ApiError
 from models.dynamics_db import SUMMONER, MATCHES, BUILDS
 import time, timeline
 
-lol_watcher = LolWatcher(API_KEY)
+lol_watcher = LolWatcher('RGAPI-KEY')
+
+def clean_builds():
+    builds = BUILDS.select().where(BUILDS.gameEndTimestamp < time.time()*1000 - 1250000000,)
+    
+    for build in builds:
+        if(build.gameEndTimestamp):
+            if(int(build.gameEndTimestamp) < time.time()*1000 - 1250000000):
+                print("Removed: " + build.matchId)
+                build.delete_instance()
+        else:
+            print("Removed: " + build.matchId)
+            build.delete_instance()
 
 def update_summoner():
     try:
@@ -69,9 +81,8 @@ def update_matches():
                     MATCHES.create(
                         matchId = match,
                     )
-
-                print("Match " + str(i) + ": " + match)
-                i+=1
+                    print("Match " + str(i) + ": " + match)
+                    i+=1
             
             j+=1
             time.sleep(1.2)
@@ -112,113 +123,79 @@ def update_builds():
         i = 0
 
         for match_id in matches:
-            if(not BUILDS.get_or_none(BUILDS.matchId == match_id)):
-                try:
-                    match = lol_watcher.match.by_id(my_region, match_id)
-                    time.sleep(1.2)
-                except ApiError as err:
-                    print(err)
-                    time.sleep(1.2)
-                    if err.response.status_code == 404:
-                        print('Match with that ridiculous name not found.')
-                        MATCHES.get(MATCHES.matchId == match_id).delete_instance()
-                        continue
-                if(match['info']['gameType'] not in ['MATCHED_GAME'] or match['info']['gameMode'] not in ['CLASSIC']):
-                    BUILDS.create(
-                            matchId = match_id,
-                            gameEndTimestamp = "",
-
-                            championId = "",
-                            championName = "",
-                            teamPosition = "",
-                            individualPosition = "",
-                            lane = "",
-
-                            item0 = "",
-                            item1 = "",
-                            item2 = "",
-                            item3 = "",
-                            item4 = "",
-                            item5 = "",
-                            item6 = "",
-
-                            start_items = "",
-                            items = "",
-                            skills = "",
-
-                            summoner1Id = "",
-                            summoner2Id = "",
-
-                            win = "",
-
-                            defense = "",
-                            flex = "",
-                            offense = "",
-
-                            primaryStyle = "",
-                            primaryPerk1 = "",
-                            primaryPerk2 = "",
-                            primaryPerk3 = "",
-                            primaryPerk4 = "",
-
-                            subStyle = "",
-                            subPerk1 = "",
-                            subPerk2 = "",
-                        )
-                    time.sleep(1.2)
-                    i+=1
+            try:
+                match = lol_watcher.match.by_id(my_region, match_id)
+            except ApiError as err:
+                print(err)
+                time.sleep(0.6)
+                if err.response.status_code == 404:
+                    print('Match with that ridiculous name not found.')
+                    MATCHES.get(MATCHES.matchId == match_id).delete_instance()
                     continue
+            if(match['info']['gameEndTimestamp'] < time.time()*1000 - 1250000000):
+                MATCHES.get(MATCHES.matchId == match_id).delete_instance()
+                time.sleep(0.6)
+                i+=1
+                continue
+                
+            if(match['info']['gameType'] not in ['MATCHED_GAME'] or match['info']['gameMode'] not in ['CLASSIC']):
+                MATCHES.get(MATCHES.matchId == match_id).delete_instance()
+                time.sleep(0.6)
+                i+=1
+                continue
 
-                for participant in match['info']['participants']:
-                    if(not BUILDS.get_or_none(BUILDS.matchId == match_id, BUILDS.championId == participant['championId'])):
-                        try:
-                            timeline_info = timeline.parse_timeline(lol_watcher, my_region, match_id)
-                        except ApiError as err:
-                            continue
-                        BUILDS.create(
-                            matchId = match_id,
-                            gameEndTimestamp = match['info']['gameEndTimestamp'],
+            try:
+                time.sleep(0.6)
+                timeline_info = timeline.parse_timeline(lol_watcher, my_region, match_id)
+            except ApiError as err:
+                print(err)
+                time.sleep(0.6)
+                continue
+            for participant in match['info']['participants']:
+                BUILDS.replace(
+                    matchId = match_id,
+                    gameEndTimestamp = match['info']['gameEndTimestamp'],
 
-                            championId = participant['championId'],
-                            championName = participant['championName'],
-                            teamPosition = participant['teamPosition'],
-                            individualPosition = participant['individualPosition'],
-                            lane = participant['lane'],
+                    championId = participant['championId'],
+                    championName = participant['championName'],
+                    teamPosition = participant['teamPosition'],
+                    individualPosition = participant['individualPosition'],
+                    lane = participant['lane'],
 
-                            item0 = participant['item0'],
-                            item1 = participant['item1'],
-                            item2 = participant['item2'],
-                            item3 = participant['item3'],
-                            item4 = participant['item4'],
-                            item5 = participant['item5'],
-                            item6 = participant['item6'],
+                    item0 = participant['item0'],
+                    item1 = participant['item1'],
+                    item2 = participant['item2'],
+                    item3 = participant['item3'],
+                    item4 = participant['item4'],
+                    item5 = participant['item5'],
+                    item6 = participant['item6'],
 
-                            start_items = timeline_info[participant['participantId']]['START_ITEMS'],
-                            items = timeline_info[participant['participantId']]['ITEMS'],
-                            skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
+                    start_items = timeline_info[participant['participantId']]['START_ITEMS'],
+                    items = timeline_info[participant['participantId']]['ITEMS'],
+                    skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
 
-                            summoner1Id = participant['summoner1Id'],
-                            summoner2Id = participant['summoner2Id'],
+                    summoner1Id = participant['summoner1Id'],
+                    summoner2Id = participant['summoner2Id'],
 
-                            win = participant['win'],
+                    win = participant['win'],
 
-                            defense = participant['perks']['statPerks']['defense'],
-                            flex = participant['perks']['statPerks']['flex'],
-                            offense = participant['perks']['statPerks']['offense'],
+                    defense = participant['perks']['statPerks']['defense'],
+                    flex = participant['perks']['statPerks']['flex'],
+                    offense = participant['perks']['statPerks']['offense'],
 
-                            primaryStyle = participant['perks']['styles'][0]['style'],
-                            primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
-                            primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
-                            primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
-                            primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
+                    primaryStyle = participant['perks']['styles'][0]['style'],
+                    primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
+                    primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
+                    primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
+                    primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
 
-                            subStyle = participant['perks']['styles'][1]['style'],
-                            subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
-                            subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
-                        )
+                    subStyle = participant['perks']['styles'][1]['style'],
+                    subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
+                    subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
+                ).execute()
 
-                print("Match " + str(i) + ": " + match_id)
-                time.sleep(1.2)
+            print("Match " + str(i) + ": " + match_id)
+            time.sleep(0.6)
                 
             #match = MATCHES.get(MATCHES.matchId == match_id.matchId).delete_instance()
             i+=1
