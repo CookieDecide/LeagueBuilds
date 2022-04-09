@@ -1,37 +1,32 @@
-## Welcome to GitHub Pages
+# Welcome to GitHub Pages for LeagueBuilds
 
-You can use the [editor on GitHub](https://github.com/CookieDecide/LeagueBuilds/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+LeagueBuilds is a console application wriiten in python. It utilizes the Riot API to find the most popular builds for champions in League of Legends.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Overview
 
-### Markdown
+![overview](https://user-images.githubusercontent.com/61245108/162573774-a20691ec-78a8-41bd-9d98-10b84bf23c29.jpg)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### LeaguBuilds Server
 
-```markdown
-Syntax highlighted code block
+The LeagueBuilds Server uses the Riot Api to access the matchhistory of all Master/Grandmaster/Challenger players in EUW. By utilizing the Timeline of these matches builds for each Champion are generated. These Builds consist of:
+- all runes chosen
+- picked summonerspells
+- startitems bought at the beginning of the match
+- first three finished items
+- items at the end of the match
+- skillorder
 
-# Header 1
-## Header 2
-### Header 3
+The generated builds are stored in an SQLite database on the server. To save on storage space and sqlite query time, builds older than two weeks are automatically deleted.
+To make those builds accessible the sever listens on port 12345 for requests, which include a champion id and the appointed team position. Using this information all relevant builds are send to the requesting client.
 
-- Bulleted
-- List
+### LeagueBuilds Client
 
-1. Numbered
-2. List
+The LeaguBuilds Client runs on the same machine as the League of Legends gameclient. Using the LCU API the client listens to pick events during championselect. If an event gets triggered a request with champion id and team position is send to the LeagueBuilds Server to get the relevant builds of the picked champion. When the builds are successfully received, they are sorted to find the most popular one. Then again using the LCU API following information is send to the League of Legends client:
+- Summonerspells
+- Runes
+- Itembuilds(include the most popular three Startitem combinations, the most popular three combinations of first three finished items, and a general list of the most popular items)
 
-**Bold** and _Italic_ and `Code` text
+To interpret the recived item/champion/rune ids the LeagueBuilds client uses the most recent available Data Dragon information, which gets saved in an sqlite database on startup of the LeagueBuilds client.
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/CookieDecide/LeagueBuilds/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+The most recent version of LeagueBuilds Client can be downloaded [here](https://github.com/CookieDecide/LeagueBuilds/releases).
+The LeagueBuilds Server is not available for download, but the source code can be accessed [here](https://github.com/CookieDecide/LeagueBuilds)
