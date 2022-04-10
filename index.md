@@ -1,14 +1,14 @@
 # Welcome to GitHub Pages for LeagueBuilds
 
-LeagueBuilds is a console application wriiten in python. It utilizes the Riot API to find the most popular builds for champions in League of Legends.
+LeagueBuilds is a console application written in python. It utilizes the Riot API to find the most popular builds for champions in League of Legends.
 
 ## Overview
 
 ![overview](https://user-images.githubusercontent.com/61245108/162573774-a20691ec-78a8-41bd-9d98-10b84bf23c29.jpg)
 
-### LeaguBuilds Server
+### LeagueBuilds Server
 
-The LeagueBuilds Server uses the Riot Api to access the matchhistory of all Master/Grandmaster/Challenger players in EUW. By utilizing the Timeline of these matches builds for each Champion are generated. These Builds consist of:
+The LeagueBuilds Server uses the Riot API to access the matchhistory of all Master/Grandmaster/Challenger players in EUW. By utilizing the Timeline of these matches builds for each Champion are generated. These Builds consist of:
 - all runes chosen
 - picked summonerspells
 - startitems bought at the beginning of the match
