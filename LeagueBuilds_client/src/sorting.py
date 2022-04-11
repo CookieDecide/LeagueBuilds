@@ -1,5 +1,4 @@
-from matplotlib.font_manager import json_load
-import numpy, json, client, ast, datetime
+import numpy, json, client, ast
 from models.statics_db import ITEMS
 
 valid_items = []

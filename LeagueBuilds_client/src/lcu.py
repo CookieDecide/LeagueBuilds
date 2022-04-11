@@ -1,4 +1,3 @@
-from threading import local
 from models.statics_db import CHAMPIONS
 import json, sorting, datetime
 

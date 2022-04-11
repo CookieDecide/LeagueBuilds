@@ -1,9 +1,10 @@
 import socket
 import json, datetime
 
-BUF_SIZE = 4096
+BUF_SIZE = 10000000
 
 def get_builds(champion, position):
+    start = datetime.datetime.now()
     s = socket.socket()
     s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
@@ -23,5 +24,6 @@ def get_builds(champion, position):
             break
 
     s.close
+    print(datetime.datetime.now() - start)
     return json.loads(msg.decode())
     

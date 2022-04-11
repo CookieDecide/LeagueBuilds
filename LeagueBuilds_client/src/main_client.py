@@ -1,9 +1,6 @@
 import lcu
 import statics
 import os
-import threading
-import time
-import sys
 
 def LCU_Loop():
     statics.update_champions()
