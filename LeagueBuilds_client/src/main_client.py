@@ -1,6 +1,7 @@
 import lcu
 import statics
 import os
+import threading
 
 def LCU_Loop():
     statics.update_champions()
@@ -11,8 +12,25 @@ def LCU_Loop():
 
     lcu.start()
 
-abspath = os.path.abspath(__file__)
-dname = os.path.dirname(abspath)
-os.chdir(dname)
+def gui_start():
+    import gui
+    leagueBuildsApp = gui.LeagueBuildsApp()
+    leagueBuildsApp.run()
 
-LCU_Loop()
+def run_gui():
+    serverProcess = threading.Thread(target=gui_start)
+    serverProcess.daemon = False
+    serverProcess.start()
+
+def run_lcu():
+    serverProcess = threading.Thread(target=LCU_Loop)
+    serverProcess.daemon = True
+    serverProcess.start()
+
+#abspath = os.path.abspath(__file__)
+#dname = os.path.dirname(abspath)
+#os.chdir(dname)
+
+run_gui()
+
+run_lcu()

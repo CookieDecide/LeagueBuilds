@@ -310,7 +310,7 @@ def update_champions():
         my_region = 'euw1'
         versions = lol_watcher.data_dragon.versions_for_region(my_region)
         champions_version = versions['v']
-        current_champ_list = lol_watcher.data_dragon.champions(champions_version)
+        current_champ_list = lol_watcher.data_dragon.champions(version=champions_version, full=True)
 
         data = current_champ_list['data']
         for champion in data:
@@ -320,6 +320,12 @@ def update_champions():
                     blurb = data[champion]['blurb'],
                     id = data[champion]['id'],
 
+                    spell_image_passive = data[champion]['passive']['image']['full'],
+                    spell_image_q = data[champion]['spells'][0]['image']['full'],
+                    spell_image_w = data[champion]['spells'][1]['image']['full'],
+                    spell_image_e = data[champion]['spells'][2]['image']['full'],
+                    spell_image_r = data[champion]['spells'][3]['image']['full'],
+
                     image_full = data[champion]['image']['full'],
                     image_group = data[champion]['image']['group'],
                     image_h = data[champion]['image']['h'],
@@ -360,7 +366,7 @@ def update_champions():
 
                     tags = data[champion]['tags'],
                     title = data[champion]['title'],
-                    version = data[champion]['version'],
+                    version = champions_version,
                 )
             else:
                 CHAMPIONS.replace(
@@ -368,6 +374,12 @@ def update_champions():
                     blurb = data[champion]['blurb'],
                     id = data[champion]['id'],
 
+                    spell_image_passive = data[champion]['passive']['image']['full'],
+                    spell_image_q = data[champion]['spells'][0]['image']['full'],
+                    spell_image_w = data[champion]['spells'][1]['image']['full'],
+                    spell_image_e = data[champion]['spells'][2]['image']['full'],
+                    spell_image_r = data[champion]['spells'][3]['image']['full'],
+
                     image_full = data[champion]['image']['full'],
                     image_group = data[champion]['image']['group'],
                     image_h = data[champion]['image']['h'],
@@ -408,7 +420,7 @@ def update_champions():
 
                     tags = data[champion]['tags'],
                     title = data[champion]['title'],
-                    version = data[champion]['version'],
+                    version = champions_version,
                 ).execute()
 
 

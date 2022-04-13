@@ -13,6 +13,12 @@ class CHAMPIONS(pw.Model):
 
     id = pw.TextField()
 
+    spell_image_passive = pw.TextField()
+    spell_image_q = pw.TextField()
+    spell_image_w = pw.TextField()
+    spell_image_e = pw.TextField()
+    spell_image_r = pw.TextField()
+
     image_full = pw.TextField()
     image_group = pw.TextField()
     image_h = pw.IntegerField()
