@@ -28,5 +28,9 @@ The LeagueBuilds Client runs on the same machine as the League of Legends gamecl
 
 The received item/champion/rune ids are interpreted by the LeagueBuilds client using the most recent Data Dragon information which gets saved in an SQLite database on startup of the LeagueBuilds client.
 
+## LeagueBuilds Client Example
+
+![Example](https://user-images.githubusercontent.com/61245108/163246585-7fa8ec69-65ab-408b-9fd8-d5fb0a0a78d4.png)
+
 The most recent version of LeagueBuilds Client can be downloaded [here](https://github.com/CookieDecide/LeagueBuilds/releases).
 The LeagueBuilds Server is not available for download, but the source code can be accessed [here](https://github.com/CookieDecide/LeagueBuilds).
