@@ -14,7 +14,7 @@ def start_server():
 
     port = 12345
 
-    s.bind(('', port))
+    s.bind(('192.168.178.89', port))
     print("socket binded to %s" % (port))
 
     s.listen(5)
