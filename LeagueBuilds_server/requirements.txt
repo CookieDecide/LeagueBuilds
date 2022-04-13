@@ -1,0 +1,2 @@
+peewee==3.14.10
+riotwatcher==3.2.0
