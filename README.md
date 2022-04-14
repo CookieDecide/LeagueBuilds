@@ -4,3 +4,5 @@ LeagueBuild uses a centralized server to get recent builds of Master, Grandmaste
 
 # ToDo:
 - add suport for ARAM matches
+- decrease loading time of build information
+- increase GUI update speed
