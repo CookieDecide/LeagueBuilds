@@ -23,7 +23,7 @@ def get_builds(champion, position):
         if not data:
             break
 
-    s.close
+    s.close()
     print(datetime.datetime.now() - start)
     return json.loads(msg.decode())
     
