@@ -1,35 +1,31 @@
 import lcu
-import statics
-import os
 import threading
+import statics
 
-def LCU_Loop():
-    statics.update_champions()
-    statics.update_items()
-    statics.update_summoner()
-    statics.update_maps()
-    statics.update_runes()
+champ_select_event = threading.Event()
 
-    lcu.start()
+def LCU_Loop(champ_select_event):
+    lcu.start(champ_select_event)
 
-def gui_start():
+def gui_start(champ_select_event):
     import gui
-    leagueBuildsApp = gui.LeagueBuildsApp()
-    leagueBuildsApp.run()
+    gui.start(champ_select_event)
 
 def run_gui():
-    serverProcess = threading.Thread(target=gui_start)
+    serverProcess = threading.Thread(name='GUI-Thread', target=gui_start, args=(champ_select_event,))
     serverProcess.daemon = False
     serverProcess.start()
 
 def run_lcu():
-    serverProcess = threading.Thread(target=LCU_Loop)
+    serverProcess = threading.Thread(name='LCU-Thread', target=LCU_Loop, args=(champ_select_event,))
     serverProcess.daemon = True
     serverProcess.start()
 
-#abspath = os.path.abspath(__file__)
-#dname = os.path.dirname(abspath)
-#os.chdir(dname)
+statics.update_champions()
+statics.update_items()
+statics.update_summoner()
+statics.update_maps()
+statics.update_runes()
 
 run_gui()
 

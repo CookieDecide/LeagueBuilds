@@ -1,12 +1,10 @@
 import peewee as pw
-#from playhouse.migrate import *
 import os
 
 if (not os.path.exists('../DB')):
     os.mkdir('../DB')
 
 DYNAMICS_DB = pw.SqliteDatabase('../DB/dynamics.db', check_same_thread=False)
-#migrator = SqliteMigrator(DYNAMICS_DB)
 
 class MATCHES(pw.Model):
     matchId = pw.TextField(primary_key=True, unique=True)
@@ -82,7 +80,5 @@ class BUILDS(pw.Model):
         primary_key = pw.CompositeKey('matchId', 'championId')
 
 DYNAMICS_DB.connect()
-
-#migrate(migrator.drop_column('builds', 'gameEndTimestamp', pw.TimestampField()),)
 
 DYNAMICS_DB.create_tables([MATCHES, SUMMONER, BUILDS])

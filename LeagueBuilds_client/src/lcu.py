@@ -1,19 +1,24 @@
-from models.statics_db import CHAMPIONS
-import json, sorting, datetime
+import json, client, datetime
 
 from lcu_driver import Connector
 
 champion, rune, summ, skills = None, None, None, None
 
 old_action = None
+event = None
 connector = Connector()
 
-def start():
+def start(champ_select_event):
+    global event
+    event = champ_select_event
+
     print('Please start LoL client for LCU API to start.')
     connector.start()
 
 @connector.ready
 async def connect(connection):
+    global champ
+    
     print('LCU API is ready to be used.')
     page = await connection.request('get', '/lol-champ-select/v1/session')
     page = await page.content.read()
@@ -21,9 +26,10 @@ async def connect(connection):
     if('errorCode' not in json.loads(page)):
         page = await connection.request('get', '/lol-champ-select/v1/current-champion')
         page = await page.content.read()
-        champion = json.loads(page)
+        champ = json.loads(page)
 
-        if(champion != 0):
+        if(champ != 0):
+            champion = champ
             await set_rune_summ_item(connection, champion)
 
 @connector.close
@@ -44,20 +50,23 @@ async def on_champion_selected(connection, event):
     localPlayerCellId = event.data['localPlayerCellId']
 
     for action in event.data['actions'][0]:
-        champion = action['championId']
+        champ = action['championId']
         actorCellId = action['actorCellId']
         
         if(action['type'] == 'pick'):
             if(actorCellId == localPlayerCellId):
                 if(action != old_action):
                     old_action = action
-                    if(champion != 0):
+                    if(champ != 0):
+                        champion = champ
                         await set_rune_summ_item(connection, champion)
+
+@connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=['CREATE', 'UPDATE'])
+async def on_game_end(connection, event):
+    event.clear()
 
 async def set_rune_summ_item(connection, champion):
     start = datetime.datetime.now()
-    
-    print(CHAMPIONS.get(CHAMPIONS.key == str(champion)).name)
 
     localPlayerCellId = await get_localPlayerCellId(connection)
 
@@ -65,18 +74,21 @@ async def set_rune_summ_item(connection, champion):
 
     global rune, summ, skills
 
-    rune,summ,item,start_item,item_build,skills = sorting.info(champion, position)
+    championId,rune,summ,item,start_item,item_build,skills,position,champion_name = client.get_build(champion, position)
+
+    print(champion_name)
 
     skill_order(skills)
 
     accountId, summonerId = await get_acc_sum_id(connection)
 
     await current_perks_delete(connection)
-    await set_perks(connection, champion, rune)
+    await set_perks(connection, champion, rune, champion_name)
     await set_summs(connection, summ)
-    await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item)
+    await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name)
 
     print(datetime.datetime.now() - start)
+    event.set()
 
 def get_block(name):
     block = {
@@ -99,7 +111,7 @@ def skill_order(skills):
     
     print(msg[:-2])
 
-async def set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item):
+async def set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name):
     body = {
         "accountId": accountId,
         "itemSets": [
@@ -112,7 +124,7 @@ async def set_itemset(connection, accountId, summonerId, champion, start_item, i
                 "preferredItemSlots": [],
                 "sortrank": 1,
                 "startedFrom": "blank",
-                "title": CHAMPIONS.get(CHAMPIONS.key == str(champion)).name,
+                "title": champion_name,
                 "type": "custom",
                 "uid": "1"
             }
@@ -140,9 +152,9 @@ async def set_itemset(connection, accountId, summonerId, champion, start_item, i
 
     return await connection.request('put', '/lol-item-sets/v1/item-sets/' + str(summonerId) + '/sets', data = body)
 
-async def set_perks(connection, champion, rune):
+async def set_perks(connection, champion, rune, champion_name):
     body = {
-    "name":CHAMPIONS.get(CHAMPIONS.key == str(champion)).name,
+    "name":champion_name,
     "primaryStyleId":rune['primaryStyle'],
     "subStyleId":rune['subStyle'],     
     "selectedPerkIds": [rune['primaryPerk1'],rune['primaryPerk2'],rune['primaryPerk3'],rune['primaryPerk4'],rune['subPerk1'],rune['subPerk2'],rune['offense'],rune['flex'],rune['defense']],

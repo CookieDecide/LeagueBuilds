@@ -131,6 +131,12 @@ dmypy.json
 CODE_OF_CONDUCT.md
 LICENSE
 riot.txt
+config.py
+
+main_client.spec
 
 .github/
 .git
+build/
+dist/
+DB/

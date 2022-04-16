@@ -1,8 +1,9 @@
 from riotwatcher import LolWatcher, ApiError
 from models.dynamics_db import SUMMONER, MATCHES, BUILDS
 import time, timeline
+import config
 
-lol_watcher = LolWatcher('RGAPI-KEY')
+lol_watcher = LolWatcher(config.api_key)
 
 def clean_builds():
     builds = BUILDS.select().where(BUILDS.gameEndTimestamp < time.time()*1000 - 1250000000,)
@@ -25,10 +26,6 @@ def update_summoner():
         challenger = lol_watcher.league.challenger_by_queue(my_region, queue)
         grandmaster = lol_watcher.league.grandmaster_by_queue(my_region, queue)
         master = lol_watcher.league.masters_by_queue(my_region, queue)
-
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
 
         data = challenger['entries'] + grandmaster['entries'] + master['entries']
         i=0
@@ -65,9 +62,6 @@ def update_matches():
 
         summoners = SUMMONER.select()
 
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
         i = 0
         j = 0
 
@@ -115,10 +109,6 @@ def update_builds():
             match_ids.append(match.matchId)
             
         matches = list(set(match_ids) - set(build_ids))
-
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
 
         i = 0
 
@@ -197,7 +187,6 @@ def update_builds():
             print("Match " + str(i) + ": " + match_id)
             time.sleep(0.6)
                 
-            #match = MATCHES.get(MATCHES.matchId == match_id.matchId).delete_instance()
             i+=1
 
 

@@ -1,7 +1,8 @@
 from riotwatcher import LolWatcher, ApiError
 from models.statics_db import CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES
+import config
 
-lol_watcher = LolWatcher('RGAPI-KEY')
+lol_watcher = LolWatcher(config.api_key)
 
 def update_summoner():
     try:
@@ -9,10 +10,6 @@ def update_summoner():
         versions = lol_watcher.data_dragon.versions_for_region(my_region)
         summoner_version = versions['v']
         current_summoner_list = lol_watcher.data_dragon.summoner_spells(summoner_version)
-
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
 
         data = current_summoner_list['data']
         for item in data:
@@ -92,10 +89,6 @@ def update_maps():
         map_version = versions['v']
         current_map_list = lol_watcher.data_dragon.maps(map_version)
 
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
-
         data = current_map_list['data']
         for item in data:
 
@@ -135,10 +128,6 @@ def update_runes():
         versions = lol_watcher.data_dragon.versions_for_region(my_region)
         runes_reforged_version = versions['v']
         current_runes_reforged_list = lol_watcher.data_dragon.runes_reforged(runes_reforged_version)
-
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
 
         data = current_runes_reforged_list
         for item in data:
@@ -221,10 +210,6 @@ def update_items():
         versions = lol_watcher.data_dragon.versions_for_region(my_region)
         items_version = versions['v']
         current_item_list = lol_watcher.data_dragon.items(items_version)
-
-        #print(current_item_list)
-        #with open('item.json', 'w') as json_file:
-        #    json.dump(current_item_list, json_file, indent = 4, sort_keys=True)
 
         data = current_item_list['data']
         for item in data:

@@ -1,9 +1,8 @@
 import socket
-from models.dynamics_db import BUILDS
+from models.builds_db import FINALBUILDS
+from models.statics_db import CHAMPIONS
 import json
-import time
 from threading import Thread
-import datetime
 
 BUF_SIZE = 1024
 
@@ -14,7 +13,7 @@ def start_server():
 
     port = 12345
 
-    s.bind(('192.168.178.89', port))
+    s.bind(('', port))
     print("socket binded to %s" % (port))
 
     s.listen(5)
@@ -38,89 +37,33 @@ def handle_client(c, addr):
     msg = json.loads(c.recv(BUF_SIZE).decode())
     print(msg)
 
-    if(msg[1]==''):
-        builds = BUILDS.select(
-            BUILDS.championId,
-            BUILDS.championName,
-            BUILDS.teamPosition,
-
-            BUILDS.item0,
-            BUILDS.item1,
-            BUILDS.item2,
-            BUILDS.item3,
-            BUILDS.item4,
-            BUILDS.item5,
-            BUILDS.item6,
-
-            BUILDS.start_items,
-            BUILDS.items,
-            BUILDS.skills,
-
-            BUILDS.summoner1Id,
-            BUILDS.summoner2Id,
-
-            BUILDS.defense,
-            BUILDS.flex,
-            BUILDS.offense,
-
-            BUILDS.primaryStyle,
-            BUILDS.primaryPerk1,
-            BUILDS.primaryPerk2,
-            BUILDS.primaryPerk3,
-            BUILDS.primaryPerk4,
-
-            BUILDS.subStyle,
-            BUILDS.subPerk1,
-            BUILDS.subPerk2,
-        ).where(
-            BUILDS.championId == str(msg[0]),
-            BUILDS.teamPosition != "",
-            BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
-        ).dicts()
+    if(msg[1]!=''):
+        build = FINALBUILDS.get_or_none(
+            FINALBUILDS.championId == str(msg[0]),
+            FINALBUILDS.position != str(msg[1]).upper()
+        )
+        if(not build):
+            build = FINALBUILDS.get_or_none(
+                FINALBUILDS.championId == str(msg[0]),
+                FINALBUILDS.position != ""
+            )
     else:
-        builds = BUILDS.select(
-            BUILDS.championId,
-            BUILDS.championName,
-            BUILDS.teamPosition,
+        build = FINALBUILDS.get_or_none(
+            FINALBUILDS.championId == str(msg[0]),
+            FINALBUILDS.position != ""
+        )
 
-            BUILDS.item0,
-            BUILDS.item1,
-            BUILDS.item2,
-            BUILDS.item3,
-            BUILDS.item4,
-            BUILDS.item5,
-            BUILDS.item6,
-            
-            BUILDS.start_items,
-            BUILDS.items,
-            BUILDS.skills,
+    buffer = {}
+    buffer["championId"] =  build.championId
+    buffer["runes"] =  build.runes
+    buffer["summ"] =  build.summ
+    buffer["item"] =  build.item
+    buffer["start_item"] =  build.start_item
+    buffer["item_build"] =  build.item_build
+    buffer["skill_order"] =  build.skill_order
+    buffer["position"] =  build.position
+    buffer["champion"] =  CHAMPIONS.get(CHAMPIONS.key == build.championId).champion
 
-            BUILDS.summoner1Id,
-            BUILDS.summoner2Id,
-
-            BUILDS.defense,
-            BUILDS.flex,
-            BUILDS.offense,
-
-            BUILDS.primaryStyle,
-            BUILDS.primaryPerk1,
-            BUILDS.primaryPerk2,
-            BUILDS.primaryPerk3,
-            BUILDS.primaryPerk4,
-
-            BUILDS.subStyle,
-            BUILDS.subPerk1,
-            BUILDS.subPerk2,
-        ).where(
-            BUILDS.championId == str(msg[0]),
-            BUILDS.teamPosition == str(msg[1]).upper(),
-            BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
-        ).dicts()
-
-    buffer = list(builds)
-    #for build in builds:
-    #    buffer.append(build)
-    
     msg = json.dumps(buffer).encode()
     c.send(msg)
 

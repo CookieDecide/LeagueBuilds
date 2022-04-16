@@ -13,11 +13,11 @@ from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.lang import Builder
 
-import sorting
 from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS
 
-import time
 from lcu import get_champion, get_rune, get_summ, get_skills
+
+champ_event = None
 
 Window.clearcolor = (1, 1, 1, 1)
 
@@ -224,20 +224,18 @@ class MainWindow(GridLayout):
         super(MainWindow, self).__init__(**kwargs)
         self.add_widget(Label(text="Waiting for champion...",font_size ='40sp',color=(0,0,0)))
         self.event = Clock.create_trigger(self._rebuild)
-        Clock.schedule_interval(self.tick, 20)
+        Clock.schedule_interval(self.tick, 1)
 
     def tick(self, *args):
-        print('event')
         self.event()
 
     def _rebuild(self, *args):
-        print('clock')
         self.clear_widgets()
         champion = get_champion()
         rune = get_rune()
         summ = get_summ()
         skills = get_skills()
-        if (champion!=0 and rune and summ.all() and skills):
+        if (champ_event.isSet()):
             self.add_widget(SpellTitle(champion=champion))
             self.add_widget(SpellOrderTitle(skills=skills, champion=champion))
             self.add_widget(SummonerTitle(summ=summ))
@@ -248,3 +246,10 @@ class MainWindow(GridLayout):
 class LeagueBuildsApp(App):
     def build(self):
         return MainWindow()
+
+def start(champ_select_event):
+    global champ_event
+    champ_event = champ_select_event
+    
+    leagueBuildsApp = LeagueBuildsApp()
+    leagueBuildsApp.run()
