@@ -14,5 +14,3 @@ If you want to run your own version locally:
 
 # ToDo:
 - add suport for ARAM matches
-- decrease loading time of build information
-- increase GUI update speed
