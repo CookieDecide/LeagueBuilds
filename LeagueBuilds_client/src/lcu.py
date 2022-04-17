@@ -1,17 +1,14 @@
 import json, client, datetime
+from gui import set_info
 
 from lcu_driver import Connector
 
 champion, rune, summ, skills = None, None, None, None
 
 old_action = None
-event = None
 connector = Connector()
 
-def start(champ_select_event):
-    global event
-    event = champ_select_event
-
+def start():
     print('Please start LoL client for LCU API to start.')
     connector.start()
 
@@ -61,10 +58,6 @@ async def on_champion_selected(connection, event):
                         champion = champ
                         await set_rune_summ_item(connection, champion)
 
-@connector.ws.register('/lol-end-of-game/v1/eog-stats-block', event_types=['CREATE', 'UPDATE'])
-async def on_game_end(connection, event):
-    event.clear()
-
 async def set_rune_summ_item(connection, champion):
     start = datetime.datetime.now()
 
@@ -88,7 +81,7 @@ async def set_rune_summ_item(connection, champion):
     await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name)
 
     print(datetime.datetime.now() - start)
-    event.set()
+    set_info(championId,rune,summ,skills)
 
 def get_block(name):
     block = {

@@ -151,8 +151,8 @@ def info(champion, position):
         skills_list = []
         for skill in ast.literal_eval(build['skills']):
             skills_list.append(skill['skillSlot'])
-        if(skills_list and len(skills_list)>3):
-            skills.append(json.dumps(skills_list[0:4]))
+        if(skills_list and len(skills_list)>7):
+            skills.append(json.dumps(skills_list[0:8]))
 
     rune = sort_runes(runes)
 
