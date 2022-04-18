@@ -67,7 +67,7 @@ async def set_rune_summ_item(connection, champion):
 
     global rune, summ, skills
 
-    championId,rune,summ,item,start_item,item_build,skills,position,champion_name = client.get_build(champion, position)
+    championId,rune,summ,item,start_item,item_build,skills,position,champion_name, boots = client.get_build(champion, position)
 
     print(champion_name)
 
@@ -78,7 +78,7 @@ async def set_rune_summ_item(connection, champion):
     await current_perks_delete(connection)
     await set_perks(connection, champion, rune, champion_name)
     await set_summs(connection, summ)
-    await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name)
+    await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots)
 
     print(datetime.datetime.now() - start)
     set_info(championId,rune,summ,skills)
@@ -104,7 +104,7 @@ def skill_order(skills):
     
     print(msg[:-2])
 
-async def set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name):
+async def set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots):
     body = {
         "accountId": accountId,
         "itemSets": [
@@ -131,9 +131,14 @@ async def set_itemset(connection, accountId, summonerId, champion, start_item, i
         for i in liste:
             body['itemSets'][0]['blocks'][id]['items'].append({'count': 1, 'id': str(i)})
         id += 1
+
+    body['itemSets'][0]['blocks'].append(get_block("Boots"))
+    for i in boots:
+        body['itemSets'][0]['blocks'][id]['items'].append({'count': 1, 'id': str(i)})
+    id += 1
     
     for liste in item_build:
-        body['itemSets'][0]['blocks'].append(get_block(("Build " + str(id-2))))
+        body['itemSets'][0]['blocks'].append(get_block(("Build " + str(id-3))))
         for i in liste:
             body['itemSets'][0]['blocks'][id]['items'].append({'count': 1, 'id': str(i)})
         id += 1

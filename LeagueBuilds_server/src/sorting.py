@@ -6,6 +6,7 @@ import time, datetime
 
 valid_items = []
 valid_start_items = []
+valid_boots = []
 
 def init():
     items_all = ITEMS.select()
@@ -14,8 +15,10 @@ def init():
     for item in items_all:
         if('Trinket' not in item.tags):
             valid_start_items.append(int(item.id))
-            if(item.into == '0' and '1001' not in item.from_ and 'Consumable' not in item.tags):
+            if(int(item.depth) == 3 and '1001' not in item.from_ and 'Consumable' not in item.tags):
                 valid_items.append(int(item.id))
+            if('1001' in item.from_):
+                valid_boots.append(int(item.id))
 
 def get_builds(champion, position):
     if(position==''):
@@ -109,6 +112,7 @@ def info(champion, position):
     start_items = []
     items_build = []
     skills = []
+    boots = []
     
     for build in builds:
         runes.append(json.dumps({"primaryStyle": build['primaryStyle'],
@@ -142,11 +146,16 @@ def info(champion, position):
             start_items.append(json.dumps(start_item_list))
 
         items_build_list = []
+        boots_list = []
         for item in ast.literal_eval(build['items']):
             if(item['itemId'] in valid_items):
                 items_build_list.append(item['itemId'])
+            elif (item['itemId'] in valid_boots):
+                boots_list.append(item['itemId'])
         if(items_build_list and len(items_build_list)>2):
             items_build.append(json.dumps(items_build_list[0:3]))
+        if(boots_list and len(boots_list)>0):
+            boots.append(json.dumps(boots_list[0]))
 
         skills_list = []
         for skill in ast.literal_eval(build['skills']):
@@ -168,7 +177,9 @@ def info(champion, position):
 
     skill_order = sort_skills(skills)
 
-    return (rune|stat, summ, item, start_item, item_build, skill_order)
+    boot = sort_boots(boots)
+
+    return (rune|stat, summ, item, start_item, item_build, skill_order, boot)
 
 def sort_runes(runes):
     rune, rune_count = numpy.unique(runes, return_counts=True)
@@ -222,13 +233,22 @@ def sort_skills(skills):
 
     return json.loads(skill[skill_count_sort_ind][0])
 
+def sort_boots(boots):
+    boot, boot_count = numpy.unique(boots, return_counts=True)
+    boot_count_sort_ind = numpy.argsort(-boot_count)
+
+    if (len(boot[boot_count_sort_ind])<3):
+        return [json.loads(boot[boot_count_sort_ind][0])]
+    else:
+        return [json.loads(boot[boot_count_sort_ind][0]), json.loads(boot[boot_count_sort_ind][1]), json.loads(boot[boot_count_sort_ind][2])]
+
 def sort_all():
     start = datetime.datetime.now()
     champion_query = CHAMPIONS.select()
     for champion in champion_query:
         for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle']:
             try:
-                rune,summ,item,start_item,item_build,skills = info(champion.key, position)
+                rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position)
             except:
                 continue
 
@@ -241,5 +261,6 @@ def sort_all():
                 item_build = item_build,
                 skill_order = skills,
                 position = position,
+                boots = boots,
             ).execute()
     print(datetime.datetime.now() - start)

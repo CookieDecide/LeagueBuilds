@@ -15,10 +15,11 @@ class FINALBUILDS(pw.Model):
     item_build = pw.TextField()
     skill_order = pw.TextField()
     position = pw.TextField()
+    boots = pw.TextField()
 
 
     def __str__(self):
-        return self.summonerId
+        return self.championId
 
     class Meta:
         database = BUILDS_DB

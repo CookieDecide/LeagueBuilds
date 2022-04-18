@@ -62,6 +62,7 @@ def handle_client(c, addr):
     buffer["item_build"] =  build.item_build
     buffer["skill_order"] =  build.skill_order
     buffer["position"] =  build.position
+    buffer["boots"] =  build.boots
     buffer["champion"] =  CHAMPIONS.get(CHAMPIONS.key == build.championId).champion
 
     msg = json.dumps(buffer).encode()

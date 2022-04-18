@@ -10,7 +10,7 @@ def get_build(champion, position):
 
     port = 12345               
 
-    s.connect(('localhost', port))
+    s.connect(('decide.hopto.org', port))
 
     msg = json.dumps([champion, position]).encode()
 
@@ -28,5 +28,5 @@ def get_build(champion, position):
     s.close()
     print(datetime.datetime.now() - start)
 
-    return data['championId'], ast.literal_eval(data['runes']), json.loads(data['summ']), json.loads(data['item']), json.loads(data['start_item']), json.loads(data['item_build']), json.loads(data['skill_order']), data['position'], data['champion']
+    return data['championId'], ast.literal_eval(data['runes']), json.loads(data['summ']), json.loads(data['item']), json.loads(data['start_item']), json.loads(data['item_build']), json.loads(data['skill_order']), data['position'], data['champion'], json.loads(data['boots'])
     
