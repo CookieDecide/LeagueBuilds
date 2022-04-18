@@ -86,7 +86,7 @@ def set_runes(rune):
     eel.set_rune('defense', 'https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/' + dict[rune['defense']])
 
 def start():
-    eel.start('index.html', mode='chrome', 
+    eel.start('index.html', mode='default', 
                             host='localhost', 
                             port=27000, 
                             block=True, 
