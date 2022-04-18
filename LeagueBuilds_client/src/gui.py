@@ -1,5 +1,5 @@
 import eel
-import sys
+import sys, platform
 from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS
 
 def close_callback(route, websockets):
@@ -86,14 +86,29 @@ def set_runes(rune):
     eel.set_rune('defense', 'https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/' + dict[rune['defense']])
 
 def start():
-    eel.start('index.html', mode='default', 
-                            host='localhost', 
-                            port=27000, 
-                            block=True, 
-                            size=(320, 870), 
-                            position=(0,0), 
-                            disable_cache=True, 
-                            close_callback=close_callback)
+    try:
+        eel.start('index.html', mode='chrome',
+                                host='localhost', 
+                                port=27000, 
+                                block=True, 
+                                size=(320, 870), 
+                                position=(0,0), 
+                                disable_cache=True, 
+                                close_callback=close_callback,
+                                )
+    except EnvironmentError:
+        if sys.platform in ['win32', 'win64'] and int(platform.release()) >= 10:
+            eel.start('index.html', mode='default', 
+                                host='localhost', 
+                                port=27000, 
+                                block=True, 
+                                size=(320, 870), 
+                                position=(0,0), 
+                                disable_cache=True, 
+                                close_callback=close_callback,
+                                )
+        else:
+            raise
 
 def set_info(champion, rune, summ, skills):
     set_spells(champion)
