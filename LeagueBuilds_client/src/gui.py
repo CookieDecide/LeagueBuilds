@@ -10,6 +10,7 @@ eel.init('web')
 
 def set_spells(champion):
     eel.set_title('spells', 'Spells')
+
     eel.set_spell_img('img_passive', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/passive/' + CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_passive)
     eel.set_spell_img('img_Q', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/spell/' + CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_q)
     eel.set_spell_img('img_W', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/spell/' + CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_w)
@@ -21,6 +22,12 @@ def set_spells(champion):
                         CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_w,
                         CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_e,
                         CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_r)
+
+    eel.set_spell_src(  "https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId:0>4}/ability_{championId:0>4}_P1.webm".format(championId = champion),
+                        "https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId:0>4}/ability_{championId:0>4}_Q1.webm".format(championId = champion),
+                        "https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId:0>4}/ability_{championId:0>4}_W1.webm".format(championId = champion),
+                        "https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId:0>4}/ability_{championId:0>4}_E1.webm".format(championId = champion),
+                        "https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId:0>4}/ability_{championId:0>4}_R1.webm".format(championId = champion))
 
 def set_spell_order(champion, skills):
     dict = {1:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_q, 2:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_w, 3:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_e, 4:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_r}
@@ -132,3 +139,6 @@ def set_info(champion, rune, summ, skills):
     set_spell_order(champion, skills)
     set_summs(summ)
     set_runes(rune)
+
+#Spell tutorial videos:
+#https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId}/ability_{championId}_{P, Q, W, E, R}1.webm

@@ -3,6 +3,7 @@ var text_passive, text_q, text_w, text_e, text_r;
 var text_summ1, text_summ2;
 var text_primarystyle, text_primaryperk1, text_primaryperk2, text_primaryperk3, text_primaryperk4;
 var text_substyle, text_subperk1, text_subperk2;
+var src_passive, src_q, src_w, src_e, src_r;
 
 bind_spells();
 bind_summs();
@@ -11,19 +12,19 @@ bind_runes();
 
 function bind_spells()
 {
-    document.getElementById("passive").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip').innerHTML = text_passive;document.getElementById('spell-tooltip').style.visibility = 'visible';});
+    document.getElementById("passive").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip-text').innerHTML = text_passive;document.getElementById('spell-tooltip').style.visibility = 'visible';document.getElementById('spell-video').src = src_passive;});
     document.getElementById("passive").addEventListener("mouseleave", function(){document.getElementById('spell-tooltip').style.visibility = 'hidden';});
 
-    document.getElementById("Q").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip').innerHTML = text_q;document.getElementById('spell-tooltip').style.visibility = 'visible';});
+    document.getElementById("Q").addEventListener("mouseenter", function(){ document.getElementById('spell-tooltip-text').innerHTML = text_q;document.getElementById('spell-tooltip').style.visibility = 'visible';document.getElementById('spell-video').src = src_q;});
     document.getElementById("Q").addEventListener("mouseleave", function(){document.getElementById('spell-tooltip').style.visibility = 'hidden';});
 
-    document.getElementById("W").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip').innerHTML = text_w;document.getElementById('spell-tooltip').style.visibility = 'visible';});
+    document.getElementById("W").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip-text').innerHTML = text_w;document.getElementById('spell-tooltip').style.visibility = 'visible';document.getElementById('spell-video').src = src_w;});
     document.getElementById("W").addEventListener("mouseleave", function(){document.getElementById('spell-tooltip').style.visibility = 'hidden';});
 
-    document.getElementById("E").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip').innerHTML = text_e;document.getElementById('spell-tooltip').style.visibility = 'visible';});
+    document.getElementById("E").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip-text').innerHTML = text_e;document.getElementById('spell-tooltip').style.visibility = 'visible';document.getElementById('spell-video').src = src_e;});
     document.getElementById("E").addEventListener("mouseleave", function(){document.getElementById('spell-tooltip').style.visibility = 'hidden';});
 
-    document.getElementById("R").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip').innerHTML = text_r;document.getElementById('spell-tooltip').style.visibility = 'visible';});
+    document.getElementById("R").addEventListener("mouseenter", function(){document.getElementById('spell-tooltip-text').innerHTML = text_r;document.getElementById('spell-tooltip').style.visibility = 'visible';document.getElementById('spell-video').src = src_r;});
     document.getElementById("R").addEventListener("mouseleave", function(){document.getElementById('spell-tooltip').style.visibility = 'hidden';});
 }
 
@@ -98,6 +99,15 @@ function set_spell_text(passive, q, w, e, r) {
     text_w = w;
     text_e = e;
     text_r = r;
+}
+
+eel.expose(set_spell_src);
+function set_spell_src(passive, q, w, e, r) {
+    src_passive = passive;
+    src_q = q;
+    src_w = w;
+    src_e = e;
+    src_r = r;
 }
 
 eel.expose(set_summ_text);
