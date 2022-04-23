@@ -132,6 +132,7 @@ CODE_OF_CONDUCT.md
 LICENSE
 riot.txt
 config.py
+tester.py
 
 main_client.spec
 
