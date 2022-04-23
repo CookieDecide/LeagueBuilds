@@ -300,60 +300,6 @@ def update_champions():
         data = current_champ_list['data']
         for champion in data:
             if(not CHAMPIONS.get_or_none(CHAMPIONS.champion == champion)):
-                CHAMPIONS.create(
-                    champion = champion,
-                    blurb = data[champion]['blurb'],
-                    id = data[champion]['id'],
-
-                    spell_image_passive = data[champion]['passive']['image']['full'],
-                    spell_image_q = data[champion]['spells'][0]['image']['full'],
-                    spell_image_w = data[champion]['spells'][1]['image']['full'],
-                    spell_image_e = data[champion]['spells'][2]['image']['full'],
-                    spell_image_r = data[champion]['spells'][3]['image']['full'],
-
-                    image_full = data[champion]['image']['full'],
-                    image_group = data[champion]['image']['group'],
-                    image_h = data[champion]['image']['h'],
-                    image_sprite = data[champion]['image']['sprite'],
-                    image_w = data[champion]['image']['w'],
-                    image_x = data[champion]['image']['x'],
-                    image_y = data[champion]['image']['y'],
-
-                    info_attack = data[champion]['info']['attack'],
-                    info_defense = data[champion]['info']['defense'],
-                    info_difficulty = data[champion]['info']['difficulty'],
-                    info_magic = data[champion]['info']['magic'],
-
-                    key = data[champion]['key'],
-                    name = data[champion]['name'],
-                    partype = data[champion]['partype'],
-
-                    stats_armor = data[champion]['stats']['armor'],
-                    stats_armorperlevel = data[champion]['stats']['armorperlevel'],
-                    stats_attackdamage = data[champion]['stats']['attackdamage'],
-                    stats_attackdamageperlevel = data[champion]['stats']['attackdamageperlevel'],
-                    stats_attackrange = data[champion]['stats']['attackrange'],
-                    stats_attackspeed = data[champion]['stats']['attackspeed'],
-                    stats_attackspeedperlevel = data[champion]['stats']['attackspeedperlevel'],
-                    stats_crit = data[champion]['stats']['crit'],
-                    stats_critperlevel = data[champion]['stats']['critperlevel'],
-                    stats_hp = data[champion]['stats']['hp'],
-                    stats_hpperlevel = data[champion]['stats']['hpperlevel'],
-                    stats_hpregen = data[champion]['stats']['hpregen'],
-                    stats_hpregenperlevel = data[champion]['stats']['hpregenperlevel'],
-                    stats_movespeed = data[champion]['stats']['movespeed'],
-                    stats_mp = data[champion]['stats']['mp'],
-                    stats_mpperlevel = data[champion]['stats']['mpperlevel'],
-                    stats_mpregen = data[champion]['stats']['mpregen'],
-                    stats_mpregenperlevel = data[champion]['stats']['mpregenperlevel'],
-                    stats_spellblock = data[champion]['stats']['spellblock'],
-                    stats_spellblockperlevel = data[champion]['stats']['spellblockperlevel'],
-
-                    tags = data[champion]['tags'],
-                    title = data[champion]['title'],
-                    version = champions_version,
-                )
-            else:
                 CHAMPIONS.replace(
                     champion = champion,
                     blurb = data[champion]['blurb'],
@@ -364,6 +310,12 @@ def update_champions():
                     spell_image_w = data[champion]['spells'][1]['image']['full'],
                     spell_image_e = data[champion]['spells'][2]['image']['full'],
                     spell_image_r = data[champion]['spells'][3]['image']['full'],
+
+                    spell_text_passive = data[champion]['passive']['description'],
+                    spell_text_q = data[champion]['spells'][0]['description'],
+                    spell_text_w = data[champion]['spells'][1]['description'],
+                    spell_text_e = data[champion]['spells'][2]['description'],
+                    spell_text_r = data[champion]['spells'][3]['description'],
 
                     image_full = data[champion]['image']['full'],
                     image_group = data[champion]['image']['group'],
