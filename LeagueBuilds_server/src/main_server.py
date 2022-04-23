@@ -32,8 +32,8 @@ while True:
     try:
         dynamics.clean_builds()
         dynamics.update_builds()
-        dynamics.update_matches()
         dynamics.update_summoner()
+        dynamics.update_matches()
     except KeyboardInterrupt:
         sys.exit()
     except Exception as exc:
