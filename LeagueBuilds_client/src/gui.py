@@ -16,6 +16,12 @@ def set_spells(champion):
     eel.set_spell_img('img_E', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/spell/' + CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_e)
     eel.set_spell_img('img_R', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/spell/' + CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_r)
 
+    eel.set_spell_text(CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_passive,
+                        CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_q,
+                        CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_w,
+                        CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_e,
+                        CHAMPIONS.get(CHAMPIONS.key == champion).spell_text_r)
+
 def set_spell_order(champion, skills):
     dict = {1:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_q, 2:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_w, 3:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_e, 4:CHAMPIONS.get(CHAMPIONS.key == champion).spell_image_r}
     spell_key = {1: 'Q', 2: 'W', 3: 'E', 4: 'R'}
@@ -65,6 +71,9 @@ def set_summs(summ):
     eel.set_summ('summ-1', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/spell/' + SUMMONER.get(SUMMONER.key == summ[0]).id + '.png')
     eel.set_summ('summ-2', 'https://ddragon.leagueoflegends.com/cdn/12.6.1/img/spell/' + SUMMONER.get(SUMMONER.key == summ[1]).id + '.png')
 
+    eel.set_summ_text(SUMMONER.get(SUMMONER.key == summ[0]).description,
+                        SUMMONER.get(SUMMONER.key == summ[1]).description)
+
 def set_runes(rune):
     dict = {5001:'StatModsHealthScalingIcon.png', 5002:'StatModsArmorIcon.png', 5003:'StatModsMagicResIcon.png', 5005:'StatModsAttackSpeedIcon.png', 5007:'StatModsCDRScalingIcon.png', 5008:'StatModsAdaptiveForceIcon.png'}
 
@@ -85,30 +94,38 @@ def set_runes(rune):
     eel.set_rune('flex', 'https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/' + dict[rune['flex']])
     eel.set_rune('defense', 'https://ddragon.leagueoflegends.com/cdn/img/perk-images/StatMods/' + dict[rune['defense']])
 
+    eel.set_rune_text(RUNEKEYS.get(RUNEKEYS.id == rune['primaryStyle']).name,
+                        RUNES.get(RUNES.id == rune['primaryPerk1']).shortDesc,
+                        RUNES.get(RUNES.id == rune['primaryPerk2']).shortDesc,
+                        RUNES.get(RUNES.id == rune['primaryPerk3']).shortDesc,
+                        RUNES.get(RUNES.id == rune['primaryPerk4']).shortDesc,
+                        RUNEKEYS.get(RUNEKEYS.id == rune['subStyle']).name,
+                        RUNES.get(RUNES.id == rune['subPerk1']).shortDesc,
+                        RUNES.get(RUNES.id == rune['subPerk2']).shortDesc)
+
 def start():
     try:
+        print('start')
         eel.start('index.html', mode='chrome',
                                 host='localhost', 
                                 port=27000, 
                                 block=True, 
-                                size=(320, 870), 
+                                size=(320, 950), 
                                 position=(0,0), 
                                 disable_cache=True, 
                                 close_callback=close_callback,
                                 )
     except EnvironmentError:
-        if sys.platform in ['win32', 'win64'] and int(platform.release()) >= 10:
-            eel.start('index.html', mode='default', 
+        print('exe')
+        eel.start('index.html', mode='default', 
                                 host='localhost', 
                                 port=27000, 
                                 block=True, 
-                                size=(320, 870), 
+                                size=(320, 950), 
                                 position=(0,0), 
                                 disable_cache=True, 
                                 close_callback=close_callback,
                                 )
-        else:
-            raise
 
 def set_info(champion, rune, summ, skills):
     set_spells(champion)

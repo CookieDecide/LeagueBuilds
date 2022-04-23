@@ -1,5 +1,6 @@
 body {
     overflow: hidden; /* Hide scrollbars */
+    background-color: dimgray;
 }
 
 /* Tooltip container */
@@ -30,32 +31,40 @@ body {
 .spell-info {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: center;
     flex-wrap: wrap;
+    padding-bottom: 5px;
+    gap: 4px;
 }
 
 .summs {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: center;
     flex-wrap: wrap;
+    padding-bottom: 5px;
+    gap: 80px;
 }
 
 .runes {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: center;
     flex-wrap: wrap;
+    padding-bottom: 5px;
+    gap: 80px;
 }
 
 .runescolumn {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-evenly;
+    gap: 2px;
 }
 
 .title {
     text-align: center;
+    color: white;
 }
 
 .skillorder {
@@ -76,4 +85,20 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+}
+
+.spell-window {
+    background-color: gray;
+}
+
+.spellorder-window {
+    background-color: gray;
+}
+
+.summoner-window {
+    background-color: gray;
+}
+
+.runes-window {
+    background-color: gray;
 }
