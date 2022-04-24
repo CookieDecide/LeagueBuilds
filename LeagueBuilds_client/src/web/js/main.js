@@ -4,11 +4,100 @@ var text_summ1, text_summ2;
 var text_primarystyle, text_primaryperk1, text_primaryperk2, text_primaryperk3, text_primaryperk4;
 var text_substyle, text_subperk1, text_subperk2;
 var src_passive, src_q, src_w, src_e, src_r;
+var mode = 'dark';
 
 bind_spells();
 bind_summs();
 bind_runes();
 
+function background_color(element)
+{
+    if (mode == 'dark')
+    {
+        mode = 'light';
+        document.body.style.background = "white";
+
+        document.getElementById("mode").innerHTML = "Light Mode";
+        document.getElementById("cog_icon").style.color = "white";
+        document.getElementById("mode").style.color = "white";
+
+        document.getElementById("top_navbar").style.backgroundColor = "WhiteSmoke";
+        document.getElementById("bars_icon").style.color = "dimgray";
+        document.getElementById("sidebar_1").style.backgroundColor = "WhiteSmoke";
+
+        document.getElementById("spell-window").style.backgroundColor = "WhiteSmoke";
+        document.getElementById("spellorder-window").style.backgroundColor = "WhiteSmoke";
+        document.getElementById("summoner-window").style.backgroundColor = "WhiteSmoke";
+        document.getElementById("runes-window").style.backgroundColor = "WhiteSmoke";
+
+        element.style.backgroundColor = "dimgray";
+        
+        document.getElementById("spells").style.color = "dimgray";
+        document.getElementById("spell-order").style.color = "dimgray";
+        document.getElementById("summoner-spells").style.color = "dimgray";
+        document.getElementById("runes").style.color = "dimgray";
+    }
+    else if (mode == 'light')
+    {
+        mode = 'dark';
+        document.body.style.background = "dimgray";
+
+        document.getElementById("mode").innerHTML = "Dark Mode";
+        document.getElementById("cog_icon").style.color = "dimgray";
+        document.getElementById("mode").style.color = "dimgray";
+
+        document.getElementById("top_navbar").style.backgroundColor = "gray";
+        document.getElementById("bars_icon").style.color = "white";
+        document.getElementById("sidebar_1").style.backgroundColor = "gray";
+
+        document.getElementById("spell-window").style.backgroundColor = "gray";
+        document.getElementById("spellorder-window").style.backgroundColor = "gray";
+        document.getElementById("summoner-window").style.backgroundColor = "gray";
+        document.getElementById("runes-window").style.backgroundColor = "gray";
+
+        element.style.backgroundColor = "white";
+
+        document.getElementById("spells").style.color = "white";
+        document.getElementById("spell-order").style.color = "white";
+        document.getElementById("summoner-spells").style.color = "white";
+        document.getElementById("runes").style.color = "white";
+    } else {
+    }
+}
+
+function hover_enter_function(element){
+    if (mode == 'dark')
+    {
+        element.style.backgroundColor = "white";
+        document.getElementById("cog_icon").style.color = "dimgray";
+        document.getElementById("mode").style.color = "dimgray";
+    }
+    else if (mode == 'light')
+    {
+        element.style.backgroundColor = "dimgray";
+        document.getElementById("cog_icon").style.color = "white";
+        document.getElementById("mode").style.color = "white";
+    }
+}
+function hover_leave_function(element){
+    if (mode == 'dark')
+    {
+        element.style.backgroundColor = "gray";
+        document.getElementById("cog_icon").style.color = "white";
+        document.getElementById("mode").style.color = "white";
+    }
+    else if (mode == 'light')
+    {
+        element.style.backgroundColor = "WhiteSmoke";
+        document.getElementById("cog_icon").style.color = "dimgray";
+        document.getElementById("mode").style.color = "dimgray";
+    }
+}
+
+var hamburger = document.querySelector(".hamburger");
+hamburger.addEventListener("click", function(){
+    document.querySelector("body").classList.toggle("active");
+})
 
 function bind_spells()
 {

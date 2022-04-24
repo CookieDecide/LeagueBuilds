@@ -1,6 +1,76 @@
 body {
     overflow: hidden; /* Hide scrollbars */
     background-color: dimgray;
+    transition: all 0.5s ease;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.wrapper .sidebar{
+    background: gray;
+    position: fixed;
+    top: 0;
+    left: -225px;
+    width: 225px;
+    height: 100%;
+    padding: 20px 0;
+    transition: all 0.5s ease;
+}
+
+.wrapper .sidebar ul li a{
+    display: block;
+    padding: 13px 30px;
+    color: white;
+    font-size: 16px;
+    position: relative;
+}
+
+.wrapper .sidebar ul li a .icon{
+    color: white;
+    width: 30px;
+    display: inline-block;
+}
+
+.wrapper .sidebar ul li a:hover:before,
+.wrapper .sidebar ul li a.active:before{
+    display: block;
+}
+
+.wrapper .section{
+    width: 100%;
+    margin-left: 0px;
+    transition: all 0.5s ease;
+}
+
+.wrapper .section .top_navbar{
+    background: gray;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+
+}
+
+.wrapper .section .top_navbar .hamburger a{
+    font-size: 28px;
+    color: #f4fbff;
+}
+
+.wrapper .section .top_navbar .hamburger a:hover{
+    color: #a2ecff;
+}
+
+body.active .wrapper .sidebar{
+    left: 0px;
+}
+
+body.active .wrapper .section{
+    margin-left: 225px;
+    width: calc(100% - 225px);
 }
 
 /* Tooltip container */
@@ -12,7 +82,7 @@ body {
 /* Tooltip text */
 .tooltiptext {
     visibility: hidden;
-    width: calc(100vw - 40px);
+    width: calc(100% - 100px);
     background-color: black;
     color: #fff;
     text-align: center;
@@ -21,11 +91,13 @@ body {
 
     position: absolute;
     z-index: 1;
-    left: 12px;
+    left: 50px;
 }
 
 .content {
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .spell-info {
