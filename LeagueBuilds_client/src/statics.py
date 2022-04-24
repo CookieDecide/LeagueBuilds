@@ -1,3 +1,4 @@
+from ensurepip import version
 from riotwatcher import LolWatcher, ApiError
 from models.statics_db import CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES
 import config
@@ -15,32 +16,6 @@ def update_summoner():
         for item in data:
 
             if(not SUMMONER.get_or_none(SUMMONER.id == item)):
-                SUMMONER.create(
-                    main_id = item,
-                    cooldown = data[item]['cooldown'],
-                    cooldownBurn = data[item]['cooldownBurn'],
-                    cost = data[item]['cost'],
-                    costBurn = data[item]['costBurn'],
-                    costType = data[item]['costType'],
-                    datavalues = data[item]['datavalues'],
-                    description = data[item]['description'],
-                    effect = data[item]['effect'],
-                    effectBurn = data[item]['effectBurn'],
-                    id = data[item]['id'],
-                    image = data[item]['image'],
-                    key = data[item]['key'],
-                    maxammo = data[item]['maxammo'],
-                    maxrank = data[item]['maxrank'],
-                    modes = data[item]['modes'],
-                    name = data[item]['name'],
-                    range = data[item]['range'],
-                    rangeBurn = data[item]['rangeBurn'],
-                    resource = data[item]['resource'],
-                    summonerLevel = data[item]['summonerLevel'],
-                    tooltip = data[item]['tooltip'],
-                    vars = data[item]['vars'],
-                )
-            else:
                 SUMMONER.replace(
                     main_id = item,
                     cooldown = data[item]['cooldown'],
@@ -93,13 +68,6 @@ def update_maps():
         for item in data:
 
             if(not MAPS.get_or_none(MAPS.id == item)):
-                MAPS.create(
-                    id = item,
-                    MapId = data[item]['MapId'],
-                    MapName = data[item]['MapName'],
-                    image = data[item]['image'],
-                )
-            else:
                 MAPS.replace(
                     id = item,
                     MapId = data[item]['MapId'],
@@ -135,15 +103,6 @@ def update_runes():
             for slot in slots:
                 for rune in slot['runes']:
                     if(not RUNES.get_or_none(RUNES.id == rune['id'])):
-                        RUNES.create(
-                            id = rune['id'],
-                            icon = rune['icon'],
-                            key = rune['key'],
-                            longDesc = rune['longDesc'],
-                            name = rune['name'],
-                            shortDesc = rune['shortDesc'],
-                        )
-                    else:
                         RUNES.replace(
                             id = rune['id'],
                             icon = rune['icon'],
@@ -154,12 +113,6 @@ def update_runes():
                         ).execute()
 
                 if(not RUNESLOTS.get_or_none(RUNESLOTS.rune_1 == slot['runes'][0]['id'])):
-                    RUNESLOTS.create(
-                        rune_1 = slot['runes'][0]['id'],
-                        rune_2 = slot['runes'][1]['id'],
-                        rune_3 = slot['runes'][2]['id'],
-                    )
-                else:
                     RUNESLOTS.replace(
                         rune_1 = slot['runes'][0]['id'],
                         rune_2 = slot['runes'][1]['id'],
@@ -167,17 +120,6 @@ def update_runes():
                     ).execute()
 
             if(not RUNEKEYS.get_or_none(RUNEKEYS.id == item['id'])):
-                RUNEKEYS.create(
-                    id = item['id'],
-                    icon = item['icon'],
-                    key = item['key'],
-                    name = item['name'],
-                    slot_1 = slots[0]['runes'][0]['id'],
-                    slot_2 = slots[1]['runes'][0]['id'],
-                    slot_3 = slots[2]['runes'][0]['id'],
-                    slot_4 = slots[3]['runes'][0]['id'],
-                )
-            else:
                 RUNEKEYS.replace(
                     id = item['id'],
                     icon = item['icon'],
@@ -239,24 +181,6 @@ def update_items():
                 into = 0
 
             if(not ITEMS.get_or_none(ITEMS.id == item)):
-                ITEMS.create(
-                    id = item,
-                    colloq = data[item]['colloq'],
-                    depth = depth,
-                    description = data[item]['description'],
-                    effect = effect,
-                    from_ = from_,
-                    gold = data[item]['gold'],
-                    image = data[item]['image'],
-                    into = into,
-                    maps = data[item]['maps'],
-                    name = data[item]['name'],
-                    plaintext = data[item]['plaintext'],
-                    stacks = stacks,
-                    stats = data[item]['stats'],
-                    tags = data[item]['tags'],
-                )
-            else:
                 ITEMS.replace(
                     id = item,
                     colloq = data[item]['colloq'],

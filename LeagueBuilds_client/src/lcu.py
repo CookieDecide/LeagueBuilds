@@ -14,8 +14,6 @@ def start():
 
 @connector.ready
 async def connect(connection):
-    global champ
-    
     print('LCU API is ready to be used.')
     page = await connection.request('get', '/lol-champ-select/v1/session')
     page = await page.content.read()
