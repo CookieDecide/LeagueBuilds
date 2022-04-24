@@ -40,17 +40,17 @@ def handle_client(c, addr):
     if(msg[1]!=''):
         build = FINALBUILDS.get_or_none(
             FINALBUILDS.championId == str(msg[0]),
-            FINALBUILDS.position != str(msg[1]).upper()
+            FINALBUILDS.position == str(msg[1]).upper()
         )
         if(not build):
             build = FINALBUILDS.get_or_none(
                 FINALBUILDS.championId == str(msg[0]),
-                FINALBUILDS.position != ""
+                FINALBUILDS.position == ""
             )
     else:
         build = FINALBUILDS.get_or_none(
             FINALBUILDS.championId == str(msg[0]),
-            FINALBUILDS.position != ""
+            FINALBUILDS.position == ""
         )
 
     buffer = {}
