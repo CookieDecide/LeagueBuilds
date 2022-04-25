@@ -1,9 +1,20 @@
 from configparser import ConfigParser
-config_parser = ConfigParser()
+from os.path import exists
 
+config_parser = ConfigParser()
 config_parser.read('config.ini')
 
-api_key = config_parser.get('main', 'api_key')
+if(not exists('config.ini')):
+    config_parser.add_section('import')
+    config_parser.set('import', 'runes', str(True))
+    config_parser.set('import', 'items', str(True))
+    config_parser.set('import', 'summs', str(True))
+    config_parser.set('import', 'flash', str(0))
+    config_parser.add_section('gui')
+    config_parser.set('gui', 'darkmode', str(True))
+
+    with open('config.ini', 'w') as f:
+        config_parser.write(f)
 
 import_runes = config_parser.getboolean('import', 'runes')
 import_items = config_parser.getboolean('import', 'items')

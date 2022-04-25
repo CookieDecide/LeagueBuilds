@@ -1,8 +1,8 @@
 from riotwatcher import LolWatcher, ApiError
 from models.statics_db import CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES
-import config
+import api_key
 
-lol_watcher = LolWatcher(config.api_key)
+lol_watcher = LolWatcher(api_key.api_key)
 
 def update_summoner():
     try:
