@@ -1,4 +1,4 @@
-import json, client, datetime
+import json, client, datetime, config
 from gui import set_info
 
 from lcu_driver import Connector
@@ -44,17 +44,18 @@ async def on_champion_selected(connection, event):
     global old_action, champion
     localPlayerCellId = event.data['localPlayerCellId']
 
-    for action in event.data['actions'][0]:
-        champ = action['championId']
-        actorCellId = action['actorCellId']
-        
-        if(action['type'] == 'pick'):
-            if(actorCellId == localPlayerCellId):
-                if(action != old_action):
-                    old_action = action
-                    if(champ != 0):
-                        champion = champ
-                        await set_rune_summ_item(connection, champion)
+    for actions in event.data['actions']:
+        for action in actions:
+            champ = action['championId']
+            actorCellId = action['actorCellId']
+            
+            if(action['type'] == 'pick'):
+                if(actorCellId == localPlayerCellId):
+                    if(action != old_action):
+                        old_action = action
+                        if(champ != 0):
+                            champion = champ
+                            await set_rune_summ_item(connection, champion)
 
 async def set_rune_summ_item(connection, champion):
     start = datetime.datetime.now()
@@ -69,14 +70,17 @@ async def set_rune_summ_item(connection, champion):
 
     print(champion_name)
 
-    skill_order(skills)
-
     accountId, summonerId = await get_acc_sum_id(connection)
 
-    await current_perks_delete(connection)
-    await set_perks(connection, champion, rune, champion_name)
-    await set_summs(connection, summ)
-    await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots)
+    if(config.import_runes):
+        await current_perks_delete(connection)
+        await set_perks(connection, champion, rune, champion_name)
+
+    if(config.import_summs):
+        await set_summs(connection, summ)
+
+    if(config.import_items):
+        await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots)
 
     print(datetime.datetime.now() - start)
     set_info(championId,rune,summ,skills)
@@ -89,18 +93,6 @@ def get_block(name):
         "type": str(name)
     }
     return block
-
-def skill_order(skills):
-    msg = ''
-    for skill in skills:
-        if(skill == 1):
-            msg += 'Q->'
-        elif(skill == 2):
-            msg += 'W->'
-        elif(skill == 3):
-            msg += 'E->'
-    
-    print(msg[:-2])
 
 async def set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots):
     body = {
@@ -159,6 +151,14 @@ async def set_perks(connection, champion, rune, champion_name):
     return await connection.request('post', '/lol-perks/v1/pages', data = body)
 
 async def set_summs(connection, summ):
+    if(4 in summ):
+        if(config.position_flash == 0 and summ[1] == 4):
+            summ[1] = summ[0]
+            summ[0] = 4
+        elif(config.position_flash == 1 and summ[0] == 4):
+            summ[0] = summ[1]
+            summ[1] = 4
+            
     body = {
     'spell1Id' : str(summ[0]),
     'spell2Id' : str(summ[1])

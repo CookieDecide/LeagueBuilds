@@ -86,7 +86,7 @@ body.active .wrapper .section{
 /* Tooltip text */
 .tooltiptext {
     visibility: hidden;
-    width: calc(100% - 100px);
+    width: calc(100% - 40px);
     background-color: black;
     color: #fff;
     text-align: center;
@@ -95,7 +95,7 @@ body.active .wrapper .section{
 
     position: absolute;
     z-index: 1;
-    left: 50px;
+    left: 20px;
 }
 
 .content {

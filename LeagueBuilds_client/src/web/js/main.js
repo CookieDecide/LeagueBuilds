@@ -1,4 +1,3 @@
-//document.getElementById("passive").addEventListener("mouseover", ()=>{eel.set_tooltip()});
 var text_passive, text_q, text_w, text_e, text_r;
 var text_summ1, text_summ2;
 var text_primarystyle, text_primaryperk1, text_primaryperk2, text_primaryperk3, text_primaryperk4;
@@ -10,7 +9,17 @@ bind_spells();
 bind_summs();
 bind_runes();
 
-function background_color(element)
+eel.get_darkmode()(init_mode)
+
+function init_mode(dark)
+{
+    if(dark == false)
+    {
+        background_color();
+    }
+}
+
+function background_color()
 {
     if (mode == 'dark')
     {
@@ -30,7 +39,7 @@ function background_color(element)
         document.getElementById("summoner-window").style.backgroundColor = "WhiteSmoke";
         document.getElementById("runes-window").style.backgroundColor = "WhiteSmoke";
 
-        element.style.backgroundColor = "dimgray";
+        document.getElementById("mode_button").style.backgroundColor = "dimgray";
         
         document.getElementById("spells").style.color = "dimgray";
         document.getElementById("spell-order").style.color = "dimgray";
@@ -55,14 +64,15 @@ function background_color(element)
         document.getElementById("summoner-window").style.backgroundColor = "gray";
         document.getElementById("runes-window").style.backgroundColor = "gray";
 
-        element.style.backgroundColor = "white";
+        document.getElementById("mode_button").style.backgroundColor = "white";
 
         document.getElementById("spells").style.color = "white";
         document.getElementById("spell-order").style.color = "white";
         document.getElementById("summoner-spells").style.color = "white";
         document.getElementById("runes").style.color = "white";
-    } else {
     }
+
+    eel.set_darkmode(mode);
 }
 
 function hover_enter_function(element){

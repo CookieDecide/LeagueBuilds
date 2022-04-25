@@ -1,6 +1,8 @@
 import eel
 import sys
+
 from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS
+import config
 
 def close_callback(route, websockets):
     if not websockets:
@@ -140,5 +142,13 @@ def set_info(champion, rune, summ, skills):
     set_summs(summ)
     set_runes(rune)
 
-#Spell tutorial videos:
-#https://d28xe8vt774jo5.cloudfront.net/champion-abilities/{championId}/ability_{championId}_{P, Q, W, E, R}1.webm
+@eel.expose
+def get_darkmode():
+    return config.gui_darkmode
+
+@eel.expose
+def set_darkmode(mode):
+    if(mode == "dark"):
+        config.set_gui_darkmode(True)
+    else:
+        config.set_gui_darkmode(False)
