@@ -133,6 +133,7 @@ LICENSE
 riot.txt
 tester.py
 config.ini
+api_key.py
 
 main_client.spec
 
