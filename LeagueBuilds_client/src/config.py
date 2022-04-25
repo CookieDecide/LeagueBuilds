@@ -33,7 +33,7 @@ def set_import_summs(import_):
     with open('config.ini', 'w') as f:
         config_parser.write(f)
 
-def set_import_flash(position_):
+def set_position_flash(position_):
     global position_flash
     position_flash = position_
     config_parser.set('import', 'flash', str(position_))

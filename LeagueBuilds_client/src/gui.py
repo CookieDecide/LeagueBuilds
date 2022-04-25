@@ -145,10 +145,49 @@ def set_info(champion, rune, summ, skills):
 @eel.expose
 def get_darkmode():
     return config.gui_darkmode
+@eel.expose
+def toggle_darkmode():
+    if(config.gui_darkmode):
+        config.set_gui_darkmode(False)
+    else:
+        config.set_gui_darkmode(True)
 
 @eel.expose
-def set_darkmode(mode):
-    if(mode == "dark"):
-        config.set_gui_darkmode(True)
+def get_import_runes():
+    return config.import_runes
+@eel.expose
+def toggle_import_runes():
+    if(config.import_runes):
+        config.set_import_runes(False)
     else:
-        config.set_gui_darkmode(False)
+        config.set_import_runes(True)
+
+@eel.expose
+def get_import_items():
+    return config.import_items
+@eel.expose
+def toggle_import_items():
+    if(config.import_items):
+        config.set_import_items(False)
+    else:
+        config.set_import_items(True)
+
+@eel.expose
+def get_import_summs():
+    return config.import_summs
+@eel.expose
+def toggle_import_summs():
+    if(config.import_summs):
+        config.set_import_summs(False)
+    else:
+        config.set_import_summs(True)
+
+@eel.expose
+def get_position_flash():
+    return config.position_flash
+@eel.expose
+def toggle_position_flash():
+    if(config.position_flash == 0):
+        config.set_position_flash(1)
+    else:
+        config.set_position_flash(0)

@@ -72,7 +72,7 @@ function background_color()
         document.getElementById("runes").style.color = "white";
     }
 
-    eel.set_darkmode(mode);
+    eel.toggle_darkmode();
 }
 
 function hover_enter_function(element){
