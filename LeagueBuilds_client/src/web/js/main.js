@@ -98,6 +98,9 @@ var hamburger = document.querySelector(".hamburger");
 hamburger.addEventListener("click", function(){
     document.querySelector("body").classList.toggle("active");
 })
+document.getElementById("sidebar_1").addEventListener("mouseleave", function(){
+    document.querySelector("body").classList.toggle("active");
+})
 
 function bind_spells()
 {

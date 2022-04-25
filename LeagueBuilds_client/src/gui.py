@@ -1,5 +1,5 @@
 import eel
-import sys, platform
+import sys
 from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS
 
 def close_callback(route, websockets):

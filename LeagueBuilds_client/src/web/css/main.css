@@ -19,6 +19,7 @@ ul {
     height: 100%;
     padding: 20px 0;
     transition: all 0.5s ease;
+    z-index: 10;
 }
 
 .wrapper .sidebar ul li a{
@@ -66,12 +67,15 @@ ul {
 
 body.active .wrapper .sidebar{
     left: 0px;
+    z-index: 10;
 }
 
+/*
 body.active .wrapper .section{
     margin-left: 225px;
     width: calc(100% - 225px);
 }
+*/
 
 /* Tooltip container */
 .tooltip {

@@ -1,4 +1,3 @@
-from ensurepip import version
 from riotwatcher import LolWatcher, ApiError
 from models.statics_db import CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES
 import config
