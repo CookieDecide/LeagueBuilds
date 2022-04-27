@@ -1,10 +1,11 @@
 import peewee as pw
 import os
+from playhouse.sqliteq import SqliteQueueDatabase
 
 if (not os.path.exists('../DB')):
     os.mkdir('../DB')
 
-DYNAMICS_DB = pw.SqliteDatabase('../DB/dynamics.db', check_same_thread=False)
+DYNAMICS_DB = SqliteQueueDatabase('../DB/dynamics.db')
 
 class MATCHES(pw.Model):
     matchId = pw.TextField(primary_key=True, unique=True)
@@ -131,4 +132,7 @@ class ARAM(pw.Model):
 
 DYNAMICS_DB.connect()
 
+DYNAMICS_DB.start()
 DYNAMICS_DB.create_tables([MATCHES, SUMMONER, BUILDS, ARAM])
+DYNAMICS_DB.stop()
+DYNAMICS_DB.start()

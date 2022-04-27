@@ -3,6 +3,9 @@ import server
 import threading
 import sys
 import os
+from models.dynamics_db import DYNAMICS_DB
+from models.statics_db import STATICS_DB
+from models.builds_db import BUILDS_DB
 
 def sort():
     import sorting, statics
@@ -35,6 +38,9 @@ while True:
         dynamics.update_summoner()
         dynamics.update_matches()
     except KeyboardInterrupt:
+        DYNAMICS_DB.stop()
+        STATICS_DB.stop()
+        BUILDS_DB.stop()
         sys.exit()
     except Exception as exc:
         print("Exception:")
