@@ -1,15 +1,16 @@
 from riotwatcher import LolWatcher, ApiError
-from models.dynamics_db import SUMMONER, MATCHES, BUILDS
+from models.dynamics_db import SUMMONER, MATCHES, BUILDS, ARAM
 import time, timeline, threading, queue
-import config
+import api_key
 
 def clean_builds():
     print('Clean Builds')
     BUILDS.delete().where(BUILDS.gameEndTimestamp < time.time()*1000 - 1250000000,).execute()
+    ARAM.delete().where(ARAM.gameEndTimestamp < time.time()*1000 - 1250000000,).execute()
     print('Builds cleaned')
 
 def update_summoner():
-    lol_watcher = LolWatcher(config.api_key)
+    lol_watcher = LolWatcher(api_key.api_key)
     print('Update Summoner')
     
     my_region = 'euw1'
@@ -35,17 +36,34 @@ def update_summoner():
 
     for item in data:
         if(not SUMMONER.get_or_none(SUMMONER.summonerId == item['summonerId'])):
-            summ = lol_watcher.summoner.by_id(my_region, item['summonerId'])
-            SUMMONER.create(
-                summonerId = item['summonerId'],
-                summonerName = item['summonerName'],
-                puuid = summ['puuid'],
-            )
+            try:
+                summ = lol_watcher.summoner.by_id(my_region, item['summonerId'])
+            except ApiError as err:
+                if err.response.status_code == 429:
+                    print('We should retry in {} seconds.'.format(err.response.headers['Retry-After']))
+                elif err.response.status_code == 404:
+                    print('Summoner with that ridiculous name not found.')
+                else:
+                    print(err)
+                    raise
+                continue
+
+            while True:
+                    try:
+                        SUMMONER.create(
+                            summonerId = item['summonerId'],
+                            summonerName = item['summonerName'],
+                            puuid = summ['puuid'],
+                        )
+                    except:
+                        print('locked')
+                        continue
+                    break
             print("Summoner " + str(i) + ": " + item['summonerName'])
         i+=1
 
 def update_matches():
-    lol_watcher = LolWatcher(config.api_key)
+    lol_watcher = LolWatcher(api_key.api_key)
     print('Update Matches')
 
     my_region = 'europe'
@@ -73,9 +91,15 @@ def update_matches():
         for match in matches:
 
             if(not BUILDS.get_or_none(BUILDS.matchId == match)):
-                MATCHES.replace(
-                    matchId = match,
-                ).execute()
+                while True:
+                    try:
+                        MATCHES.replace(
+                            matchId = match,
+                        ).execute()
+                    except:
+                        print('locked')
+                        continue
+                    break
                 print("Match " + str(i) + ": " + match)
                 i+=1
         
@@ -120,7 +144,7 @@ def update_builds():
     print('Matches deleted')
 
 def build_worker(q, matches_delete):
-    lol_watcher = LolWatcher(config.api_key)
+    lol_watcher = LolWatcher(api_key.api_key)
     my_region = 'europe'
     while not q.empty():
         work = q.get()
@@ -144,7 +168,7 @@ def build_worker(q, matches_delete):
             matches_delete.append(match_id)
             continue
             
-        if(match['info']['gameType'] not in ['MATCHED_GAME'] or match['info']['gameMode'] not in ['CLASSIC']):
+        if(match['info']['gameType'] not in ['MATCHED_GAME'] or match['info']['gameMode'] not in ['CLASSIC', 'ARAM']):
             matches_delete.append(match_id)
             continue
 
@@ -159,47 +183,90 @@ def build_worker(q, matches_delete):
         for participant in match['info']['participants']:
             while True:
                 try:
-                    BUILDS.replace(
-                        matchId = match_id,
-                        gameEndTimestamp = match['info']['gameEndTimestamp'],
+                    if(match['info']['gameMode'] in ['CLASSIC']):
+                        BUILDS.replace(
+                            matchId = match_id,
+                            gameEndTimestamp = match['info']['gameEndTimestamp'],
 
-                        championId = participant['championId'],
-                        championName = participant['championName'],
-                        teamPosition = participant['teamPosition'],
-                        individualPosition = participant['individualPosition'],
-                        lane = participant['lane'],
+                            championId = participant['championId'],
+                            championName = participant['championName'],
+                            teamPosition = participant['teamPosition'],
+                            individualPosition = participant['individualPosition'],
+                            lane = participant['lane'],
 
-                        item0 = participant['item0'],
-                        item1 = participant['item1'],
-                        item2 = participant['item2'],
-                        item3 = participant['item3'],
-                        item4 = participant['item4'],
-                        item5 = participant['item5'],
-                        item6 = participant['item6'],
+                            item0 = participant['item0'],
+                            item1 = participant['item1'],
+                            item2 = participant['item2'],
+                            item3 = participant['item3'],
+                            item4 = participant['item4'],
+                            item5 = participant['item5'],
+                            item6 = participant['item6'],
 
-                        start_items = timeline_info[participant['participantId']]['START_ITEMS'],
-                        items = timeline_info[participant['participantId']]['ITEMS'],
-                        skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
+                            start_items = timeline_info[participant['participantId']]['START_ITEMS'],
+                            items = timeline_info[participant['participantId']]['ITEMS'],
+                            skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
 
-                        summoner1Id = participant['summoner1Id'],
-                        summoner2Id = participant['summoner2Id'],
+                            summoner1Id = participant['summoner1Id'],
+                            summoner2Id = participant['summoner2Id'],
 
-                        win = participant['win'],
+                            win = participant['win'],
 
-                        defense = participant['perks']['statPerks']['defense'],
-                        flex = participant['perks']['statPerks']['flex'],
-                        offense = participant['perks']['statPerks']['offense'],
+                            defense = participant['perks']['statPerks']['defense'],
+                            flex = participant['perks']['statPerks']['flex'],
+                            offense = participant['perks']['statPerks']['offense'],
 
-                        primaryStyle = participant['perks']['styles'][0]['style'],
-                        primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
-                        primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
-                        primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
-                        primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
+                            primaryStyle = participant['perks']['styles'][0]['style'],
+                            primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
+                            primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
+                            primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
+                            primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
 
-                        subStyle = participant['perks']['styles'][1]['style'],
-                        subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
-                        subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
-                    ).execute()
+                            subStyle = participant['perks']['styles'][1]['style'],
+                            subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
+                            subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
+                        ).execute()
+                    else:
+                        ARAM.replace(
+                            matchId = match_id,
+                            gameEndTimestamp = match['info']['gameEndTimestamp'],
+
+                            championId = participant['championId'],
+                            championName = participant['championName'],
+                            teamPosition = participant['teamPosition'],
+                            individualPosition = participant['individualPosition'],
+                            lane = participant['lane'],
+
+                            item0 = participant['item0'],
+                            item1 = participant['item1'],
+                            item2 = participant['item2'],
+                            item3 = participant['item3'],
+                            item4 = participant['item4'],
+                            item5 = participant['item5'],
+                            item6 = participant['item6'],
+
+                            start_items = timeline_info[participant['participantId']]['START_ITEMS'],
+                            items = timeline_info[participant['participantId']]['ITEMS'],
+                            skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
+
+                            summoner1Id = participant['summoner1Id'],
+                            summoner2Id = participant['summoner2Id'],
+
+                            win = participant['win'],
+
+                            defense = participant['perks']['statPerks']['defense'],
+                            flex = participant['perks']['statPerks']['flex'],
+                            offense = participant['perks']['statPerks']['offense'],
+
+                            primaryStyle = participant['perks']['styles'][0]['style'],
+                            primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
+                            primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
+                            primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
+                            primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
+
+                            subStyle = participant['perks']['styles'][1]['style'],
+                            subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
+                            subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
+                        ).execute()
                 except:
                     print('locked')
                     continue

@@ -35,9 +35,11 @@ async def disconnect(_):
 @connector.ws.register('/lol-champ-select/v1/current-champion', event_types=['CREATE', 'UPDATE'])
 async def on_champion_selected(connection, event):
     global champion
-    champion = event.data
 
-    await set_rune_summ_item(connection, champion)
+    if(event.data != champion):
+        champion = event.data
+
+        await set_rune_summ_item(connection, champion)
 
 @connector.ws.register('/lol-champ-select/v1/session', event_types=['CREATE', 'UPDATE'])
 async def on_champion_selected(connection, event):
@@ -51,9 +53,11 @@ async def on_champion_selected(connection, event):
             
             if(action['type'] == 'pick'):
                 if(actorCellId == localPlayerCellId):
-                    if(action != old_action):
-                        old_action = action
-                        if(champ != 0):
+                    if(event.data['actions'] != old_action):
+                        old_action = event.data['actions']
+                        if(champ != 0 and champ != champion):
+                            print(champ)
+                            print(champion)
                             champion = champ
                             await set_rune_summ_item(connection, champion)
 
@@ -62,7 +66,10 @@ async def set_rune_summ_item(connection, champion):
 
     localPlayerCellId = await get_localPlayerCellId(connection)
 
-    position = await get_position(connection, localPlayerCellId)
+    if (await is_aram(connection)):
+        position = 'aram'
+    else:
+        position = await get_position(connection, localPlayerCellId)
 
     global rune, summ, skills
 
@@ -191,6 +198,16 @@ async def get_position(connection, localPlayerCellId):
     page = await page.content.read()
     summoner = json.loads(page)
     return summoner['assignedPosition']
+
+async def is_aram(connection):
+    page = await connection.request('get', '/lol-champ-select/v1/session')
+    page = await page.content.read()
+    page = json.loads(page)
+
+    if(page['allowBattleBoost'] == True and page['allowRerolling'] == True and page['benchEnabled'] == True):
+        return True
+    
+    return False
 
 
 def get_champion():

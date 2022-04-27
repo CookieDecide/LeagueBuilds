@@ -1,6 +1,6 @@
 import numpy, json, ast
 from models.statics_db import ITEMS, CHAMPIONS
-from models.dynamics_db import BUILDS
+from models.dynamics_db import BUILDS, ARAM
 from models.builds_db import FINALBUILDS
 import time, datetime
 
@@ -102,8 +102,52 @@ def get_builds(champion, position):
 
     return list(builds)
 
+def get_aram(champion):
+    builds = ARAM.select(
+        ARAM.championId,
+        ARAM.championName,
+        ARAM.teamPosition,
+
+        ARAM.item0,
+        ARAM.item1,
+        ARAM.item2,
+        ARAM.item3,
+        ARAM.item4,
+        ARAM.item5,
+        ARAM.item6,
+        
+        ARAM.start_items,
+        ARAM.items,
+        ARAM.skills,
+
+        ARAM.summoner1Id,
+        ARAM.summoner2Id,
+
+        ARAM.defense,
+        ARAM.flex,
+        ARAM.offense,
+
+        ARAM.primaryStyle,
+        ARAM.primaryPerk1,
+        ARAM.primaryPerk2,
+        ARAM.primaryPerk3,
+        ARAM.primaryPerk4,
+
+        ARAM.subStyle,
+        ARAM.subPerk1,
+        ARAM.subPerk2,
+    ).where(
+        ARAM.championId == str(champion),
+        ARAM.gameEndTimestamp >= time.time()*1000 - 1250000000,
+    ).dicts()
+
+    return list(builds)
+
 def info(champion, position):
-    builds = get_builds(champion, position)
+    if (position == 'aram'):
+        builds = get_aram(champion)
+    else:
+        builds = get_builds(champion, position)
 
     runes = []
     summs = []
@@ -246,7 +290,8 @@ def sort_all():
     start = datetime.datetime.now()
     champion_query = CHAMPIONS.select()
     for champion in champion_query:
-        for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle']:
+        print(champion.champion)
+        for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
             try:
                 rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position)
             except:
