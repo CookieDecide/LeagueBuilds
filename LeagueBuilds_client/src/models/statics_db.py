@@ -1,10 +1,10 @@
 import peewee as pw
 import os
 
-if (not os.path.exists('../DB')):
-    os.mkdir('../DB')
+if (not os.path.exists('./DB')):
+    os.mkdir('./DB')
 
-STATICS_DB = pw.SqliteDatabase('../DB/statics.db', check_same_thread=False)
+STATICS_DB = pw.SqliteDatabase('./DB/statics.db', check_same_thread=False)
 
 class CHAMPIONS(pw.Model):
     champion = pw.TextField(primary_key=True, unique=True)
