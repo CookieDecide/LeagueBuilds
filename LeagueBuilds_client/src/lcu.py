@@ -30,7 +30,7 @@ async def connect(connection):
 @connector.close
 async def disconnect(_):
     print('The client has been closed!')
-    await connector.stop()
+    #await connector.stop()
 
 @connector.ws.register('/lol-champ-select/v1/current-champion', event_types=['CREATE', 'UPDATE'])
 async def on_champion_selected(connection, event):
