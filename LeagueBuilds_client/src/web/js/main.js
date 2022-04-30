@@ -4,103 +4,402 @@ var text_primarystyle, text_primaryperk1, text_primaryperk2, text_primaryperk3, 
 var text_substyle, text_subperk1, text_subperk2;
 var src_passive, src_q, src_w, src_e, src_r;
 var mode = 'dark';
+var flash_on_f = 0;
+var color_background_dark = "gray";
+var color_background_light = "WhiteSmoke";
+var color_document_dark = "dimgray";
+var color_document_light = "white";
+var color_text_dark = "white";
+var color_text_light = "dimgray";
+var color_hover_background_dark = "white";
+var color_hover_background_light = "dimgray";
+var color_hover_text_dark = "dimgray";
+var color_hover_text_light = "white";
+var color_slash = "tomato";
 
 bind_spells();
 bind_summs();
 bind_runes();
 
-eel.get_darkmode()(init_mode)
+eel.get_darkmode()(init_mode);
+eel.get_import_runes()(init_runes);
+eel.get_import_items()(init_items);
+eel.get_import_summs()(init_summs);
+eel.get_position_flash()(init_flash);
 
-function init_mode(dark)
-{
-    if(dark == false)
+function init_mode(dark) {
+    if(!dark)
     {
-        background_color();
+        switch_mode();
     }
 }
 
-function background_color()
-{
+function init_runes(import_runes) {
+    if (!import_runes) {
+        switch_runes();
+    }
+}
+
+function init_items(import_items) {
+    if (!import_items) {
+        switch_items();
+    }
+}
+
+function init_summs(import_summs) {
+    if (!import_summs) {
+        switch_summs();
+    }
+}
+
+function init_flash(flash_on_f) {
+    switch_flash_pos();
+    if (flash_on_f) {
+        switch_flash_pos();
+    }
+}
+
+function switch_mode() {
+    var ul = document.getElementById("sidebar_ul");
+    var a = ul.getElementsByTagName("a");
+    var items = ul.getElementsByClassName("item");
+    var icons = ul.getElementsByClassName("icon");
     if (mode == 'dark')
     {
         mode = 'light';
-        document.body.style.background = "white";
+        document.body.style.background = color_document_light;
 
         document.getElementById("mode").innerHTML = "Light Mode";
-        document.getElementById("cog_icon").style.color = "white";
-        document.getElementById("mode").style.color = "white";
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_text_light;
+        }
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_light;
+        }
+        for (i = 0; i < a.length; i++) {
+            a[i].style.backgroundColor = color_background_light;
+        }
+        var flash_pos_button = document.getElementById("flash_pos_button");
+        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
+        for (i = 0; i < fas.length; i++) {
+            if (i % 2 == 1) {fas[i].style.color = color_text_dark;}
+            else {fas[i].style.color = color_text_light;}
+        }
 
-        document.getElementById("top_navbar").style.backgroundColor = "WhiteSmoke";
-        document.getElementById("bars_icon").style.color = "dimgray";
-        document.getElementById("sidebar_1").style.backgroundColor = "WhiteSmoke";
+        document.getElementById("top_navbar").style.backgroundColor = color_background_light;
+        document.getElementById("bars_icon").style.color = color_text_light;
+        document.getElementById("sidebar_1").style.backgroundColor = color_background_light;
 
-        document.getElementById("spell-window").style.backgroundColor = "WhiteSmoke";
-        document.getElementById("spellorder-window").style.backgroundColor = "WhiteSmoke";
-        document.getElementById("summoner-window").style.backgroundColor = "WhiteSmoke";
-        document.getElementById("runes-window").style.backgroundColor = "WhiteSmoke";
-
-        document.getElementById("mode_button").style.backgroundColor = "dimgray";
+        document.getElementById("spell-window").style.backgroundColor = color_background_light;
+        document.getElementById("spellorder-window").style.backgroundColor = color_background_light;
+        document.getElementById("summoner-window").style.backgroundColor = color_background_light;
+        document.getElementById("runes-window").style.backgroundColor = color_background_light;
         
-        document.getElementById("spells").style.color = "dimgray";
-        document.getElementById("spell-order").style.color = "dimgray";
-        document.getElementById("summoner-spells").style.color = "dimgray";
-        document.getElementById("runes").style.color = "dimgray";
+        document.getElementById("spells").style.color = color_text_light;
+        document.getElementById("spell-order").style.color = color_text_light;
+        document.getElementById("summoner-spells").style.color = color_text_light;
+        document.getElementById("runes").style.color = color_text_light;
     }
     else if (mode == 'light')
     {
         mode = 'dark';
-        document.body.style.background = "dimgray";
+        document.body.style.background = color_document_dark;
 
         document.getElementById("mode").innerHTML = "Dark Mode";
-        document.getElementById("cog_icon").style.color = "dimgray";
-        document.getElementById("mode").style.color = "dimgray";
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_text_dark;
+        }
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_dark;
+        }
+        for (i = 0; i < a.length; i++) {
+            a[i].style.backgroundColor = color_background_dark;
+        }
+        var flash_pos_button = document.getElementById("flash_pos_button");
+        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
+        for (i = 0; i < fas.length; i++) {
+            if (i % 2 == 1) {fas[i].style.color = color_text_light;}
+            else {fas[i].style.color = color_text_dark;}
+        }
 
-        document.getElementById("top_navbar").style.backgroundColor = "gray";
-        document.getElementById("bars_icon").style.color = "white";
-        document.getElementById("sidebar_1").style.backgroundColor = "gray";
+        document.getElementById("top_navbar").style.backgroundColor = color_background_dark;
+        document.getElementById("bars_icon").style.color = color_text_dark;
+        document.getElementById("sidebar_1").style.backgroundColor = color_background_dark;
 
-        document.getElementById("spell-window").style.backgroundColor = "gray";
-        document.getElementById("spellorder-window").style.backgroundColor = "gray";
-        document.getElementById("summoner-window").style.backgroundColor = "gray";
-        document.getElementById("runes-window").style.backgroundColor = "gray";
+        document.getElementById("spell-window").style.backgroundColor = color_background_dark;
+        document.getElementById("spellorder-window").style.backgroundColor = color_background_dark;
+        document.getElementById("summoner-window").style.backgroundColor = color_background_dark;
+        document.getElementById("runes-window").style.backgroundColor = color_background_dark;
 
-        document.getElementById("mode_button").style.backgroundColor = "white";
+        document.getElementById("spells").style.color = color_text_dark;
+        document.getElementById("spell-order").style.color = color_text_dark;
+        document.getElementById("summoner-spells").style.color = color_text_dark;
+        document.getElementById("runes").style.color = color_text_dark;
+    }
+}
 
-        document.getElementById("spells").style.color = "white";
-        document.getElementById("spell-order").style.color = "white";
-        document.getElementById("summoner-spells").style.color = "white";
-        document.getElementById("runes").style.color = "white";
+function toggle_mode() {
+    switch_mode();
+    
+    if (mode == 'dark')
+    {
+        var mode_button = document.getElementById("mode_button");
+        mode_button.style.backgroundColor = color_hover_background_dark;
+        mode_button.getElementsByClassName("item")[0].style.color = color_hover_text_dark;
+        mode_button.getElementsByClassName("icon")[0].style.color = color_hover_text_dark;
+    }
+    else if (mode == 'light')
+    {
+        var mode_button = document.getElementById("mode_button");
+        mode_button.style.backgroundColor = color_hover_background_light;
+        mode_button.getElementsByClassName("item")[0].style.color = color_hover_text_light;
+        mode_button.getElementsByClassName("icon")[0].style.color = color_hover_text_light;
     }
 
     eel.toggle_darkmode();
 }
 
-function hover_enter_function(element){
-    if (mode == 'dark')
-    {
-        element.style.backgroundColor = "white";
-        document.getElementById("cog_icon").style.color = "dimgray";
-        document.getElementById("mode").style.color = "dimgray";
+function create_slash_icon() {
+    let element = document.createElement("i");
+    element.className = "fa fa-slash fa-stack-1x";
+    element.style.color = color_slash;
+    return element;
+}
+
+function switch_runes() {
+    var runes_button = document.getElementById("import_runes_button");
+    var runes_icon = runes_button.getElementsByClassName("icon")[0]
+    if (runes_icon.children.length > 1) {
+        runes_icon.children[1].remove();
     }
-    else if (mode == 'light')
-    {
-        element.style.backgroundColor = "dimgray";
-        document.getElementById("cog_icon").style.color = "white";
-        document.getElementById("mode").style.color = "white";
+    else {
+        var slash_icon = create_slash_icon();
+        runes_icon.appendChild(slash_icon);
     }
 }
-function hover_leave_function(element){
+
+function toggle_runes() {
+    switch_runes();
+    
+    eel.toggle_import_runes();
+}
+
+function switch_summs() {
+    var summs_button = document.getElementById("import_summs_button");
+    var summs_icon = summs_button.getElementsByClassName("icon")[0]
+    if (summs_icon.children.length > 1) {
+        summs_icon.children[1].remove();
+    }
+    else {
+        var slash_icon = create_slash_icon();
+        summs_icon.appendChild(slash_icon);
+    }
+}
+
+function toggle_summs() {
+    switch_summs();
+
+    eel.toggle_import_summs();
+}
+
+function switch_items() {
+    var items_button = document.getElementById("import_items_button");
+    var items_icon = items_button.getElementsByClassName("icon")[0]
+    if (items_icon.children.length > 1) {
+        items_icon.children[1].remove();
+    }
+    else {
+        var slash_icon = create_slash_icon();
+        items_icon.appendChild(slash_icon);
+    }
+}
+
+function toggle_items() {
+    switch_items();
+
+    eel.toggle_import_items();
+}
+
+function create_flash_icon() {
+    let element = document.createElement("i");
+    if (!flash_on_f) {
+        element.className = "fa fa-d fa-stack-1x fa-xs";
+    }
+    else {
+        element.className = "fa fa-f fa-stack-1x fa-xs";
+    }
+
+    if (mode == "dark") {
+        element.style.color = color_text_light;
+    }
+    else if (mode == 'light') {
+        element.style.color = color_text_dark;
+    }
+
+    return element;
+}
+
+function switch_flash_pos() {
+    var flash_icon = create_flash_icon();
+
+    if (flash_on_f) {
+        flash_on_f = false;
+
+        var flash_pos_button = document.getElementById("flash_pos_button");
+        var flash_pos_icon = flash_pos_button.getElementsByClassName("icon")[0]
+        flash_pos_icon.children[1].remove();
+        flash_pos_icon.appendChild(flash_icon);
+    }
+    else {
+        flash_on_f = true;
+
+        var flash_pos_button = document.getElementById("flash_pos_button");
+        var flash_pos_icon = flash_pos_button.getElementsByClassName("icon")[0]
+        flash_pos_icon.children[1].remove();
+        flash_pos_icon.appendChild(flash_icon);
+    }
+}
+
+function toggle_flash_pos() {
+    switch_flash_pos();
+
+    if (mode == "dark") {
+        var flash_pos_button = document.getElementById("flash_pos_button");
+        flash_pos_button.style.backgroundColor = color_hover_background_dark;
+        flash_pos_button.getElementsByClassName("item")[0].style.color = color_hover_text_dark;
+        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
+        for (i = 0; i < fas.length; i++) {
+            if (i % 2 == 1) {fas[i].style.color = color_hover_text_light;}
+            else {fas[i].style.color = color_hover_text_dark;}
+        }
+    }
+    else if (mode == "light") {
+        var flash_pos_button = document.getElementById("flash_pos_button");
+        flash_pos_button.style.backgroundColor = color_hover_background_light;
+        flash_pos_button.getElementsByClassName("item")[0].style.color = color_hover_text_light;
+        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
+        for (i = 0; i < fas.length; i++) {
+            if (i % 2 == 1) {fas[i].style.color = color_hover_text_dark;}
+            else {fas[i].style.color = color_hover_text_light;}
+        }
+    }
+
+    eel.toggle_position_flash();
+}
+
+function hover_enter_function(element) {
+    var items = element.getElementsByClassName("item");
+    var icons = element.getElementsByClassName("icon");
     if (mode == 'dark')
     {
-        element.style.backgroundColor = "gray";
-        document.getElementById("cog_icon").style.color = "white";
-        document.getElementById("mode").style.color = "white";
+        element.style.backgroundColor = color_hover_background_dark;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_hover_text_dark;
+        }
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_hover_text_dark;
+        }
     }
     else if (mode == 'light')
     {
-        element.style.backgroundColor = "WhiteSmoke";
-        document.getElementById("cog_icon").style.color = "dimgray";
-        document.getElementById("mode").style.color = "dimgray";
+        element.style.backgroundColor = color_hover_background_light;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_hover_text_light;
+        }
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_hover_text_light;
+        }
+    }
+}
+
+function hover_leave_function(element) {
+    var items = element.getElementsByClassName("item");
+    var icons = element.getElementsByClassName("icon");
+    if (mode == 'dark')
+    {
+        element.style.backgroundColor = color_background_dark;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_text_dark;
+        }
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_dark;
+        }
+    }
+    else if (mode == 'light')
+    {
+        element.style.backgroundColor = color_background_light;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_text_light;
+        }
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_light;
+        }
+    }
+}
+
+function hover_enter_function_flash_pos(element) {
+    var items = element.getElementsByClassName("item");
+    var icons = element.getElementsByClassName("icon");
+    if (mode == 'dark')
+    {
+        element.style.backgroundColor = color_hover_background_dark;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_hover_text_dark;
+        }
+        for (i = 0; i < icons.length; i++) {
+            var fas = icons[i].getElementsByClassName("fa");
+            for (ii = 0; ii < fas.length; ii++) {
+                if (ii % 2 == 1) {fas[ii].style.color = color_hover_text_light;}
+                else {fas[ii].style.color = color_hover_text_dark;}
+            }
+        }
+    }
+    else if (mode == 'light')
+    {
+        element.style.backgroundColor = color_hover_background_light;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_hover_text_light;
+        }
+        for (i = 0; i < icons.length; i++) {
+            var fas = icons[i].getElementsByClassName("fa");
+            for (ii = 0; ii < fas.length; ii++) {
+                if (ii % 2 == 1) {fas[ii].style.color = color_hover_text_dark;}
+                else {fas[ii].style.color = color_hover_text_light;}
+            }
+        }
+    }
+}
+
+function hover_leave_function_flash_pos(element) {
+    var items = element.getElementsByClassName("item");
+    var icons = element.getElementsByClassName("icon");
+    if (mode == 'dark')
+    {
+        element.style.backgroundColor = color_background_dark;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_text_dark;
+        }
+        for (i = 0; i < icons.length; i++) {
+            var fas = icons[i].getElementsByClassName("fa");
+            for (ii = 0; ii < fas.length; ii++) {
+                if (ii % 2 == 1) {fas[ii].style.color = color_text_light;}
+                else {fas[ii].style.color = color_text_dark;}
+            }
+        }
+    }
+    else if (mode == 'light')
+    {
+        element.style.backgroundColor = color_background_light;
+        for (i = 0; i < items.length; i++) {
+            items[i].style.color = color_text_light;
+        }
+        for (i = 0; i < icons.length; i++) {
+            var fas = icons[i].getElementsByClassName("fa");
+            for (ii = 0; ii < fas.length; ii++) {
+                if (ii % 2 == 1) {fas[ii].style.color = color_text_dark;}
+                else {fas[ii].style.color = color_text_light;}
+            }
+        }
     }
 }
 

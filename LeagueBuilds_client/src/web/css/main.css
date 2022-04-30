@@ -28,12 +28,14 @@ ul {
     color: white;
     font-size: 16px;
     position: relative;
+    transition: all 0.5s ease;
 }
 
 .wrapper .sidebar ul li a .icon{
     color: white;
     width: 30px;
     display: inline-block;
+    transition: all 0.5s ease;
 }
 
 .wrapper .sidebar ul li a:hover:before,

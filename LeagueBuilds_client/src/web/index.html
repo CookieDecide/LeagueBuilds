@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/font-awesome.min.css"> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeagueBuilds</title>
 
@@ -12,11 +13,47 @@
 <body>
     <div class="wrapper">
         <div class="sidebar" id="sidebar_1">
-            <ul>
+            <ul id="sidebar_ul">
                 <li>
-                    <a id="mode_button" onclick="background_color()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
-                        <span class="icon" id="cog_icon"><i class="fa fa-cog"></i></span>
+                    <a id="mode_button" onclick="toggle_mode()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <!-- <span class="icon" id="cog_icon"><i class="fa fa-circle-half-stroke"></i></span> -->
+                        <span class="icon fa-stack">
+                            <i class="fa fa-circle-half-stroke fa-stack-1x"></i>
+                        </span>
                         <span class="item" id="mode" style="user-select: none;">Dark Mode</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="import_runes_button" onclick="toggle_runes()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-book-open fa-stack-1x"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Import Runes</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="import_summs_button" onclick="toggle_summs()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-bolt fa-stack-1x"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Import Summs</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="import_items_button" onclick="toggle_items()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-store fa-stack-1x"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Import Items</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="flash_pos_button" onclick="toggle_flash_pos()" onmouseenter="hover_enter_function_flash_pos(this)" onmouseleave="hover_leave_function_flash_pos(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-square fa-stack-1x"></i>
+                            <i class="fa fa-f fa-stack-1x fa-xs"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Flash Position</span>
                     </a>
                 </li>
             </ul>
