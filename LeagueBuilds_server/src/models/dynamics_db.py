@@ -79,6 +79,9 @@ class BUILDS(pw.Model):
         database = DYNAMICS_DB
         db_table = 'builds'
         primary_key = pw.CompositeKey('matchId', 'championId')
+        indexes=(
+            (('championId', 'teamPosition'), False),
+        )
 
 class ARAM(pw.Model):
     matchId = pw.TextField()
