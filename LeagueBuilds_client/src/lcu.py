@@ -1,5 +1,5 @@
 import json, client, datetime, config
-from gui import set_info
+import gui
 
 from lcu_driver import Connector
 
@@ -87,7 +87,7 @@ async def set_rune_summ_item(connection, champion):
         await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots)
 
     print(datetime.datetime.now() - start)
-    set_info(championId,rune,summ,skills)
+    gui.set_info(championId,rune,summ,skills)
 
 def get_block(name):
     block = {
