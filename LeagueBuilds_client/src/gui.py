@@ -184,4 +184,4 @@ def toggle_position_flash():
 
 @eel.expose
 def force_import():
-    run_coroutine_threadsafe(lcu.set_rune_summ_item(lcu.connector.connection, lcu.champion), lcu.connector.lcu_loop)
+    run_coroutine_threadsafe(lcu.set_rune_summ_item(lcu.connector.connection, lcu.champion), lcu.connector.loop)

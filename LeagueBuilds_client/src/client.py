@@ -10,7 +10,16 @@ def get_build(champion, position):
 
     port = 12345               
 
-    s.connect(('decide.hopto.org', port))
+    for i in range(10):
+        try:
+            s.settimeout(2)
+            s.connect(('decide.hopto.org', port))
+        except TimeoutError as err:
+            if i >= 9:
+                raise
+            print(err)
+            continue
+        break
 
     msg = json.dumps([champion, position]).encode()
 

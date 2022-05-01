@@ -14,11 +14,15 @@ def start():
 
 @connector.ready
 async def connect(connection):
+    global old_action, champion
     print('LCU API is ready to be used.')
-    page = await connection.request('get', '/lol-champ-select/v1/session')
-    page = await page.content.read()
+    page_session = await connection.request('get', '/lol-champ-select/v1/session')
+    page_session = await page_session.content.read()
+    page_session = json.loads(page_session)
 
-    if('errorCode' not in json.loads(page)):
+    print(page_session)
+
+    if('errorCode' not in page_session):
         page = await connection.request('get', '/lol-champ-select/v1/current-champion')
         page = await page.content.read()
         champ = json.loads(page)
@@ -26,6 +30,20 @@ async def connect(connection):
         if(champ != 0):
             champion = champ
             await set_rune_summ_item(connection, champion)
+        
+        localPlayerCellId = page_session['localPlayerCellId']
+
+        for actions in page_session['actions']:
+            for action in actions:
+                champ = action['championId']
+                actorCellId = action['actorCellId']
+                
+                if(action['type'] == 'pick'):
+                    if(actorCellId == localPlayerCellId):
+                        if(page_session['actions'] != old_action):
+                            old_action = page_session['actions']
+                            if(champ != 0 and champ != champion):
+                                champion = champ
 
 @connector.close
 async def disconnect(_):
