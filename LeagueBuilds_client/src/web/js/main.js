@@ -28,7 +28,8 @@ eel.get_import_summs()(init_summs);
 eel.get_position_flash()(init_flash);
 
 function init_mode(dark) {
-    if(!dark)
+    switch_mode();
+    if(dark)
     {
         switch_mode();
     }
@@ -90,6 +91,8 @@ function switch_mode() {
         document.getElementById("bars_icon").style.color = color_text_light;
         document.getElementById("sidebar_1").style.backgroundColor = color_background_light;
 
+        document.getElementById("force_import_button").style.color = color_text_light;
+
         document.getElementById("spell-window").style.backgroundColor = color_background_light;
         document.getElementById("spellorder-window").style.backgroundColor = color_background_light;
         document.getElementById("summoner-window").style.backgroundColor = color_background_light;
@@ -125,6 +128,8 @@ function switch_mode() {
         document.getElementById("top_navbar").style.backgroundColor = color_background_dark;
         document.getElementById("bars_icon").style.color = color_text_dark;
         document.getElementById("sidebar_1").style.backgroundColor = color_background_dark;
+        
+        document.getElementById("force_import_button").style.color = color_text_dark;
 
         document.getElementById("spell-window").style.backgroundColor = color_background_dark;
         document.getElementById("spellorder-window").style.backgroundColor = color_background_dark;
@@ -287,6 +292,10 @@ function toggle_flash_pos() {
     eel.toggle_position_flash();
 }
 
+function force_import() {
+    eel.force_import();
+}
+
 function hover_enter_function(element) {
     var items = element.getElementsByClassName("item");
     var icons = element.getElementsByClassName("icon");
@@ -399,6 +408,35 @@ function hover_leave_function_flash_pos(element) {
                 if (ii % 2 == 1) {fas[ii].style.color = color_text_dark;}
                 else {fas[ii].style.color = color_text_light;}
             }
+        }
+    }
+}
+
+function hover_enter_function_force_import(element) {
+    document.getElementById('force_import_button_tooltip').style.visibility = 'visible';
+
+    var icons = element.getElementsByClassName("icon");
+    for (i = 0; i < icons.length; i++) {
+        icons[i].style.color = color_slash;
+    }
+}
+
+function hover_leave_function_force_import(element) {
+    document.getElementById('force_import_button_tooltip').style.visibility = 'hidden';
+
+    var icons = element.getElementsByClassName("icon");
+    if (mode == 'dark')
+    {
+        element.style.color = color_text_dark;
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_dark;
+        }
+    }
+    else if (mode == 'light')
+    {
+        element.style.color = color_text_light;
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_light;
         }
     }
 }

@@ -60,10 +60,20 @@
         </div>
 
         <div class="section">
-            <div class="top_navbar" id="top_navbar">
+            <div class="top_navbar" id="top_navbar" style="display: flex; justify-content: space-between;">
                 <div class="hamburger">
                     <a href="#">
                         <i class="fa fa-bars" id="bars_icon"></i>
+                    </a>
+                </div>
+                <div>
+                    <a id="force_import_button" onclick="force_import()" onmouseenter="hover_enter_function_force_import(this)" onmouseleave="hover_leave_function_force_import(this)">
+                        <span class="icon tooltip">
+                            <i class="fa fa-hand-back-fist fa-lg"></i>
+                            <span id="force_import_button_tooltip" class="tooltiptext" style="width: auto; padding: 5px; top: -5px; white-space: nowrap; right: 150%; left: unset;">
+                                <span id="force_import_button_tooltip_text">Force Import</span>
+                            </span>
+                        </span>
                     </a>
                 </div>
             </div>
