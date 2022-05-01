@@ -4,6 +4,9 @@ import sys
 from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS
 import config
 
+from asyncio import run_coroutine_threadsafe
+from lcu import set_rune_summ_item, connector, champion
+
 def close_callback(route, websockets):
     if not websockets:
         sys.exit()
@@ -178,3 +181,7 @@ def toggle_position_flash():
         config.set_position_flash(1)
     else:
         config.set_position_flash(0)
+
+@eel.expose
+def force_import():
+    run_coroutine_threadsafe(set_rune_summ_item(connector.connection, champion), connector.lcu_loop)

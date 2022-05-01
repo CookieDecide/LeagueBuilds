@@ -30,7 +30,6 @@ async def connect(connection):
 @connector.close
 async def disconnect(_):
     print('The client has been closed!')
-    #await connector.stop()
 
 @connector.ws.register('/lol-champ-select/v1/current-champion', event_types=['CREATE', 'UPDATE'])
 async def on_champion_selected(connection, event):
@@ -42,7 +41,7 @@ async def on_champion_selected(connection, event):
         await set_rune_summ_item(connection, champion)
 
 @connector.ws.register('/lol-champ-select/v1/session', event_types=['CREATE', 'UPDATE'])
-async def on_champion_selected(connection, event):
+async def on_session_changed(connection, event):
     global old_action, champion
     localPlayerCellId = event.data['localPlayerCellId']
 
@@ -56,8 +55,6 @@ async def on_champion_selected(connection, event):
                     if(event.data['actions'] != old_action):
                         old_action = event.data['actions']
                         if(champ != 0 and champ != champion):
-                            print(champ)
-                            print(champion)
                             champion = champ
                             await set_rune_summ_item(connection, champion)
 
