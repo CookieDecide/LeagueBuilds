@@ -20,8 +20,6 @@ async def connect(connection):
     page_session = await page_session.content.read()
     page_session = json.loads(page_session)
 
-    print(page_session)
-
     if('errorCode' not in page_session):
         page = await connection.request('get', '/lol-champ-select/v1/current-champion')
         page = await page.content.read()

@@ -5,19 +5,18 @@ BUF_SIZE = 10000000
 
 def get_build(champion, position):
     start = datetime.datetime.now()
-    s = socket.socket()
-    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     port = 12345               
 
-    for i in range(10):
-        try:
-            s.settimeout(2)
-            s.connect(('decide.hopto.org', port))
-        except TimeoutError as err:
-            if i >= 9:
-                raise
-            print(err)
+    tries = 10
+    for i in range(tries):
+        s = socket.socket()
+        s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        s.settimeout(2)
+        err = s.connect_ex(('decide.hopto.org', port))
+        if err != 0:
+            if i == tries-1:
+                raise TimeoutError
             continue
         break
 
