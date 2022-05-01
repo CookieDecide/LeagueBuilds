@@ -2,6 +2,7 @@ from riotwatcher import LolWatcher, ApiError
 from models.dynamics_db import SUMMONER, MATCHES, BUILDS, ARAM
 import time, timeline, threading, queue
 import api_key
+from peewee import chunked
 
 def clean_builds():
     print('Clean Builds')
@@ -34,6 +35,8 @@ def update_summoner():
     data = challenger['entries'] + grandmaster['entries'] + master['entries']
     i=0
 
+    summoner = []
+
     for item in data:
         if(not SUMMONER.get_or_none(SUMMONER.summonerId == item['summonerId'])):
             try:
@@ -48,19 +51,17 @@ def update_summoner():
                     raise
                 continue
 
-            while True:
-                    try:
-                        SUMMONER.create(
-                            summonerId = item['summonerId'],
-                            summonerName = item['summonerName'],
-                            puuid = summ['puuid'],
-                        )
-                    except:
-                        print('locked')
-                        continue
-                    break
+            summoner.append({
+                'summonerId' : item['summonerId'],
+                'summonerName' : item['summonerName'],
+                'puuid' : summ['puuid'],
+            })
+
             print("Summoner " + str(i) + ": " + item['summonerName'])
         i+=1
+
+    for batch in chunked(summoner, 100):
+        SUMMONER.insert_many(batch).on_conflict_replace().execute()
 
 def update_matches():
     lol_watcher = LolWatcher(api_key.api_key)
@@ -72,6 +73,8 @@ def update_matches():
 
     i = 0
     j = 0
+
+    matches_list = []
 
     for summoner in summoners:
         try:
@@ -91,19 +94,17 @@ def update_matches():
         for match in matches:
 
             if(not BUILDS.get_or_none(BUILDS.matchId == match)):
-                while True:
-                    try:
-                        MATCHES.replace(
-                            matchId = match,
-                        ).execute()
-                    except:
-                        print('locked')
-                        continue
-                    break
+                matches_list.append({
+                    'matchId' : match,
+                })
+
                 print("Match " + str(i) + ": " + match)
                 i+=1
         
         j+=1
+
+    for batch in chunked(matches_list, 100):
+        MATCHES.insert_many(batch).on_conflict_replace().execute()
 
 def update_builds():
     print('Update Builds')
@@ -119,9 +120,11 @@ def update_builds():
         q.put((match.matchId,))
 
     matches_delete = []
+    builds_create = []
+    aram_create = []
 
     for i in range(num_threads):
-        worker = threading.Thread(target=build_worker, args=[q, matches_delete])
+        worker = threading.Thread(target=build_worker, args=[q, matches_delete, builds_create, aram_create])
         worker.setDaemon(True)
         worker.start()
 
@@ -143,7 +146,13 @@ def update_builds():
 
     print('Matches deleted')
 
-def build_worker(q, matches_delete):
+    for batch in chunked(builds_create, 100):
+        BUILDS.insert_many(batch).on_conflict_replace().execute()
+
+    for batch in chunked(aram_create, 100):
+        ARAM.insert_many(batch).on_conflict_replace().execute()
+
+def build_worker(q, matches_delete, builds_create, aram_create):
     lol_watcher = LolWatcher(api_key.api_key)
     my_region = 'europe'
     while not q.empty():
@@ -181,96 +190,90 @@ def build_worker(q, matches_delete):
             continue
 
         for participant in match['info']['participants']:
-            while True:
-                try:
-                    if(match['info']['gameMode'] in ['CLASSIC']):
-                        BUILDS.replace(
-                            matchId = match_id,
-                            gameEndTimestamp = match['info']['gameEndTimestamp'],
+            if(match['info']['gameMode'] in ['CLASSIC']):
+                builds_create.append({
+                    'matchId' : match_id,
+                    'gameEndTimestamp' : match['info']['gameEndTimestamp'],
 
-                            championId = participant['championId'],
-                            championName = participant['championName'],
-                            teamPosition = participant['teamPosition'],
-                            individualPosition = participant['individualPosition'],
-                            lane = participant['lane'],
+                    'championId' : participant['championId'],
+                    'championName' : participant['championName'],
+                    'teamPosition' : participant['teamPosition'],
+                    'individualPosition' : participant['individualPosition'],
+                    'lane' : participant['lane'],
 
-                            item0 = participant['item0'],
-                            item1 = participant['item1'],
-                            item2 = participant['item2'],
-                            item3 = participant['item3'],
-                            item4 = participant['item4'],
-                            item5 = participant['item5'],
-                            item6 = participant['item6'],
+                    'item0' : participant['item0'],
+                    'item1' : participant['item1'],
+                    'item2' : participant['item2'],
+                    'item3' : participant['item3'],
+                    'item4' : participant['item4'],
+                    'item5' : participant['item5'],
+                    'item6' : participant['item6'],
 
-                            start_items = timeline_info[participant['participantId']]['START_ITEMS'],
-                            items = timeline_info[participant['participantId']]['ITEMS'],
-                            skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
+                    'start_items' : timeline_info[participant['participantId']]['START_ITEMS'],
+                    'items' : timeline_info[participant['participantId']]['ITEMS'],
+                    'skills' : timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
 
-                            summoner1Id = participant['summoner1Id'],
-                            summoner2Id = participant['summoner2Id'],
+                    'summoner1Id' : participant['summoner1Id'],
+                    'summoner2Id' : participant['summoner2Id'],
 
-                            win = participant['win'],
+                    'win' : participant['win'],
 
-                            defense = participant['perks']['statPerks']['defense'],
-                            flex = participant['perks']['statPerks']['flex'],
-                            offense = participant['perks']['statPerks']['offense'],
+                    'defense' : participant['perks']['statPerks']['defense'],
+                    'flex' : participant['perks']['statPerks']['flex'],
+                    'offense' : participant['perks']['statPerks']['offense'],
 
-                            primaryStyle = participant['perks']['styles'][0]['style'],
-                            primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
-                            primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
-                            primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
-                            primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
+                    'primaryStyle' : participant['perks']['styles'][0]['style'],
+                    'primaryPerk1' : participant['perks']['styles'][0]['selections'][0]['perk'],
+                    'primaryPerk2' : participant['perks']['styles'][0]['selections'][1]['perk'],
+                    'primaryPerk3' : participant['perks']['styles'][0]['selections'][2]['perk'],
+                    'primaryPerk4' : participant['perks']['styles'][0]['selections'][3]['perk'],
 
-                            subStyle = participant['perks']['styles'][1]['style'],
-                            subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
-                            subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
-                        ).execute()
-                    else:
-                        ARAM.replace(
-                            matchId = match_id,
-                            gameEndTimestamp = match['info']['gameEndTimestamp'],
+                    'subStyle' : participant['perks']['styles'][1]['style'],
+                    'subPerk1' : participant['perks']['styles'][1]['selections'][0]['perk'],
+                    'subPerk2' : participant['perks']['styles'][1]['selections'][1]['perk'],
+                })
+            else:
+                aram_create.append({
+                    'matchId' : match_id,
+                    'gameEndTimestamp' : match['info']['gameEndTimestamp'],
 
-                            championId = participant['championId'],
-                            championName = participant['championName'],
-                            teamPosition = participant['teamPosition'],
-                            individualPosition = participant['individualPosition'],
-                            lane = participant['lane'],
+                    'championId' : participant['championId'],
+                    'championName' : participant['championName'],
+                    'teamPosition' : participant['teamPosition'],
+                    'individualPosition' : participant['individualPosition'],
+                    'lane' : participant['lane'],
 
-                            item0 = participant['item0'],
-                            item1 = participant['item1'],
-                            item2 = participant['item2'],
-                            item3 = participant['item3'],
-                            item4 = participant['item4'],
-                            item5 = participant['item5'],
-                            item6 = participant['item6'],
+                    'item0' : participant['item0'],
+                    'item1' : participant['item1'],
+                    'item2' : participant['item2'],
+                    'item3' : participant['item3'],
+                    'item4' : participant['item4'],
+                    'item5' : participant['item5'],
+                    'item6' : participant['item6'],
 
-                            start_items = timeline_info[participant['participantId']]['START_ITEMS'],
-                            items = timeline_info[participant['participantId']]['ITEMS'],
-                            skills = timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
+                    'start_items' : timeline_info[participant['participantId']]['START_ITEMS'],
+                    'items' : timeline_info[participant['participantId']]['ITEMS'],
+                    'skills' : timeline_info[participant['participantId']]['SKILL_LEVEL_UP'],
 
-                            summoner1Id = participant['summoner1Id'],
-                            summoner2Id = participant['summoner2Id'],
+                    'summoner1Id' : participant['summoner1Id'],
+                    'summoner2Id' : participant['summoner2Id'],
 
-                            win = participant['win'],
+                    'win' : participant['win'],
 
-                            defense = participant['perks']['statPerks']['defense'],
-                            flex = participant['perks']['statPerks']['flex'],
-                            offense = participant['perks']['statPerks']['offense'],
+                    'defense' : participant['perks']['statPerks']['defense'],
+                    'flex' : participant['perks']['statPerks']['flex'],
+                    'offense' : participant['perks']['statPerks']['offense'],
 
-                            primaryStyle = participant['perks']['styles'][0]['style'],
-                            primaryPerk1 = participant['perks']['styles'][0]['selections'][0]['perk'],
-                            primaryPerk2 = participant['perks']['styles'][0]['selections'][1]['perk'],
-                            primaryPerk3 = participant['perks']['styles'][0]['selections'][2]['perk'],
-                            primaryPerk4 = participant['perks']['styles'][0]['selections'][3]['perk'],
+                    'primaryStyle' : participant['perks']['styles'][0]['style'],
+                    'primaryPerk1' : participant['perks']['styles'][0]['selections'][0]['perk'],
+                    'primaryPerk2' : participant['perks']['styles'][0]['selections'][1]['perk'],
+                    'primaryPerk3' : participant['perks']['styles'][0]['selections'][2]['perk'],
+                    'primaryPerk4' : participant['perks']['styles'][0]['selections'][3]['perk'],
 
-                            subStyle = participant['perks']['styles'][1]['style'],
-                            subPerk1 = participant['perks']['styles'][1]['selections'][0]['perk'],
-                            subPerk2 = participant['perks']['styles'][1]['selections'][1]['perk'],
-                        ).execute()
-                except:
-                    print('locked')
-                    continue
-                break
+                    'subStyle' : participant['perks']['styles'][1]['style'],
+                    'subPerk1' : participant['perks']['styles'][1]['selections'][0]['perk'],
+                    'subPerk2' : participant['perks']['styles'][1]['selections'][1]['perk'],
+                })
 
         print("Match: " + match_id)
         matches_delete.append(match_id)
