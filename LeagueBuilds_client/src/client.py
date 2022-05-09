@@ -24,6 +24,12 @@ def get_build(champion, position):
 
     s.send(msg)
 
+    if(champion == '' and position == ''):
+        msg = s.recv(BUF_SIZE).decode()
+
+        s.close()
+        return msg
+
     msg = b''
     while True :
         data = s.recv(BUF_SIZE)

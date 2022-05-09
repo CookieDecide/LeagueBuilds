@@ -3,6 +3,7 @@ from models.builds_db import FINALBUILDS
 from models.statics_db import CHAMPIONS
 import json
 from threading import Thread
+import version
 
 BUF_SIZE = 1024
 
@@ -36,6 +37,13 @@ def handle_client(c, addr):
     print('Got connection from', addr)
     msg = json.loads(c.recv(BUF_SIZE).decode())
     print(msg)
+
+    if(msg[0]== '' and msg[1] == ''):
+        msg = version.version.encode()
+        c.send(msg)
+
+        c.close()
+        return
 
     if(msg[1]!=''):
         build = FINALBUILDS.get_or_none(
