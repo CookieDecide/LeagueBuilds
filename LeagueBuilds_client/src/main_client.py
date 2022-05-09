@@ -16,10 +16,9 @@ def update_check():
 
     if(version.version != server_version):
         print('new version available')
-        gui.update_available(server_version, version.version)
+        gui.update_available(version.version, server_version)
     else:
         print('no new version available')
-        gui.update_available(server_version, version.version)
 
 statics.update_champions()
 statics.update_items()
