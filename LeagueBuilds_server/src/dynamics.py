@@ -60,6 +60,11 @@ def update_summoner():
             print("Summoner " + str(i) + ": " + item['summonerName'])
         i+=1
 
+        if len(summoner) >= 1000:
+            for batch in chunked(summoner, 100):
+                SUMMONER.insert_many(batch).on_conflict_replace().execute()
+            summoner = []
+
     for batch in chunked(summoner, 100):
         SUMMONER.insert_many(batch).on_conflict_replace().execute()
 
@@ -103,6 +108,11 @@ def update_matches():
         
         j+=1
 
+        if len(matches_list) >= 1000:
+            for batch in chunked(matches_list, 100):
+                MATCHES.insert_many(batch).on_conflict_replace().execute()
+            matches_list = []
+
     for batch in chunked(matches_list, 100):
         MATCHES.insert_many(batch).on_conflict_replace().execute()
 
@@ -111,13 +121,21 @@ def update_builds():
 
     matches = MATCHES.select()
 
+    print(len(matches))
+
     print('Fetched IDs')
 
-    q = queue.Queue(maxsize=0)
+    q = queue.Queue(maxsize=1000)
     num_threads = min(20, len(matches))
 
+    repeat = False
+
     for match in matches:
-        q.put((match.matchId,))
+        try:
+            q.put((match.matchId,), block = False)
+        except queue.Full:
+            repeat = True
+            break
 
     matches_delete = []
     builds_create = []
@@ -142,7 +160,7 @@ def update_builds():
 
     time.sleep(5)
     
-    MATCHES.delete().where(MATCHES.matchId in matches_delete).execute()
+    MATCHES.delete().where(MATCHES.matchId << matches_delete).execute()
 
     print('Matches deleted')
 
@@ -151,6 +169,8 @@ def update_builds():
 
     for batch in chunked(aram_create, 100):
         ARAM.insert_many(batch).on_conflict_replace().execute()
+
+    return repeat
 
 def build_worker(q, matches_delete, builds_create, aram_create):
     lol_watcher = LolWatcher(api_key.api_key)
