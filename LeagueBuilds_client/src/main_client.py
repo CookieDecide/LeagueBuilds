@@ -13,12 +13,7 @@ def run_lcu():
 def update_check():
     time.sleep(5)
     server_version = client.get_build('','')
-
-    if(version.version != server_version):
-        print('new version available')
-        gui.update_available(version.version, server_version)
-    else:
-        print('no new version available')
+    gui.update_available(version.version, server_version)
 
 statics.update_champions()
 statics.update_items()

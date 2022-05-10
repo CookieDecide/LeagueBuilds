@@ -570,7 +570,10 @@ function set_rune_text(primarystyle, primaryperk1, primaryperk2, primaryperk3, p
 eel.expose(update_available);
 function update_available(client_version, server_version) {
     document.getElementById("version").innerHTML = client_version;
-    customAlert.alert("Update available at", "https://github.com/CookieDecide/LeagueBuilds/releases/latest", "(" + client_version + " -> " + server_version + ")", "New Update");
+    if(client_version != server_version)
+    {
+        customAlert.alert("Update available at", "https://github.com/CookieDecide/LeagueBuilds/releases/latest", "(" + client_version + " -> " + server_version + ")", "New Update");
+    }
 }
 
 function CustomAlert(){
