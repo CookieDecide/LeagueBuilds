@@ -2,7 +2,7 @@ import dynamics
 import server
 import threading
 import sys
-import os
+import os, time
 from models.dynamics_db import DYNAMICS_DB
 from models.statics_db import STATICS_DB
 from models.builds_db import BUILDS_DB
@@ -12,12 +12,15 @@ def sort():
 
     sorting.init()
     while True:
+        start = time.time()
         statics.update_champions()
         statics.update_items()
         statics.update_summoner()
         statics.update_maps()
         statics.update_runes()
         sorting.sort_all()
+        while((start - time.time() + 1800) > 0):
+            time.sleep(10)
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
