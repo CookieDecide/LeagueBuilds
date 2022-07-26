@@ -169,6 +169,10 @@ body.active .wrapper .section{
     background-color: gray;
 }
 
+.position-window {
+  background-color: gray;
+}
+
 .spellorder-window {
     background-color: gray;
 }

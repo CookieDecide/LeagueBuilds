@@ -74,15 +74,16 @@ async def on_session_changed(connection, event):
                             champion = champ
                             await set_rune_summ_item(connection, champion)
 
-async def set_rune_summ_item(connection, champion):
+async def set_rune_summ_item(connection, champion, position = ""):
     start = datetime.datetime.now()
 
     localPlayerCellId = await get_localPlayerCellId(connection)
 
-    if (await is_aram(connection)):
-        position = 'aram'
-    else:
-        position = await get_position(connection, localPlayerCellId)
+    if (position == ""):
+        if (await is_aram(connection)):
+            position = 'aram'
+        else:
+            position = await get_position(connection, localPlayerCellId)
 
     global rune, summ, skills
 

@@ -296,6 +296,10 @@ function force_import() {
     eel.force_import();
 }
 
+function force_position(position) {
+    eel.force_position(position);
+}
+
 function hover_enter_function(element) {
     var items = element.getElementsByClassName("item");
     var icons = element.getElementsByClassName("icon");

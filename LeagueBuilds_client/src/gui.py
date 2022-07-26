@@ -109,7 +109,7 @@ def start():
                                 host='localhost', 
                                 port=27000, 
                                 block=True, 
-                                size=(320, 950), 
+                                size=(320, 1000), 
                                 position=(0,0), 
                                 disable_cache=True, 
                                 close_callback=close_callback,
@@ -185,6 +185,10 @@ def toggle_position_flash():
 @eel.expose
 def force_import():
     run_coroutine_threadsafe(lcu.set_rune_summ_item(lcu.connector.connection, lcu.champion), lcu.connector.loop)
+
+@eel.expose
+def force_position(position):
+    run_coroutine_threadsafe(lcu.set_rune_summ_item(lcu.connector.connection, lcu.champion, position), lcu.connector.loop)
 
 def update_available(server_version, client_version):
     eel.update_available(server_version, client_version)
