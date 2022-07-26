@@ -1,9 +1,11 @@
+from datetime import datetime
 import socket
 from models.builds_db import FINALBUILDS
 from models.statics_db import CHAMPIONS
 import json
 from threading import Thread
 import version
+from models.log_db import CONNECTION
 
 BUF_SIZE = 1024
 
@@ -77,3 +79,12 @@ def handle_client(c, addr):
     c.send(msg)
 
     c.close()
+
+    CONNECTION.insert(
+        time = datetime.now(),
+        ip = addr[0],
+        port = addr[1],
+        championId = buffer["championId"],
+        champion = buffer["champion"],
+        position = buffer["position"]
+    ).execute()
