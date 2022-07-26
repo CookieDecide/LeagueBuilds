@@ -15,7 +15,7 @@ def init():
     for item in items_all:
         if('Trinket' not in item.tags):
             valid_start_items.append(int(item.id))
-            if(int(item.depth) == 3 and '1001' not in item.from_ and 'Consumable' not in item.tags):
+            if((int(item.depth) == 3 or item.into == '0') and '1001' not in item.from_ and 'Consumable' not in item.tags and 'GoldPer' not in item.tags):
                 valid_items.append(int(item.id))
             if('1001' in item.from_):
                 valid_boots.append(int(item.id))
