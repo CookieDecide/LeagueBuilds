@@ -104,7 +104,7 @@ async def set_rune_summ_item(connection, champion, position = ""):
         await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots)
 
     print(datetime.datetime.now() - start)
-    gui.set_info(championId,rune,summ,skills)
+    gui.set_info(championId,rune,summ,skills,position)
 
 def get_block(name):
     block = {

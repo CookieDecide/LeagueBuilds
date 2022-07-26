@@ -16,6 +16,7 @@ var color_hover_background_light = "dimgray";
 var color_hover_text_dark = "dimgray";
 var color_hover_text_light = "white";
 var color_slash = "tomato";
+var role = "";
 
 bind_spells();
 bind_summs();
@@ -92,6 +93,21 @@ function switch_mode() {
         document.getElementById("sidebar_1").style.backgroundColor = color_background_light;
 
         document.getElementById("force_import_button").style.color = color_text_light;
+        var icons = document.getElementById("force_import_button").getElementsByClassName("icon");
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_light;
+        }
+
+        document.getElementById("position-window").style.backgroundColor = color_background_light;
+
+        var img = document.getElementById("position-list").children;
+        for(i = 0; i < img.length; i++){
+            img[i].style.background = color_background_light;
+        }
+        if(role != "")
+        {
+            document.getElementById(role).style.background = color_background_dark;
+        }
 
         document.getElementById("spell-window").style.backgroundColor = color_background_light;
         document.getElementById("spellorder-window").style.backgroundColor = color_background_light;
@@ -130,6 +146,21 @@ function switch_mode() {
         document.getElementById("sidebar_1").style.backgroundColor = color_background_dark;
         
         document.getElementById("force_import_button").style.color = color_text_dark;
+        var icons = document.getElementById("force_import_button").getElementsByClassName("icon");
+        for (i = 0; i < icons.length; i++) {
+            icons[i].style.color = color_text_dark;
+        }
+
+        document.getElementById("position-window").style.backgroundColor = color_background_dark;
+
+        var img = document.getElementById("position-list").children;
+        for(i = 0; i < img.length; i++){
+            img[i].style.background = color_background_dark;
+        }
+        if(role != "")
+        {
+            document.getElementById(role).style.background = color_hover_background_dark;
+        }
 
         document.getElementById("spell-window").style.backgroundColor = color_background_dark;
         document.getElementById("spellorder-window").style.backgroundColor = color_background_dark;
@@ -296,8 +327,37 @@ function force_import() {
     eel.force_import();
 }
 
+function reset_position() {
+    if (mode == 'dark')
+    {
+        var img = document.getElementById("position-list").children;
+        for(i = 0; i < img.length; i++){
+            img[i].style.background = color_background_dark;
+        }
+
+        document.getElementById(role).style.background = color_hover_background_dark;
+    }
+    else
+    {
+        var img = document.getElementById("position-list").children;
+        for(i = 0; i < img.length; i++){
+            img[i].style.background = color_background_light;
+        }
+
+        document.getElementById(role).style.background = color_background_dark;
+    } 
+}
+
 function force_position(position) {
     eel.force_position(position);
+    role = position;
+    reset_position();
+}
+
+eel.expose(set_position);
+function set_position(position) {
+    role = position;
+    reset_position();
 }
 
 function hover_enter_function(element) {
@@ -441,6 +501,34 @@ function hover_leave_function_force_import(element) {
         element.style.color = color_text_light;
         for (i = 0; i < icons.length; i++) {
             icons[i].style.color = color_text_light;
+        }
+    }
+}
+
+function hover_enter_function_roles(element) {
+    if(element.id != role)
+    {
+        if (mode == 'dark')
+        {
+            element.style.background = color_hover_background_dark;
+        }
+        else if (mode == 'light')
+        {
+            element.style.background = color_background_dark;
+        }
+    }
+}
+
+function hover_leave_function_roles(element) {
+    if(element.id != role)
+    {
+        if (mode == 'dark')
+        {
+            element.style.background = color_background_dark;
+        }
+        else if (mode == 'light')
+        {
+            element.style.background = color_background_light;
         }
     }
 }

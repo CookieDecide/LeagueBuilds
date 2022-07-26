@@ -102,6 +102,9 @@ def set_runes(rune):
                         RUNES.get(RUNES.id == rune['subPerk1']).shortDesc,
                         RUNES.get(RUNES.id == rune['subPerk2']).shortDesc)
 
+def set_position(position):
+    eel.set_position(position)
+
 def start():
     try:
         print('start')
@@ -126,11 +129,12 @@ def start():
                                 close_callback=close_callback,
                                 )
 
-def set_info(champion, rune, summ, skills):
+def set_info(champion, rune, summ, skills, position):
     set_spells(champion)
     set_spell_order(champion, skills)
     set_summs(champion, summ)
     set_runes(rune)
+    set_position(position)
 
 @eel.expose
 def get_darkmode():
