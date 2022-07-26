@@ -37,8 +37,11 @@ sortingProcess.start()
 while True:
     try:
         dynamics.clean_builds()
-        if(dynamics.update_builds()):
-            continue
+        while True:
+            if(dynamics.update_builds()):
+                continue
+            else:
+                break
         dynamics.update_summoner()
         dynamics.update_matches()
     except KeyboardInterrupt:
