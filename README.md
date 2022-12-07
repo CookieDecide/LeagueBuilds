@@ -19,3 +19,7 @@ If you want to run your own version locally:
 # ToDo:
 - remove api-key from client-side
 - update gui
+
+# Feedback/Help
+
+* Discord: https://discord.gg/MPFR7NpDaC
