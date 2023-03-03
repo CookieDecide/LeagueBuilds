@@ -1,90 +1,71 @@
 from datetime import datetime
-import socket
+from flask import Flask, request
+from flask_restful import Resource, Api
 from models.builds_db import FINALBUILDS
 from models.statics_db import CHAMPIONS
-import json
-from threading import Thread
 import version
-from models.log_db import CONNECTION
+from models.log_db import CONNECTION, PLAYER
 
-BUF_SIZE = 1024
+app = Flask(__name__)
+api = Api(app)
 
 def start_server():
-    s = socket.socket()
-    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    print("Socket successfully created")
+    app.run(host='0.0.0.0', port=12345)
 
-    port = 12345
+class Builds(Resource):
+    def get(self, champion, position=""):
+        ip = str(request.headers.get("Host")).split(":")[0]
+        port = str(request.headers.get("Host")).split(":")[1]
 
-    s.bind(('', port))
-    print("socket binded to %s" % (port))
+        PLAYER.insert(
+            time = datetime.now(),
+            ip = ip,
+            port = port,
+            summonername = request.headers.get("Summoner")
+        ).execute()
 
-    s.listen(5)
-    print("socket is listening")
-
-    while True:
-        c = None
-
-        try:
-            c, addr = s.accept()
-
-            client_thread = Thread(target=handle_client, args=(c,addr))
-            client_thread.start()
-        except:
-            if c:
-                c.close()
-            break
-
-def handle_client(c, addr):
-    print('Got connection from', addr)
-    msg = json.loads(c.recv(BUF_SIZE).decode())
-    print(msg)
-
-    if(msg[0]== '' and msg[1] == ''):
-        msg = version.version.encode()
-        c.send(msg)
-
-        c.close()
-        return
-
-    if(msg[1]!=''):
-        build = FINALBUILDS.get_or_none(
-            FINALBUILDS.championId == str(msg[0]),
-            FINALBUILDS.position == str(msg[1]).lower()
-        )
-        if(not build):
+        if(position!=''):
             build = FINALBUILDS.get_or_none(
-                FINALBUILDS.championId == str(msg[0]),
+                FINALBUILDS.championId == champion,
+                FINALBUILDS.position == str(position).lower()
+            )
+            if(not build):
+                build = FINALBUILDS.get_or_none(
+                    FINALBUILDS.championId == champion,
+                    FINALBUILDS.position == ""
+                )
+        else:
+            build = FINALBUILDS.get_or_none(
+                FINALBUILDS.championId == champion,
                 FINALBUILDS.position == ""
             )
-    else:
-        build = FINALBUILDS.get_or_none(
-            FINALBUILDS.championId == str(msg[0]),
-            FINALBUILDS.position == ""
-        )
 
-    buffer = {}
-    buffer["championId"] =  build.championId
-    buffer["runes"] =  build.runes
-    buffer["summ"] =  build.summ
-    buffer["item"] =  build.item
-    buffer["start_item"] =  build.start_item
-    buffer["item_build"] =  build.item_build
-    buffer["skill_order"] =  build.skill_order
-    buffer["position"] =  build.position
-    buffer["boots"] =  build.boots
-    buffer["champion"] =  CHAMPIONS.get(CHAMPIONS.key == build.championId).champion
+        buffer = {}
+        buffer["championId"] =  build.championId
+        buffer["runes"] =  build.runes
+        buffer["summ"] =  build.summ
+        buffer["item"] =  build.item
+        buffer["start_item"] =  build.start_item
+        buffer["item_build"] =  build.item_build
+        buffer["skill_order"] =  build.skill_order
+        buffer["position"] =  build.position
+        buffer["boots"] =  build.boots
+        buffer["champion"] =  CHAMPIONS.get(CHAMPIONS.key == build.championId).champion
 
-    msg = json.dumps(buffer).encode()
-    c.send(msg)
+        CONNECTION.insert(
+            time = datetime.now(),
+            ip = ip,
+            port = port,
+            championId = buffer["championId"],
+            champion = buffer["champion"],
+            position = buffer["position"]
+        ).execute()
 
-    c.close()
+        return buffer
 
-    CONNECTION.insert(
-        time = datetime.now(),
-        ip = addr[0],
-        port = addr[1],
-        championId = buffer["championId"],
-        champion = buffer["champion"],
-        position = buffer["position"]
-    ).execute()
+class Version(Resource):
+    def get(self):
+        return version.version
+
+api.add_resource(Builds, '/builds/<champion>/<role>', '/builds/<champion>')
+api.add_resource(Version, '/version')
