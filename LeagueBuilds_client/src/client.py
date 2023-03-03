@@ -1,46 +1,30 @@
-import socket
-import json, datetime, ast
+import requests
+import datetime
+import config
+import json, ast
 
-BUF_SIZE = 10000000
-
-def get_build(champion, position):
+def get_build(champion, position, summoner):
     start = datetime.datetime.now()
+              
+    api_url = "http://" + config.server_ip + ":12345/builds/" + str(champion)
+    if(position != ""):
+        api_url += "/" +  str(position).lower()
 
-    port = 12345               
+    print(api_url)
 
-    tries = 10
-    for i in range(tries):
-        s = socket.socket()
-        s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        s.settimeout(2)
-        err = s.connect_ex(('decide.hopto.org', port))
-        if err != 0:
-            if i == tries-1:
-                raise TimeoutError
-            continue
-        break
+    response = requests.get(api_url, headers={"Summoner":summoner}).json()
 
-    msg = json.dumps([champion, position]).encode()
+    print(response)
 
-    s.send(msg)
-
-    if(champion == '' and position == ''):
-        msg = s.recv(BUF_SIZE).decode()
-
-        s.close()
-        return msg
-
-    msg = b''
-    while True :
-        data = s.recv(BUF_SIZE)
-        msg += data
-        if not data:
-            break
-
-    data = json.loads(msg.decode())
-
-    s.close()
     print(datetime.datetime.now() - start)
 
-    return data['championId'], ast.literal_eval(data['runes']), json.loads(data['summ']), json.loads(data['item']), json.loads(data['start_item']), json.loads(data['item_build']), json.loads(data['skill_order']), data['position'], data['champion'], json.loads(data['boots'])
-    
+    return response['championId'], ast.literal_eval(response['runes']), json.loads(response['summ']), json.loads(response['item']), json.loads(response['start_item']), json.loads(response['item_build']), json.loads(response['skill_order']), response['position'], response['champion'], json.loads(response['boots'])
+
+def get_version():
+    api_url = "http://" + config.server_ip + ":12345/version"
+
+    print(api_url)
+
+    response = requests.get(api_url).json()
+
+    return response

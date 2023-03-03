@@ -87,7 +87,7 @@ async def set_rune_summ_item(connection, champion, position = ""):
 
     global rune, summ, skills
 
-    championId,rune,summ,item,start_item,item_build,skills,position,champion_name, boots = client.get_build(champion, position)
+    championId,rune,summ,item,start_item,item_build,skills,position,champion_name, boots = client.get_build(champion, position, await get_summoner_name(connection))
 
     print(champion_name)
 
@@ -187,11 +187,14 @@ async def set_summs(connection, summ):
     return await connection.request('patch', '/lol-champ-select/v1/session/my-selection', data = body)
 
 async def current_perks_delete(connection):
-    page = await connection.request('get', '/lol-perks/v1/currentpage')
+    page = await connection.request('get', '/lol-perks/v1/pages')
     page = await page.content.read()
-    page_id = json.loads(page)['id']
+    try:
+        page_id = json.loads(page)[0]['id']
 
-    return await connection.request('delete', '/lol-perks/v1/pages/'+str(page_id))
+        return await connection.request('delete', '/lol-perks/v1/pages/'+str(page_id))
+    except:
+        return None
 
 async def get_acc_sum_id(connection):
     page = await connection.request('get', '/lol-summoner/v1/current-summoner/account-and-summoner-ids')
@@ -222,6 +225,12 @@ async def is_aram(connection):
         return True
     
     return False
+
+async def get_summoner_name(connection):
+    page = await connection.request('get', '/lol-summoner/v1/current-summoner')
+    page = await page.content.read()
+    summoner = json.loads(page)
+    return summoner['displayName']
 
 
 def get_champion():

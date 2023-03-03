@@ -12,7 +12,7 @@ def run_lcu():
 
 def update_check():
     time.sleep(5)
-    server_version = client.get_build('','')
+    server_version = client.get_version()
     gui.update_available(version.version, server_version)
 
 statics.update_champions()
@@ -23,7 +23,7 @@ statics.update_runes()
 
 run_lcu()
 
-updateProcess = threading.Thread(name='LCU-Thread', target=update_check)
+updateProcess = threading.Thread(name='Update-Thread', target=update_check)
 updateProcess.daemon = True
 updateProcess.start()
 
