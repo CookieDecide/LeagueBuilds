@@ -12,7 +12,16 @@ if(not exists('config.ini')):
     config_parser.set('import', 'flash', str(0))
     config_parser.add_section('gui')
     config_parser.set('gui', 'darkmode', str(True))
+    config_parser.add_section('connection')
+    config_parser.set('connection', 'server ip', 'leaguebuilds.hopto.org')
 
+    with open('config.ini', 'w') as f:
+        config_parser.write(f)
+
+if(not config_parser.has_section('connection')):
+    config_parser.add_section('connection')
+    config_parser.set('connection', 'server ip', 'leaguebuilds.hopto.org')
+    
     with open('config.ini', 'w') as f:
         config_parser.write(f)
 
@@ -22,6 +31,8 @@ import_summs = config_parser.getboolean('import', 'summs')
 position_flash = config_parser.getint('import', 'flash')
 
 gui_darkmode = config_parser.getboolean('gui', 'darkmode')
+
+server_ip = config_parser.get('connection', 'server ip')
 
 def set_import_runes(import_):
     global import_runes
