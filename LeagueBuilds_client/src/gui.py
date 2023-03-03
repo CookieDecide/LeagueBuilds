@@ -112,7 +112,7 @@ def start():
                                 host='localhost', 
                                 port=27000, 
                                 block=True, 
-                                size=(320, 1000), 
+                                size=(320, 980), 
                                 position=(0,0), 
                                 disable_cache=True, 
                                 close_callback=close_callback,
