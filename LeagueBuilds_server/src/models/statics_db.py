@@ -5,7 +5,8 @@ from playhouse.sqliteq import SqliteQueueDatabase
 if (not os.path.exists('../DB')):
     os.mkdir('../DB')
 
-STATICS_DB = SqliteQueueDatabase('../DB/statics.db')
+STATICS_DB = SqliteQueueDatabase('../DB/statics.db',
+                                autostart=False)
 
 class CHAMPIONS(pw.Model):
     champion = pw.TextField(primary_key=True, unique=True)
@@ -193,9 +194,8 @@ class RUNEKEYS(pw.Model):
         database = STATICS_DB
         db_table = 'runekeys'
 
+STATICS_DB.start()
 STATICS_DB.connect()
-
-STATICS_DB.start()
 STATICS_DB.create_tables([CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES])
-STATICS_DB.stop()
-STATICS_DB.start()
+STATICS_DB.close()
+STATICS_DB.connect()

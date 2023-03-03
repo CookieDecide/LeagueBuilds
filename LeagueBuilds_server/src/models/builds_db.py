@@ -5,7 +5,8 @@ from playhouse.sqliteq import SqliteQueueDatabase
 if (not os.path.exists('../DB')):
     os.mkdir('../DB')
 
-BUILDS_DB = SqliteQueueDatabase('../DB/builds.db')
+BUILDS_DB = SqliteQueueDatabase('../DB/builds.db',
+                                autostart=False)
 
 class FINALBUILDS(pw.Model):
     championId = pw.TextField()
@@ -27,9 +28,8 @@ class FINALBUILDS(pw.Model):
         db_table = 'finalbuilds'
         primary_key = pw.CompositeKey('championId', 'position')
 
+BUILDS_DB.start()
 BUILDS_DB.connect()
-
-BUILDS_DB.start()
 BUILDS_DB.create_tables([FINALBUILDS])
-BUILDS_DB.stop()
-BUILDS_DB.start()
+BUILDS_DB.close()
+BUILDS_DB.connect()

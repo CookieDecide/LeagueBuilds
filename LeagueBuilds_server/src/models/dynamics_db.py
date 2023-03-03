@@ -5,7 +5,8 @@ from playhouse.sqliteq import SqliteQueueDatabase
 if (not os.path.exists('../DB')):
     os.mkdir('../DB')
 
-DYNAMICS_DB = SqliteQueueDatabase('../DB/dynamics.db')
+DYNAMICS_DB = SqliteQueueDatabase('../DB/dynamics.db',
+                                autostart=False)
 
 class MATCHES(pw.Model):
     matchId = pw.TextField(primary_key=True, unique=True)
@@ -133,9 +134,8 @@ class ARAM(pw.Model):
         db_table = 'aram'
         primary_key = pw.CompositeKey('matchId', 'championId')
 
+DYNAMICS_DB.start()
 DYNAMICS_DB.connect()
-
-DYNAMICS_DB.start()
 DYNAMICS_DB.create_tables([MATCHES, SUMMONER, BUILDS, ARAM])
-DYNAMICS_DB.stop()
-DYNAMICS_DB.start()
+DYNAMICS_DB.close()
+DYNAMICS_DB.connect()
