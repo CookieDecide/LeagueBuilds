@@ -2,13 +2,15 @@ import numpy, json, ast
 from models.statics_db import ITEMS, CHAMPIONS
 from models.dynamics_db import BUILDS, ARAM
 from models.builds_db import FINALBUILDS
-import time, datetime
+import time, datetime, queue, threading
+from peewee import chunked
 
 valid_items = []
 valid_start_items = []
 valid_boots = []
 
 def init():
+    print('Initialize Items')
     items_all = ITEMS.select()
     global valid_items
     global valid_start_items
@@ -19,6 +21,7 @@ def init():
                 valid_items.append(int(item.id))
             if('1001' in item.from_):
                 valid_boots.append(int(item.id))
+    print('Initialize Items finished')
 
 def get_builds(champion, position):
     if(position==''):
@@ -58,7 +61,7 @@ def get_builds(champion, position):
         ).where(
             BUILDS.championId == str(champion),
             BUILDS.teamPosition != "",
-            BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
+            #BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
         ).dicts()
     else:
         builds = BUILDS.select(
@@ -97,7 +100,7 @@ def get_builds(champion, position):
         ).where(
             BUILDS.championId == str(champion),
             BUILDS.teamPosition == str(position).upper(),
-            BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
+            #BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
         ).dicts()
 
     return list(builds)
@@ -138,7 +141,7 @@ def get_aram(champion):
         ARAM.subPerk2,
     ).where(
         ARAM.championId == str(champion),
-        ARAM.gameEndTimestamp >= time.time()*1000 - 1250000000,
+        #ARAM.gameEndTimestamp >= time.time()*1000 - 1250000000,
     ).dicts()
 
     return list(builds)
@@ -228,16 +231,25 @@ def info(champion, position):
 def sort_runes(runes):
     rune, rune_count = numpy.unique(runes, return_counts=True)
 
+    #if (len(rune)==0):
+    #    return []
+
     return json.loads(rune[rune_count.tolist().index(max(rune_count))])
 
 def sort_summs(summs):
     summ, summ_count = numpy.unique(summs, return_counts=True)
     summ_count_sort_ind = numpy.argsort(-summ_count)
 
+    #if (len(summ)==0):
+    #    return []
+
     return summ[summ_count_sort_ind][0:2].tolist()
 
 def sort_stats(stats):
     stat, stat_count = numpy.unique(stats, return_counts=True)
+
+    #if (len(stat)==0):
+    #    return []
 
     return json.loads(stat[stat_count.tolist().index(max(stat_count))])
 
@@ -246,6 +258,9 @@ def sort_items(items):
     item, item_count = numpy.unique(items, return_counts=True)
     item_count_sort_ind = numpy.argsort(-item_count)
     sorted_items = []
+
+    #if (len(item)==0):
+    #    return []
 
     for i in item[item_count_sort_ind].tolist():
         if(int(i) in valid_items):
@@ -257,6 +272,9 @@ def sort_start_items(start_items):
     start_item, start_item_count = numpy.unique(start_items, return_counts=True)
     start_item_count_sort_ind = numpy.argsort(-start_item_count)
 
+    #if (len(start_item)==0):
+    #    return []
+
     if (len(start_item[start_item_count_sort_ind])<3):
         return [json.loads(start_item[start_item_count_sort_ind][0])]
     else:
@@ -265,6 +283,9 @@ def sort_start_items(start_items):
 def sort_items_build(items_build):
     item_build, item_build_count = numpy.unique(items_build, return_counts=True)
     item_build_count_sort_ind = numpy.argsort(-item_build_count)
+
+    #if (len(item_build)==0):
+    #    return []
 
     if (len(item_build[item_build_count_sort_ind])<3):
         return [json.loads(item_build[item_build_count_sort_ind][0])]
@@ -275,11 +296,17 @@ def sort_skills(skills):
     skill, skill_count = numpy.unique(skills, return_counts=True)
     skill_count_sort_ind = numpy.argsort(-skill_count)
 
+    #if (len(skill)==0):
+    #    return []
+
     return json.loads(skill[skill_count_sort_ind][0])
 
 def sort_boots(boots):
     boot, boot_count = numpy.unique(boots, return_counts=True)
     boot_count_sort_ind = numpy.argsort(-boot_count)
+
+    #if (len(boot)==0):
+    #    return []
 
     if (len(boot[boot_count_sort_ind])<3):
         return [json.loads(boot[boot_count_sort_ind][0])]
@@ -309,3 +336,82 @@ def sort_all():
                 boots = boots,
             ).execute()
     print(datetime.datetime.now() - start)
+
+def sort_all_parallel():
+    start = datetime.datetime.now()
+    champion_query = CHAMPIONS.select()
+
+    q = queue.Queue(maxsize=2000)
+    num_threads = min(100, len(champion_query) * 7)
+
+    for champion in champion_query:
+        for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
+            try:
+                q.put((champion, position,), block = False)
+            except queue.Full:
+                print('Full!')
+                break
+
+    final_builds = []
+
+    print('Starting Workers')
+
+    for i in range(num_threads):
+        worker = threading.Thread(target=sort_worker, args=[i, q, final_builds])
+        worker.daemon = True
+        worker.start()
+
+    print('Workers started')
+
+    try:
+        while True:
+            if q.unfinished_tasks > 0:
+                time.sleep(1)
+                print("Left to sort: ", q.unfinished_tasks)
+            else:
+                break
+    except KeyboardInterrupt:
+        raise
+
+    time.sleep(5)
+
+    for batch in chunked(final_builds, 100):
+        FINALBUILDS.insert_many(batch).on_conflict_replace().execute()
+
+    final_builds = []
+
+    print('Finished in: ', datetime.datetime.now() - start)
+
+
+
+def sort_worker(worker_id, q, final_builds):
+
+    while not q.empty():
+        start = time.time()
+
+        work = q.get()
+        champion = work[0]
+        position = work[1]
+        
+        try:
+            rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position)
+        except Exception as e:
+            print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start, '\tFAILED!')
+            print(e)
+            q.task_done()
+            continue
+
+        final_builds.append({
+            'championId' : champion.key,
+            'runes' : rune,
+            'summ' : summ,
+            'item' : item,
+            'start_item' : start_item,
+            'item_build' : item_build,
+            'skill_order' : skills,
+            'position' : position,
+            'boots' : boots,
+        })
+
+        q.task_done()
+        print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
