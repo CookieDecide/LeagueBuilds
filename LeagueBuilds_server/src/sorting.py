@@ -4,6 +4,7 @@ from models.dynamics_db import BUILDS, ARAM
 from models.builds_db import FINALBUILDS
 import time, datetime, queue, threading
 from peewee import chunked
+from joblib import Parallel, delayed
 
 valid_items = []
 valid_start_items = []
@@ -415,3 +416,38 @@ def sort_worker(worker_id, q, final_builds):
 
         q.task_done()
         print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
+
+def sort_pro():
+    champion_query = CHAMPIONS.select()
+
+    Parallel(n_jobs=-1)(delayed(pro_worker)(champion, valid_boots, valid_items, valid_start_items) for champion in champion_query)
+
+def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
+    global valid_boots, valid_start_items, valid_items
+    valid_boots = valid_boots1
+    valid_start_items = valid_start_items1
+    valid_items = valid_items1
+
+    for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
+        start = time.time()
+
+        try:
+            rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position)
+        except Exception as e:
+            print('Champion: ', champion, '\tPosition: ', position, '\t', time.time() - start, '\tFAILED!')
+            print(e)
+            continue
+
+        FINALBUILDS.replace(
+            championId = champion.key,
+            runes = rune,
+            summ = summ,
+            item = item,
+            start_item = start_item,
+            item_build = item_build,
+            skill_order = skills,
+            position = position,
+            boots = boots,
+        ).execute()
+
+        print('Champion: ', champion, '\tPosition: ', position, '\t', time.time() - start)

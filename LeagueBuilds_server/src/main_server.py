@@ -49,7 +49,7 @@ def sort():
     statics.update_summoner()
     statics.update_maps()
     statics.update_runes()
-    sorting.sort_all_parallel()
+    sorting.sort_pro()
 
 
 abspath = os.path.abspath(__file__)
