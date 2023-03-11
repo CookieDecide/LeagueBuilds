@@ -5,13 +5,37 @@ from models.builds_db import FINALBUILDS
 import time, datetime, queue, threading
 from peewee import chunked
 from joblib import Parallel, delayed
+import logging, os
+
+if (not os.path.exists('../../../log')):
+    os.mkdir('../../../log')
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create handlers
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler('../../../log/sorting.log')
+c_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.INFO)
+
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
 
 valid_items = []
 valid_start_items = []
 valid_boots = []
 
 def init():
-    print('Initialize Items')
+    logger.info('Initialize Items')
     items_all = ITEMS.select()
     global valid_items
     global valid_start_items
@@ -22,7 +46,7 @@ def init():
                 valid_items.append(int(item.id))
             if('1001' in item.from_):
                 valid_boots.append(int(item.id))
-    print('Initialize Items finished')
+    logger.info('Initialize Items finished')
 
 def get_builds(champion, position):
     if(position==''):
@@ -418,13 +442,13 @@ def sort_worker(worker_id, q, final_builds):
         print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
 
 def sort_pro():
-    print("Sorting started")
+    logger.info("Sorting started")
     start = time.time()
     champion_query = CHAMPIONS.select()
 
     Parallel(n_jobs=-1)(delayed(pro_worker)(champion, valid_boots, valid_items, valid_start_items) for champion in champion_query)
 
-    print("Sorting finished in: ", time.time() - start)
+    logger.info(f'Sorting finished in: {time.time() - start}')
 
 def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
     global valid_boots, valid_start_items, valid_items
@@ -432,7 +456,7 @@ def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
     valid_start_items = valid_start_items1
     valid_items = valid_items1
 
-    print("Sorting started for:\t", champion)
+    logger.info(f'Sorting started for:\t{champion}')
 
     for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
         start = time.time()
@@ -440,8 +464,8 @@ def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
         try:
             rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position)
         except Exception as e:
-            print('Champion: ', champion, '\tPosition: ', position, '\t', time.time() - start, '\tFAILED!')
-            print(e)
+            logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}\tFAILED!')
+            logger.debug(e)
             continue
 
         FINALBUILDS.replace(
@@ -456,4 +480,4 @@ def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
             boots = boots,
         ).execute()
 
-        print('Champion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
+        logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}')

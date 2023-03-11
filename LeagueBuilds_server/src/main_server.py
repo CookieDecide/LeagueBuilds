@@ -7,6 +7,30 @@ from models.dynamics_db import DYNAMICS_DB
 from models.statics_db import STATICS_DB
 from models.builds_db import BUILDS_DB
 from models.log_db import LOG_DB
+import logging, os
+
+if (not os.path.exists('../../../log')):
+    os.mkdir('../../../log')
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create handlers
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler('../../../log/main.log')
+c_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.INFO)
+
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
 
 def close_db():
     DYNAMICS_DB.execute_sql("pragma wal_checkpoint;")
@@ -21,10 +45,10 @@ def close_db():
     LOG_DB.execute_sql("pragma wal_checkpoint;")
     LOG_DB.close()
     LOG_DB.stop()
-    print("stopped")
+    logger.info("stopped")
     while (not DYNAMICS_DB.is_stopped() or not STATICS_DB.is_stopped() or not BUILDS_DB.is_stopped() or not LOG_DB.is_stopped()):
         time.sleep(1)
-        print("Waiting on DB")
+        logger.info("Waiting on DB")
 
 def open_db():
     DYNAMICS_DB.start()
@@ -35,10 +59,10 @@ def open_db():
     BUILDS_DB.connect(reuse_if_open=True)
     LOG_DB.start()
     LOG_DB.connect(reuse_if_open=True)
-    print("started")
+    logger.info("started")
     while (not DYNAMICS_DB.is_connection_usable() or not STATICS_DB.is_connection_usable() or not BUILDS_DB.is_connection_usable() or not LOG_DB.is_connection_usable()):
         time.sleep(1)
-        print("Waiting on DB")
+        logger.info("Waiting on DB")
 
 def sort():
     import sorting, statics
@@ -87,6 +111,6 @@ while True:
         close_db()
         sys.exit()
     except Exception as exc:
-        print("Exception:")
-        print(exc)
+        logger.error("Exception:")
+        logger.error(exc)
         continue

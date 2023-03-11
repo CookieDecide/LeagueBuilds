@@ -1,6 +1,30 @@
 from riotwatcher import LolWatcher, ApiError
 from models.statics_db import CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES
 import api_key
+import logging, os
+
+if (not os.path.exists('../../../log')):
+    os.mkdir('../../../log')
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create handlers
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler('../../../log/statics.log')
+c_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.INFO)
+
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
 
 lol_watcher = LolWatcher(api_key.api_key)
 
@@ -41,7 +65,7 @@ def update_summoner():
 
     SUMMONER.insert_many(summoner).on_conflict_replace().execute()
 
-    print('Static Summoner')
+    logger.info('Static Summoner')
 
 def update_maps():
     my_region = 'euw1'
@@ -61,7 +85,7 @@ def update_maps():
 
     MAPS.insert_many(maps).on_conflict_replace().execute()
 
-    print('Static Map')
+    logger.info('Static Map')
 
 def update_runes():
     my_region = 'euw1'
@@ -107,7 +131,7 @@ def update_runes():
     RUNESLOTS.insert_many(runeslots).on_conflict_replace().execute()
     RUNEKEYS.insert_many(runekeys).on_conflict_replace().execute()
 
-    print('Static Runes')
+    logger.info('Static Runes')
 
 def update_items():
     my_region = 'euw1'
@@ -163,7 +187,7 @@ def update_items():
 
     ITEMS.insert_many(items).on_conflict_replace().execute()
 
-    print('Static Items')
+    logger.info('Static Items')
 
 def update_champions():
     my_region = 'euw1'
@@ -236,4 +260,4 @@ def update_champions():
 
     CHAMPIONS.insert_many(champions).on_conflict_replace().execute()
 
-    print('Static Champion')
+    logger.info('Static Champion')

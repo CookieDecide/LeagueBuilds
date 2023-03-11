@@ -3,16 +3,40 @@ from models.dynamics_db import SUMMONER, MATCHES, BUILDS, ARAM
 import time, timeline, threading, queue
 import api_key
 from peewee import chunked
+import logging, os
+
+if (not os.path.exists('../../../log')):
+    os.mkdir('../../../log')
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Create handlers
+c_handler = logging.StreamHandler()
+f_handler = logging.FileHandler('../../../log/dynamics.log')
+c_handler.setLevel(logging.DEBUG)
+f_handler.setLevel(logging.INFO)
+
+# Create formatters and add it to handlers
+c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_handler.setFormatter(c_format)
+f_handler.setFormatter(f_format)
+
+# Add handlers to the logger
+logger.addHandler(c_handler)
+logger.addHandler(f_handler)
 
 def clean_builds():
-    print('Clean Builds')
+    logger.info('Clean Builds')
     BUILDS.delete().where(BUILDS.gameEndTimestamp < time.time()*1000 - 1250000000,).execute()
     ARAM.delete().where(ARAM.gameEndTimestamp < time.time()*1000 - 1250000000,).execute()
-    print('Builds cleaned')
+    logger.info('Builds cleaned')
 
 def update_summoner():
     lol_watcher = LolWatcher(api_key.api_key)
-    print('Update Summoner')
+    logger.info('Update Summoner')
     
     my_region = 'euw1'
 
@@ -24,11 +48,11 @@ def update_summoner():
         master = lol_watcher.league.masters_by_queue(my_region, queue)
     except ApiError as err:
         if err.response.status_code == 429:
-            print('We should retry in {} seconds.'.format(err.response.headers['Retry-After']))
+            logger.warning(f'We should retry in {err.response.headers["Retry-After"]} seconds.')
         elif err.response.status_code == 404:
-            print('Summoner with that ridiculous name not found.')
+            logger.error('Summoner with that ridiculous name not found.')
         else:
-            print(err)
+            logger.debug(err)
             raise
         return
 
@@ -43,11 +67,11 @@ def update_summoner():
                 summ = lol_watcher.summoner.by_id(my_region, item['summonerId'])
             except ApiError as err:
                 if err.response.status_code == 429:
-                    print('We should retry in {} seconds.'.format(err.response.headers['Retry-After']))
+                    logger.warning(f'We should retry in {err.response.headers["Retry-After"]} seconds.')
                 elif err.response.status_code == 404:
-                    print('Summoner with that ridiculous name not found.')
+                    logger.error('Summoner with that ridiculous name not found.')
                 else:
-                    print(err)
+                    logger.debug(err)
                     raise
                 continue
 
@@ -57,7 +81,7 @@ def update_summoner():
                 'puuid' : summ['puuid'],
             })
 
-            print("Summoner " + str(i) + ": " + item['summonerName'])
+            logger.info(f'Summoner {str(i)}: {item["summonerName"]}')
         i+=1
 
         if len(summoner) >= 1000:
@@ -70,7 +94,7 @@ def update_summoner():
 
 def update_matches():
     lol_watcher = LolWatcher(api_key.api_key)
-    print('Update Matches')
+    logger.info('Update Matches')
 
     my_region = 'europe'
 
@@ -86,15 +110,15 @@ def update_matches():
             matches = lol_watcher.match.matchlist_by_puuid(region=my_region, puuid=summoner.puuid, count=10, start=0)
         except ApiError as err:
             if err.response.status_code == 429:
-                print('We should retry in {} seconds.'.format(err.response.headers['Retry-After']))
+                logger.warning(f'We should retry in {err.response.headers["Retry-After"]} seconds.')
             elif err.response.status_code == 404:
-                print('Summoner with that ridiculous name not found.')
+                logger.error('Summoner with that ridiculous name not found.')
             else:
-                print(err)
+                logger.debug(err)
                 raise
             continue
 
-        print("Summoner " + str(j) + ": " + summoner.summonerName)
+        logger.info('Summoner {str(j)}: {summoner.summonerName}')
 
         for match in matches:
 
@@ -103,7 +127,7 @@ def update_matches():
                     'matchId' : match,
                 })
 
-                print("Match " + str(i) + ": " + match)
+                logger.info('Match {str(i)}: {match}')
                 i+=1
         
         j+=1
@@ -117,13 +141,13 @@ def update_matches():
         MATCHES.insert_many(batch).on_conflict_replace().execute()
 
 def update_builds():
-    print('Update Builds')
+    logger.info('Update Builds')
 
     matches = MATCHES.select()
 
-    print(len(matches))
+    logger.info(f'Match count:\t{len(matches)}')
 
-    print('Fetched IDs')
+    logger.info('Fetched IDs')
 
     q = queue.Queue(maxsize=1000)
     num_threads = min(20, len(matches))
@@ -146,13 +170,13 @@ def update_builds():
         worker.setDaemon(True)
         worker.start()
 
-    print('Workers started')
+    logger.info('Workers started')
 
     try:
         while True:
             if q.unfinished_tasks > 0:
                 time.sleep(1)
-                print(q.unfinished_tasks)
+                logger.debug(q.unfinished_tasks)
             else:
                 break
     except KeyboardInterrupt:
@@ -162,7 +186,7 @@ def update_builds():
     
     MATCHES.delete().where(MATCHES.matchId << matches_delete).execute()
 
-    print('Matches deleted')
+    logger.info('Matches deleted')
 
     for batch in chunked(builds_create, 100):
         BUILDS.insert_many(batch).on_conflict_replace().execute()
@@ -184,10 +208,10 @@ def build_worker(q, matches_delete, builds_create, aram_create):
             match = lol_watcher.match.by_id(my_region, match_id)
         except ApiError as err:
             if err.response.status_code == 429:
-                print('We should retry in {} seconds.'.format(err.response.headers['Retry-After']))
+                logger.warning(f'We should retry in {err.response.headers["Retry-After"]} seconds.')
                 continue
             elif err.response.status_code == 404:
-                print('Summoner with that ridiculous name not found.')
+                logger.error('Summoner with that ridiculous name not found.')
                 matches_delete.append(match_id)
                 continue
         except:
@@ -204,7 +228,7 @@ def build_worker(q, matches_delete, builds_create, aram_create):
         try:
             timeline_info = timeline.parse_timeline(lol_watcher, my_region, match_id)
         except ApiError as err:
-            print(err)
+            logger.debug(err)
             continue
         except:
             continue
@@ -295,5 +319,5 @@ def build_worker(q, matches_delete, builds_create, aram_create):
                     'subPerk2' : participant['perks']['styles'][1]['selections'][1]['perk'],
                 })
 
-        print("Match: " + match_id)
+        logger.info('Match: {match_id}')
         matches_delete.append(match_id)
