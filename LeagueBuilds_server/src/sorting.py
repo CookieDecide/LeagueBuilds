@@ -418,15 +418,21 @@ def sort_worker(worker_id, q, final_builds):
         print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
 
 def sort_pro():
+    print("Sorting started")
+    start = time.time()
     champion_query = CHAMPIONS.select()
 
     Parallel(n_jobs=-1)(delayed(pro_worker)(champion, valid_boots, valid_items, valid_start_items) for champion in champion_query)
+
+    print("Sorting finished in: ", time.time() - start)
 
 def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
     global valid_boots, valid_start_items, valid_items
     valid_boots = valid_boots1
     valid_start_items = valid_start_items1
     valid_items = valid_items1
+
+    print("Sorting started for:\t", champion)
 
     for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
         start = time.time()
