@@ -118,7 +118,7 @@ def update_matches():
                 raise
             continue
 
-        logger.info('Summoner {str(j)}: {summoner.summonerName}')
+        logger.info(f'Summoner {str(j)}: {summoner.summonerName}')
 
         for match in matches:
 
@@ -127,7 +127,7 @@ def update_matches():
                     'matchId' : match,
                 })
 
-                logger.info('Match {str(i)}: {match}')
+                logger.info(f'Match {str(i)}: {match}')
                 i+=1
         
         j+=1
@@ -319,5 +319,5 @@ def build_worker(q, matches_delete, builds_create, aram_create):
                     'subPerk2' : participant['perks']['styles'][1]['selections'][1]['perk'],
                 })
 
-        logger.info('Match: {match_id}')
+        logger.info(f'Match: {match_id}')
         matches_delete.append(match_id)
