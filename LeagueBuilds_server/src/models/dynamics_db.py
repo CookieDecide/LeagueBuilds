@@ -133,6 +133,9 @@ class ARAM(pw.Model):
         database = DYNAMICS_DB
         db_table = 'aram'
         primary_key = pw.CompositeKey('matchId', 'championId')
+        indexes=(
+            (('championId'), False),
+        )
 
 DYNAMICS_DB.start()
 DYNAMICS_DB.connect()
