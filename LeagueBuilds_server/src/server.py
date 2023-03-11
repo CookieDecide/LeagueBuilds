@@ -13,9 +13,9 @@ def start_server():
     app.run(host='0.0.0.0', port=12345)
 
 class Builds(Resource):
-    def get(self, champion, position=""):
-        ip = str(request.headers.get("Host")).split(":")[0]
-        port = str(request.headers.get("Host")).split(":")[1]
+    def get(self, champion, position=''):
+        ip = str(request.remote_addr)
+        port = str(12345)
 
         PLAYER.insert(
             time = datetime.now(),
@@ -67,5 +67,5 @@ class Version(Resource):
     def get(self):
         return version.version
 
-api.add_resource(Builds, '/builds/<champion>/<role>', '/builds/<champion>')
+api.add_resource(Builds, '/builds/<champion>/<position>', '/builds/<champion>')
 api.add_resource(Version, '/version')
