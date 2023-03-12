@@ -35,7 +35,7 @@ class BUILDS(pw.Model):
     matchId = pw.TextField()
     gameEndTimestamp = pw.TextField()
 
-    championId = pw.TextField()
+    championId = pw.TextField(index=True)
     championName = pw.TextField()
     teamPosition = pw.TextField()
     individualPosition = pw.TextField()
