@@ -86,6 +86,7 @@ serverProcess.start()
 
 while True:
     try:
+        start = time.time()
         open_db()
 
         sortingProcess = threading.Thread(target=sort)
@@ -107,6 +108,7 @@ while True:
 
         close_db()
         time.sleep(60)
+        logger.info(f'Finished dynamics in: {time.time() - start}')
     except KeyboardInterrupt:
         close_db()
         sys.exit()
