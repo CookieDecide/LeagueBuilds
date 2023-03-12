@@ -214,6 +214,7 @@ def build_worker(q, matches_delete, builds_create, aram_create):
                 logger.error('Summoner with that ridiculous name not found.')
                 matches_delete.append(match_id)
                 continue
+            continue
         except:
             continue
 
