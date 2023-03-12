@@ -7,6 +7,13 @@ from peewee import chunked
 from joblib import Parallel, delayed
 import logging, os
 
+class MyFilter(object):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, logRecord):
+        return logRecord.levelno <= self.__level
+
 if (not os.path.exists('../../../log')):
     os.mkdir('../../../log')
 
@@ -17,28 +24,31 @@ logger.setLevel(logging.DEBUG)
 # Create handlers
 c_handler = logging.StreamHandler()
 f_handler = logging.FileHandler('../../../log/sorting.log')
-c_handler.setLevel(logging.DEBUG)
+debug_handler = logging.FileHandler('../../../log/debug.log')
+c_handler.setLevel(logging.INFO)
 f_handler.setLevel(logging.INFO)
+f_handler.setLevel(logging.DEBUG)
 
 # Create formatters and add it to handlers
 c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+debug_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
+debug_handler.setFormatter(debug_format)
+
+# Set Filters
+debug_handler.addFilter(MyFilter(logging.DEBUG))
 
 # Add handlers to the logger
 logger.addHandler(c_handler)
 logger.addHandler(f_handler)
-
-valid_items = []
-valid_start_items = []
-valid_boots = []
+logger.addHandler(debug_handler)
 
 def init():
     logger.info('Initialize Items')
     items_all = ITEMS.select()
-    global valid_items
-    global valid_start_items
+    valid_items, valid_start_items, valid_boots = []
     for item in items_all:
         if('Trinket' not in item.tags):
             valid_start_items.append(int(item.id))
@@ -47,6 +57,8 @@ def init():
             if('1001' in item.from_):
                 valid_boots.append(int(item.id))
     logger.info('Initialize Items finished')
+
+    return (valid_items, valid_start_items, valid_boots)
 
 def get_builds(champion, position):
     if(position==''):
@@ -171,7 +183,7 @@ def get_aram(champion):
 
     return list(builds)
 
-def info(champion, position):
+def info(champion, position, valid_items, valid_start_items, valid_boots):
     if (position == 'aram'):
         builds = get_aram(champion)
     else:
@@ -209,6 +221,10 @@ def info(champion, position):
         items.append(build['item3'])
         items.append(build['item4'])
         items.append(build['item5'])
+
+        for item in items:
+            if(int(item) not in valid_items):
+                items.remove(item)
 
         start_item_list = []
         for item in ast.literal_eval(build['start_items']):
@@ -279,7 +295,6 @@ def sort_stats(stats):
     return json.loads(stat[stat_count.tolist().index(max(stat_count))])
 
 def sort_items(items):
-    global valid_items
     item, item_count = numpy.unique(items, return_counts=True)
     item_count_sort_ind = numpy.argsort(-item_count)
     sorted_items = []
@@ -288,8 +303,7 @@ def sort_items(items):
     #    return []
 
     for i in item[item_count_sort_ind].tolist():
-        if(int(i) in valid_items):
-            sorted_items.append(int(i))
+        sorted_items.append(int(i))
 
     return sorted_items
 
@@ -330,13 +344,16 @@ def sort_boots(boots):
     boot, boot_count = numpy.unique(boots, return_counts=True)
     boot_count_sort_ind = numpy.argsort(-boot_count)
 
-    #if (len(boot)==0):
-    #    return []
+    # Cassiopeia fix
+    if (len(boot)==0):
+        return []
 
     if (len(boot[boot_count_sort_ind])<3):
         return [json.loads(boot[boot_count_sort_ind][0])]
     else:
         return [json.loads(boot[boot_count_sort_ind][0]), json.loads(boot[boot_count_sort_ind][1]), json.loads(boot[boot_count_sort_ind][2])]
+
+'''
 
 def sort_all():
     start = datetime.datetime.now()
@@ -441,31 +458,29 @@ def sort_worker(worker_id, q, final_builds):
         q.task_done()
         print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
 
+'''
+
 def sort_pro():
     logger.info("Sorting started")
     start = time.time()
     champion_query = CHAMPIONS.select()
 
-    Parallel(n_jobs=-1)(delayed(pro_worker)(champion, valid_boots, valid_items, valid_start_items) for champion in champion_query)
+    valid_items, valid_start_items, valid_boots = init()
+    Parallel(n_jobs=-1)(delayed(pro_worker)(champion, valid_items, valid_start_items, valid_boots) for champion in champion_query)
 
     logger.info(f'Sorting finished in: {time.time() - start}')
 
-def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
-    global valid_boots, valid_start_items, valid_items
-    valid_boots = valid_boots1
-    valid_start_items = valid_start_items1
-    valid_items = valid_items1
-
+def pro_worker(champion, valid_items, valid_start_items, valid_boots):
     logger.info(f'Sorting started for:\t{champion}')
 
     for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
         start = time.time()
 
         try:
-            rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position)
+            rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position, valid_items, valid_start_items, valid_boots)
         except Exception as e:
             logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}\tFAILED!')
-            logger.debug(e)
+            logger.error(e)
             continue
 
         FINALBUILDS.replace(
@@ -479,5 +494,7 @@ def pro_worker(champion, valid_boots1, valid_items1, valid_start_items1):
             position = position,
             boots = boots,
         ).execute()
+
+        logger.debug(f'****************\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n****************')
 
         logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}')
