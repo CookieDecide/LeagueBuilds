@@ -27,7 +27,7 @@ f_handler = logging.FileHandler('../../../log/sorting.log')
 debug_handler = logging.FileHandler('../../../log/debug.log')
 c_handler.setLevel(logging.INFO)
 f_handler.setLevel(logging.INFO)
-f_handler.setLevel(logging.DEBUG)
+debug_handler.setLevel(logging.DEBUG)
 
 # Create formatters and add it to handlers
 c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -48,7 +48,9 @@ logger.addHandler(debug_handler)
 def init():
     logger.info('Initialize Items')
     items_all = ITEMS.select()
-    valid_items, valid_start_items, valid_boots = []
+
+    valid_items, valid_start_items, valid_boots = [], [], []
+
     for item in items_all:
         if('Trinket' not in item.tags):
             valid_start_items.append(int(item.id))
@@ -58,7 +60,7 @@ def init():
                 valid_boots.append(int(item.id))
     logger.info('Initialize Items finished')
 
-    return (valid_items, valid_start_items, valid_boots)
+    return valid_items, valid_start_items, valid_boots
 
 def get_builds(champion, position):
     if(position==''):
@@ -495,6 +497,6 @@ def pro_worker(champion, valid_items, valid_start_items, valid_boots):
             boots = boots,
         ).execute()
 
-        logger.debug(f'****************\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n****************')
+        logger.debug(f'****************{champion.name}\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n****************')
 
         logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}')
