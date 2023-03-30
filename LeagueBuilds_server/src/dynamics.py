@@ -115,7 +115,6 @@ def update_matches():
                 logger.error('Summoner with that ridiculous name not found.')
             else:
                 logger.debug(err)
-                raise
             continue
 
         logger.info(f'Summoner {str(j)}: {summoner.summonerName}')
