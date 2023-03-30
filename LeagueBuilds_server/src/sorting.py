@@ -4,7 +4,7 @@ from models.dynamics_db import BUILDS, ARAM
 from models.builds_db import FINALBUILDS
 import time, datetime, queue, threading
 from peewee import chunked
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed, effective_n_jobs
 import logging, os
 
 class MyFilter(object):
@@ -224,10 +224,6 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
         items.append(build['item4'])
         items.append(build['item5'])
 
-        for item in items:
-            if(int(item) not in valid_items):
-                items.remove(item)
-
         start_item_list = []
         for item in ast.literal_eval(build['start_items']):
             if(item['itemId'] in valid_start_items):
@@ -252,6 +248,10 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
             skills_list.append(skill['skillSlot'])
         if(skills_list and len(skills_list)>7):
             skills.append(json.dumps(skills_list[0:8]))
+
+    for item in items:
+        if(int(item) not in valid_items):
+            items.remove(item)
 
     rune = sort_runes(runes)
 
@@ -468,12 +468,14 @@ def sort_pro():
     champion_query = CHAMPIONS.select()
 
     valid_items, valid_start_items, valid_boots = init()
-    Parallel(n_jobs=-1)(delayed(pro_worker)(champion, valid_items, valid_start_items, valid_boots) for champion in champion_query)
+    njobs = effective_n_jobs()
+    logger.info(f'effective_n_jobs: {njobs}')
+    Parallel(n_jobs=njobs, backend="loky")(delayed(pro_worker)(champion, valid_items, valid_start_items, valid_boots) for champion in champion_query)
 
     logger.info(f'Sorting finished in: {time.time() - start}')
 
 def pro_worker(champion, valid_items, valid_start_items, valid_boots):
-    logger.info(f'Sorting started for:\t{champion}')
+    logger.info(f'Sorting started for:\t{champion}\t{os.getpid()}')
 
     for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
         start = time.time()
