@@ -67,7 +67,6 @@ def open_db():
 def sort():
     import sorting, statics
 
-    sorting.init()
     statics.update_champions()
     statics.update_items()
     statics.update_summoner()
@@ -104,11 +103,13 @@ while True:
         dynamics.update_matches()
         dynamics.update_summoner()
 
+        logger.info(f'Finished dynamics in: {time.time() - start}')
+
         sortingProcess.join()
 
         close_db()
         time.sleep(60)
-        logger.info(f'Finished dynamics in: {time.time() - start}')
+        logger.info(f'Finished all in: {time.time() - start}')
     except KeyboardInterrupt:
         close_db()
         sys.exit()
