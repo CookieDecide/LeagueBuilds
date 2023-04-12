@@ -54,7 +54,7 @@ def init():
     for item in items_all:
         if('Trinket' not in item.tags):
             valid_start_items.append(int(item.id))
-            if((int(item.depth) == 3 or item.into == '0') and '1001' not in item.from_ and 'Consumable' not in item.tags and 'GoldPer' not in item.tags):
+            if((int(item.depth) == 3 or item.into == '0') and '1001' not in item.from_ and 'Consumable' not in item.tags and 'GoldPer' not in item.tags and 'Jungle' not in item.tags):
                 valid_items.append(int(item.id))
             if('1001' in item.from_):
                 valid_boots.append(int(item.id))
@@ -217,12 +217,18 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
                                 "flex": build['flex'],
                                 "offense": build['offense']}))
 
-        items.append(build['item0'])
-        items.append(build['item1'])
-        items.append(build['item2'])
-        items.append(build['item3'])
-        items.append(build['item4'])
-        items.append(build['item5'])
+        if(build['item0'] in valid_items):
+            items.append(build['item0'])
+        if(build['item1'] in valid_items):
+            items.append(build['item1'])
+        if(build['item2'] in valid_items):
+            items.append(build['item2'])
+        if(build['item3'] in valid_items):
+            items.append(build['item3'])
+        if(build['item4'] in valid_items):
+            items.append(build['item4'])
+        if(build['item5'] in valid_items):
+            items.append(build['item5'])
 
         for item in items:
             if(int(item) not in valid_items):
