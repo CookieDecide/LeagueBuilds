@@ -217,18 +217,9 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
                                 "flex": build['flex'],
                                 "offense": build['offense']}))
 
-        if(build['item0'] in valid_items):
-            items.append(build['item0'])
-        if(build['item1'] in valid_items):
-            items.append(build['item1'])
-        if(build['item2'] in valid_items):
-            items.append(build['item2'])
-        if(build['item3'] in valid_items):
-            items.append(build['item3'])
-        if(build['item4'] in valid_items):
-            items.append(build['item4'])
-        if(build['item5'] in valid_items):
-            items.append(build['item5'])
+        for item in [build['item0'],build['item1'],build['item2'],build['item3'],build['item4'],build['item5']]:
+            if(int(item) in valid_items):
+                items.append(int(item))
 
         start_item_list = []
         for item in ast.literal_eval(build['start_items']):
