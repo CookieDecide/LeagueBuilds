@@ -193,7 +193,6 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
 
     runes = []
     summs = []
-    stats = []
     items = []
     start_items = []
     items_build = []
@@ -208,14 +207,13 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
                                 "primaryPerk4": build['primaryPerk4'],
                                 "subStyle": build['subStyle'],
                                 "subPerk1": build['subPerk1'],
-                                "subPerk2": build['subPerk2']}))
+                                "subPerk2": build['subPerk2'],
+                                "defense": build['defense'],
+                                "flex": build['flex'],
+                                "offense": build['offense']}))
 
         summs.append(build['summoner1Id'])
         summs.append(build['summoner2Id'])
-
-        stats.append(json.dumps({"defense": build['defense'],
-                                "flex": build['flex'],
-                                "offense": build['offense']}))
 
         for item in [build['item0'],build['item1'],build['item2'],build['item3'],build['item4'],build['item5']]:
             if(int(item) in valid_items):
@@ -254,8 +252,6 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
 
     summ = sort_summs(summs)
 
-    stat = sort_stats(stats)
-
     item = sort_items(items)
 
     start_item = sort_start_items(start_items)
@@ -266,15 +262,19 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
 
     boot = sort_boots(boots)
 
-    return (rune|stat, summ, item, start_item, item_build, skill_order, boot)
+    return (rune, summ, item, start_item, item_build, skill_order, boot)
 
 def sort_runes(runes):
     rune, rune_count = numpy.unique(runes, return_counts=True)
+    rune_count_sort_ind = numpy.argsort(-rune_count)
 
     #if (len(rune)==0):
     #    return []
 
-    return json.loads(rune[rune_count.tolist().index(max(rune_count))])
+    if (len(rune[rune_count_sort_ind])<3):
+        return [json.loads(rune[rune_count_sort_ind][0])]
+    else:
+        return [json.loads(rune[rune_count_sort_ind][0]), json.loads(rune[rune_count_sort_ind][1]), json.loads(rune[rune_count_sort_ind][2])]
 
 def sort_summs(summs):
     summ, summ_count = numpy.unique(summs, return_counts=True)
@@ -284,14 +284,6 @@ def sort_summs(summs):
     #    return []
 
     return summ[summ_count_sort_ind][0:2].tolist()
-
-def sort_stats(stats):
-    stat, stat_count = numpy.unique(stats, return_counts=True)
-
-    #if (len(stat)==0):
-    #    return []
-
-    return json.loads(stat[stat_count.tolist().index(max(stat_count))])
 
 def sort_items(items):
     item, item_count = numpy.unique(items, return_counts=True)
