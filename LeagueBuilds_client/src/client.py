@@ -6,7 +6,7 @@ import json, ast
 def get_build(champion, position, summoner):
     start = datetime.datetime.now()
               
-    api_url = "http://" + config.server_ip + ":12345/builds/" + str(champion)
+    api_url = "http://" + config.server_ip + ":12345/builds_v1/" + str(champion)
     if(position != ""):
         api_url += "/" +  str(position).lower()
 
