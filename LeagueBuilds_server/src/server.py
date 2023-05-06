@@ -42,13 +42,18 @@ class Builds(Resource):
         ip = str(request.remote_addr)
         port = str(12345)
 
-        logger.info(f'{ip}\t{port}\t{request.headers.get("Summoner")}\t{champion}\t{position}')
+        summoner = request.headers.get("Summoner")
+        
+        if (not summoner):
+            summoner = "INCOGNITO"
+
+        logger.info(f'{ip}\t{port}\t{summoner}\t{champion}\t{position}')
 
         PLAYER.insert(
             time = datetime.now(),
             ip = ip,
             port = port,
-            summonername = request.headers.get("Summoner")
+            summonername = summoner
         ).execute()
 
         if(position!=''):
@@ -98,13 +103,18 @@ class Builds_V1(Resource):
         ip = str(request.remote_addr)
         port = str(12345)
 
-        logger.info(f'{ip}\t{port}\t{request.headers.get("Summoner")}\t{champion}\t{position}')
+        summoner = request.headers.get("Summoner")
+        
+        if (not summoner):
+            summoner = "INCOGNITO"
+
+        logger.info(f'{ip}\t{port}\t{summoner}\t{champion}\t{position}')
 
         PLAYER.insert(
             time = datetime.now(),
             ip = ip,
             port = port,
-            summonername = request.headers.get("Summoner")
+            summonername = summoner
         ).execute()
 
         if(position!=''):
