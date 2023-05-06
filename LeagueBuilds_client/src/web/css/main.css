@@ -1,6 +1,33 @@
+:root {
+  --color_background: #1C1C1C;
+  --color_document: #151515;
+  --color_text: white;
+  --color_hover_background: white;
+  --color_hover_text: dimgray;
+  --color_slash: tomato;
+}
+
+[data-theme="dark"] {
+  --color_background: #1C1C1C;
+  --color_document: #151515;
+  --color_text: white;
+  --color_hover_background: white;
+  --color_hover_text: dimgray;
+  --color_slash: tomato;
+}
+
+[data-theme="light"] {
+  --color_background: WhiteSmoke;
+  --color_document: white;
+  --color_text: dimgray;
+  --color_hover_background: dimgray;
+  --color_hover_text: white;
+  --color_slash: tomato;
+}
+
 body {
     overflow: hidden; /* Hide scrollbars */
-    background-color: dimgray;
+    background-color: var(--color_document);
     transition: all 0.5s ease;
 }
 
@@ -11,7 +38,7 @@ ul {
 }
 
 .wrapper .sidebar{
-    background: gray;
+    background: var(--color_background);
     position: fixed;
     top: 0;
     left: -225px;
@@ -25,14 +52,14 @@ ul {
 .wrapper .sidebar ul li a{
     display: block;
     padding: 13px 30px;
-    color: white;
+    color: var(--color_text);
     font-size: 16px;
     position: relative;
     transition: all 0.5s ease;
 }
 
 .wrapper .sidebar ul li a .icon{
-    color: white;
+    color: var(--color_text);
     width: 30px;
     display: inline-block;
     transition: all 0.5s ease;
@@ -47,15 +74,21 @@ ul {
     width: 100%;
     margin-left: 0px;
     transition: all 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .wrapper .section .top_navbar{
-    background: gray;
+    background: var(--color_background);
     height: 50px;
     display: flex;
     align-items: center;
     padding: 0 30px;
+}
 
+.wrapper .section .top_navbar #force_import_button{
+  color: var(--color_text);
 }
 
 .wrapper .section .top_navbar .hamburger a{
@@ -111,6 +144,7 @@ body.active .wrapper .section{
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
+    padding-top: 5px;
     padding-bottom: 5px;
     gap: 4px;
 }
@@ -118,10 +152,9 @@ body.active .wrapper .section{
 .summs {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-evenly;
     flex-wrap: wrap;
     padding-bottom: 5px;
-    gap: 80px;
 }
 
 .runes {
@@ -140,9 +173,18 @@ body.active .wrapper .section{
     gap: 2px;
 }
 
+.items {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 5px;
+  gap: 4px;
+}
+
 .title {
     text-align: center;
-    color: white;
+    color: var(--color_text);
 }
 
 .skillorder {
@@ -153,6 +195,11 @@ body.active .wrapper .section{
 .rune {
     width: 32px;
     height: 32px;
+}
+
+.item {
+  width: 32px;
+  height: 32px;
 }
 
 .skill {
@@ -166,23 +213,32 @@ body.active .wrapper .section{
 }
 
 .spell-window {
-    background-color: gray;
+    background-color: var(--color_background);
+    height: 50%;
 }
 
 .position-window {
-  background-color: gray;
+  background-color: var(--color_background);
 }
 
 .spellorder-window {
-    background-color: gray;
+    background-color: var(--color_background);
+    padding-bottom: 5px;
+    height: 50%;
 }
 
 .summoner-window {
-    background-color: gray;
+    background-color: var(--color_background);
+    height: 100%;
 }
 
 .runes-window {
-    background-color: gray;
+    background-color: var(--color_background);
+    width: 100%;
+}
+
+.items-window {
+    background-color: var(--color_background);
 }
 
 /*---------------#region Alert--------------- */
@@ -417,3 +473,10 @@ body.active .wrapper .section{
     color: #fff;
     text-shadow: 0 0 10px #000;
   }
+
+/*#######################################*/
+
+.fa-solid.fa-greater-than{
+  align-self: center;
+  color: var(--color_text);
+}

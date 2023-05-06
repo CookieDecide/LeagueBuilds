@@ -1,11 +1,13 @@
 import eel
 import sys
 
-from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS
+from models.statics_db import RUNES, RUNEKEYS, SUMMONER, CHAMPIONS, ITEMS
 import config
 
 from asyncio import run_coroutine_threadsafe
 import lcu
+
+runes = []
 
 def close_callback(route, websockets):
     if not websockets:
@@ -18,6 +20,8 @@ def set_spells(champion):
 
     entry = CHAMPIONS.get(CHAMPIONS.key == champion)
     version = entry.version
+
+    eel.set_champion_img('champion', 'https://ddragon.leagueoflegends.com/cdn/img/champion/loading/'+ entry.champion +'_0.jpg')
 
     eel.set_spell_img('img_passive', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/passive/' + entry.spell_image_passive)
     eel.set_spell_img('img_Q', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + entry.spell_image_q)
@@ -45,21 +49,21 @@ def set_spell_order(champion, skills):
     version = entry.version
     
     eel.set_title('spell-order', 'Spell-order')
-    eel.set_title('skill-1-name', spell_key[skills[0]])
+    eel.set_spell_name('skill-1-name', skills[0])
     eel.set_spell_order('skill-1', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[0]])
-    eel.set_title('skill-2-name', spell_key[skills[1]])
+    eel.set_spell_name('skill-2-name', skills[1])
     eel.set_spell_order('skill-2', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[1]])
-    eel.set_title('skill-3-name', spell_key[skills[2]])
+    eel.set_spell_name('skill-3-name', skills[2])
     eel.set_spell_order('skill-3', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[2]])
-    eel.set_title('skill-4-name', spell_key[skills[3]])
+    eel.set_spell_name('skill-4-name', skills[3])
     eel.set_spell_order('skill-4', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[3]])
-    eel.set_title('skill-5-name', spell_key[skills[4]])
+    eel.set_spell_name('skill-5-name', skills[4])
     eel.set_spell_order('skill-5', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[4]])
-    eel.set_title('skill-6-name', spell_key[skills[5]])
+    eel.set_spell_name('skill-6-name', skills[5])
     eel.set_spell_order('skill-6', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[5]])
-    eel.set_title('skill-7-name', spell_key[skills[6]])
+    eel.set_spell_name('skill-7-name', skills[6])
     eel.set_spell_order('skill-7', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[6]])
-    eel.set_title('skill-8-name', spell_key[skills[7]])
+    eel.set_spell_name('skill-8-name', skills[7])
     eel.set_spell_order('skill-8', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/spell/' + dict[skills[7]])
 
 def set_summs(champion, summ):
@@ -72,8 +76,90 @@ def set_summs(champion, summ):
 
     eel.set_summ_text(SUMMONER.get(SUMMONER.key == summ[0]).description,
                         SUMMONER.get(SUMMONER.key == summ[1]).description)
+    
+def set_items(champion, items):
+    entry = CHAMPIONS.get(CHAMPIONS.key == champion)
+    version = entry.version
 
-def set_runes(rune):
+    eel.set_title('items', 'Builds')
+    eel.set_item('item1', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[0][0]).id + '.png')
+    eel.set_item('item2', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[0][1]).id + '.png')
+    eel.set_item('item3', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[0][2]).id + '.png')
+
+    eel.set_item('item4', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[1][0]).id + '.png')
+    eel.set_item('item5', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[1][1]).id + '.png')
+    eel.set_item('item6', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[1][2]).id + '.png')
+
+    eel.set_item('item7', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[2][0]).id + '.png')
+    eel.set_item('item8', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[2][1]).id + '.png')
+    eel.set_item('item9', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[2][2]).id + '.png')
+
+    eel.set_item_text(ITEMS.get(ITEMS.id == items[0][0]).name,
+                        ITEMS.get(ITEMS.id == items[0][1]).name,
+                        ITEMS.get(ITEMS.id == items[0][2]).name,
+                        ITEMS.get(ITEMS.id == items[1][0]).name,
+                        ITEMS.get(ITEMS.id == items[1][1]).name,
+                        ITEMS.get(ITEMS.id == items[1][2]).name,
+                        ITEMS.get(ITEMS.id == items[2][0]).name,
+                        ITEMS.get(ITEMS.id == items[2][1]).name,
+                        ITEMS.get(ITEMS.id == items[2][2]).name)
+    
+def set_start_items(champion, items):
+    entry = CHAMPIONS.get(CHAMPIONS.key == champion)
+    version = entry.version
+
+    eel.set_title('start-items', 'Start Items')
+    for i in range(len(items[0])):
+        eel.set_item('start-item'+str(i+1), 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[0][i]).id + '.png')
+
+    names = [(ITEMS.get(ITEMS.id == items[0][i]).name) for i in range(len(items[0]))]
+    for i in range(len(items[0]),3):
+        names.append("")
+
+    eel.set_start_item_text(names[0],
+                      names[1],
+                      names[2])
+    
+def set_boots(champion, items):
+    entry = CHAMPIONS.get(CHAMPIONS.key == champion)
+    version = entry.version
+
+    eel.set_title('boots', 'Boots')
+    eel.set_item('boots1', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[0]).id + '.png')
+    eel.set_item('boots2', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[1]).id + '.png')
+    eel.set_item('boots3', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[2]).id + '.png')
+
+    eel.set_boots_text(ITEMS.get(ITEMS.id == items[0]).name,
+                      ITEMS.get(ITEMS.id == items[1]).name,
+                      ITEMS.get(ITEMS.id == items[2]).name)
+    
+def set_core_items(champion, items):
+    entry = CHAMPIONS.get(CHAMPIONS.key == champion)
+    version = entry.version
+
+    for item in [0,1054,1055,1056]:
+        try:
+            items.remove(item)
+        except:
+            pass
+
+    eel.set_title('core-items', 'Core Items')
+    eel.set_item('core-item1', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[0]).id + '.png')
+    eel.set_item('core-item2', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[1]).id + '.png')
+    eel.set_item('core-item3', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[2]).id + '.png')
+    eel.set_item('core-item4', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[3]).id + '.png')
+    eel.set_item('core-item5', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[4]).id + '.png')
+    eel.set_item('core-item6', 'https://ddragon.leagueoflegends.com/cdn/' + version + '/img/item/' + ITEMS.get(ITEMS.id == items[5]).id + '.png')
+
+    eel.set_core_item_text(ITEMS.get(ITEMS.id == items[0]).name,
+                      ITEMS.get(ITEMS.id == items[1]).name,
+                      ITEMS.get(ITEMS.id == items[2]).name,
+                      ITEMS.get(ITEMS.id == items[3]).name,
+                      ITEMS.get(ITEMS.id == items[4]).name,
+                      ITEMS.get(ITEMS.id == items[5]).name)
+
+def set_runes(index):
+    rune = runes[index]
     dict = {5001:'StatModsHealthScalingIcon.png', 5002:'StatModsArmorIcon.png', 5003:'StatModsMagicResIcon.png', 5005:'StatModsAttackSpeedIcon.png', 5007:'StatModsCDRScalingIcon.png', 5008:'StatModsAdaptiveForceIcon.png'}
 
     eel.set_title('runes', 'Runes')
@@ -112,7 +198,7 @@ def start():
                                 host='localhost', 
                                 port=27000, 
                                 block=True, 
-                                size=(320, 980), 
+                                size=(1000, 850), 
                                 position=(0,0), 
                                 disable_cache=True, 
                                 close_callback=close_callback,
@@ -123,18 +209,36 @@ def start():
                                 host='localhost', 
                                 port=27000, 
                                 block=True, 
-                                size=(320, 950), 
+                                size=(1000, 850), 
                                 position=(0,0), 
                                 disable_cache=True, 
                                 close_callback=close_callback,
                                 )
 
-def set_info(champion, rune, summ, skills, position):
+def set_info(champion, rune, summ, skills, position, items, start_items, boots, core_items):
+    global runes
+    runes = rune
+
     set_spells(champion)
     set_spell_order(champion, skills)
     set_summs(champion, summ)
-    set_runes(rune)
+    set_runes(0)
+    eel.init_rune()
     set_position(position)
+    set_items(champion, items)
+    set_start_items(champion, start_items)
+    set_boots(champion, boots)
+    set_core_items(champion, core_items)
+
+@eel.expose
+def update_runes(index):
+    try:
+        run_coroutine_threadsafe(lcu.current_perks_delete(lcu.connector.connection), lcu.connector.loop)
+        run_coroutine_threadsafe(lcu.set_perks(lcu.connector.connection, lcu.champion, runes[index], CHAMPIONS.get(CHAMPIONS.key == lcu.champion).champion), lcu.connector.loop)
+    except:
+        pass
+    
+    set_runes(index)
 
 @eel.expose
 def get_darkmode():

@@ -1,26 +1,23 @@
 var text_passive, text_q, text_w, text_e, text_r;
 var text_summ1, text_summ2;
+var text_item1, text_item2, text_item3, text_item4, text_item5, text_item6, text_item7, text_item8, text_item9;
+var text_start_item1, text_start_item2, text_start_item3;
+var text_boot1, text_boot2, text_boot3;
+var text_core_item1, text_core_item2, text_core_item3, text_core_item4, text_core_item5, text_core_item6;
 var text_primarystyle, text_primaryperk1, text_primaryperk2, text_primaryperk3, text_primaryperk4;
 var text_substyle, text_subperk1, text_subperk2;
 var src_passive, src_q, src_w, src_e, src_r;
 var mode = 'dark';
 var flash_on_f = 0;
-var color_background_dark = "gray";
-var color_background_light = "WhiteSmoke";
-var color_document_dark = "dimgray";
-var color_document_light = "white";
-var color_text_dark = "white";
-var color_text_light = "dimgray";
-var color_hover_background_dark = "white";
-var color_hover_background_light = "dimgray";
-var color_hover_text_dark = "dimgray";
-var color_hover_text_light = "white";
 var color_slash = "tomato";
 var role = "";
+var rune_page = "";
 
 bind_spells();
 bind_summs();
 bind_runes();
+bind_items();
+bind_start_items();
 
 eel.get_darkmode()(init_mode);
 eel.get_import_runes()(init_runes);
@@ -30,7 +27,7 @@ eel.get_position_flash()(init_flash);
 
 function init_mode(dark) {
     switch_mode();
-    if(dark)
+    if(!dark)
     {
         switch_mode();
     }
@@ -62,135 +59,20 @@ function init_flash(flash_on_f) {
 }
 
 function switch_mode() {
-    var ul = document.getElementById("sidebar_ul");
-    var a = ul.getElementsByTagName("a");
-    var items = ul.getElementsByClassName("item");
-    var icons = ul.getElementsByClassName("icon");
+    document.documentElement.setAttribute('data-theme', mode);
     if (mode == 'dark')
     {
         mode = 'light';
-        document.body.style.background = color_document_light;
-
-        document.getElementById("mode").innerHTML = "Light Mode";
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_text_light;
-        }
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_light;
-        }
-        for (i = 0; i < a.length; i++) {
-            a[i].style.backgroundColor = color_background_light;
-        }
-        var flash_pos_button = document.getElementById("flash_pos_button");
-        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
-        for (i = 0; i < fas.length; i++) {
-            if (i % 2 == 1) {fas[i].style.color = color_text_dark;}
-            else {fas[i].style.color = color_text_light;}
-        }
-
-        document.getElementById("top_navbar").style.backgroundColor = color_background_light;
-        document.getElementById("bars_icon").style.color = color_text_light;
-        document.getElementById("sidebar_1").style.backgroundColor = color_background_light;
-
-        document.getElementById("force_import_button").style.color = color_text_light;
-        var icons = document.getElementById("force_import_button").getElementsByClassName("icon");
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_light;
-        }
-
-        document.getElementById("position-window").style.backgroundColor = color_background_light;
-
-        var img = document.getElementById("position-list").children;
-        for(i = 0; i < img.length; i++){
-            img[i].style.background = color_background_light;
-        }
-        if(role != "")
-        {
-            document.getElementById(role).style.background = color_background_dark;
-        }
-
-        document.getElementById("spell-window").style.backgroundColor = color_background_light;
-        document.getElementById("spellorder-window").style.backgroundColor = color_background_light;
-        document.getElementById("summoner-window").style.backgroundColor = color_background_light;
-        document.getElementById("runes-window").style.backgroundColor = color_background_light;
-        
-        document.getElementById("spells").style.color = color_text_light;
-        document.getElementById("spell-order").style.color = color_text_light;
-        document.getElementById("summoner-spells").style.color = color_text_light;
-        document.getElementById("runes").style.color = color_text_light;
     }
-    else if (mode == 'light')
+    else
     {
         mode = 'dark';
-        document.body.style.background = color_document_dark;
-
-        document.getElementById("mode").innerHTML = "Dark Mode";
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_text_dark;
-        }
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_dark;
-        }
-        for (i = 0; i < a.length; i++) {
-            a[i].style.backgroundColor = color_background_dark;
-        }
-        var flash_pos_button = document.getElementById("flash_pos_button");
-        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
-        for (i = 0; i < fas.length; i++) {
-            if (i % 2 == 1) {fas[i].style.color = color_text_light;}
-            else {fas[i].style.color = color_text_dark;}
-        }
-
-        document.getElementById("top_navbar").style.backgroundColor = color_background_dark;
-        document.getElementById("bars_icon").style.color = color_text_dark;
-        document.getElementById("sidebar_1").style.backgroundColor = color_background_dark;
-        
-        document.getElementById("force_import_button").style.color = color_text_dark;
-        var icons = document.getElementById("force_import_button").getElementsByClassName("icon");
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_dark;
-        }
-
-        document.getElementById("position-window").style.backgroundColor = color_background_dark;
-
-        var img = document.getElementById("position-list").children;
-        for(i = 0; i < img.length; i++){
-            img[i].style.background = color_background_dark;
-        }
-        if(role != "")
-        {
-            document.getElementById(role).style.background = color_hover_background_dark;
-        }
-
-        document.getElementById("spell-window").style.backgroundColor = color_background_dark;
-        document.getElementById("spellorder-window").style.backgroundColor = color_background_dark;
-        document.getElementById("summoner-window").style.backgroundColor = color_background_dark;
-        document.getElementById("runes-window").style.backgroundColor = color_background_dark;
-
-        document.getElementById("spells").style.color = color_text_dark;
-        document.getElementById("spell-order").style.color = color_text_dark;
-        document.getElementById("summoner-spells").style.color = color_text_dark;
-        document.getElementById("runes").style.color = color_text_dark;
     }
+    
 }
 
 function toggle_mode() {
     switch_mode();
-    
-    if (mode == 'dark')
-    {
-        var mode_button = document.getElementById("mode_button");
-        mode_button.style.backgroundColor = color_hover_background_dark;
-        mode_button.getElementsByClassName("item")[0].style.color = color_hover_text_dark;
-        mode_button.getElementsByClassName("icon")[0].style.color = color_hover_text_dark;
-    }
-    else if (mode == 'light')
-    {
-        var mode_button = document.getElementById("mode_button");
-        mode_button.style.backgroundColor = color_hover_background_light;
-        mode_button.getElementsByClassName("item")[0].style.color = color_hover_text_light;
-        mode_button.getElementsByClassName("icon")[0].style.color = color_hover_text_light;
-    }
 
     eel.toggle_darkmode();
 }
@@ -265,12 +147,7 @@ function create_flash_icon() {
         element.className = "fa fa-f fa-stack-1x fa-xs";
     }
 
-    if (mode == "dark") {
-        element.style.color = color_text_light;
-    }
-    else if (mode == 'light') {
-        element.style.color = color_text_dark;
-    }
+    element.style.color = "var(--color_hover_text)";
 
     return element;
 }
@@ -299,25 +176,13 @@ function switch_flash_pos() {
 function toggle_flash_pos() {
     switch_flash_pos();
 
-    if (mode == "dark") {
-        var flash_pos_button = document.getElementById("flash_pos_button");
-        flash_pos_button.style.backgroundColor = color_hover_background_dark;
-        flash_pos_button.getElementsByClassName("item")[0].style.color = color_hover_text_dark;
-        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
-        for (i = 0; i < fas.length; i++) {
-            if (i % 2 == 1) {fas[i].style.color = color_hover_text_light;}
-            else {fas[i].style.color = color_hover_text_dark;}
-        }
-    }
-    else if (mode == "light") {
-        var flash_pos_button = document.getElementById("flash_pos_button");
-        flash_pos_button.style.backgroundColor = color_hover_background_light;
-        flash_pos_button.getElementsByClassName("item")[0].style.color = color_hover_text_light;
-        var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
-        for (i = 0; i < fas.length; i++) {
-            if (i % 2 == 1) {fas[i].style.color = color_hover_text_dark;}
-            else {fas[i].style.color = color_hover_text_light;}
-        }
+    var flash_pos_button = document.getElementById("flash_pos_button");
+    flash_pos_button.style.backgroundColor = "var(--color_hover_background)";
+    flash_pos_button.getElementsByClassName("item")[0].style.color = "var(--color_hover_text)";
+    var fas = flash_pos_button.getElementsByClassName("icon")[0].getElementsByClassName("fa");
+    for (i = 0; i < fas.length; i++) {
+        if (i % 2 == 1) {fas[i].style.color = "var(--color_text)";}
+        else {fas[i].style.color = "var(--color_hover_text)";}
     }
 
     eel.toggle_position_flash();
@@ -328,24 +193,12 @@ function force_import() {
 }
 
 function reset_position() {
-    if (mode == 'dark')
-    {
-        var img = document.getElementById("position-list").children;
-        for(i = 0; i < img.length; i++){
-            img[i].style.background = color_background_dark;
-        }
-
-        document.getElementById(role).style.background = color_hover_background_dark;
+    var img = document.getElementById("position-list").children;
+    for(i = 0; i < img.length; i++){
+        img[i].style.background = "var(--color_background)";
     }
-    else
-    {
-        var img = document.getElementById("position-list").children;
-        for(i = 0; i < img.length; i++){
-            img[i].style.background = color_background_light;
-        }
 
-        document.getElementById(role).style.background = color_background_dark;
-    } 
+    document.getElementById(role).style.background = "var(--color_hover_background)";
 }
 
 function force_position(position) {
@@ -360,85 +213,71 @@ function set_position(position) {
     reset_position();
 }
 
+function reset_runes() {
+    var img = document.getElementById("rune-list").children;
+    for(i = 0; i < img.length; i++){
+        img[i].style.background = "var(--color_background)";
+        img[i].style.color = "var(--color_text)";
+    }
+
+    document.getElementById(rune_page).style.background = "var(--color_hover_background)";
+    document.getElementById(rune_page).style.color = "var(--color_hover_text)";
+}
+
+function select_runes(index) {
+    pages = ["rune_1", "rune_2", "rune_3"];
+    eel.update_runes(index);
+    rune_page = pages[index];
+    reset_runes();
+}
+
+eel.expose(init_rune);
+function init_rune() {
+    rune_page = "rune_1";
+    reset_runes();
+}
+
 function hover_enter_function(element) {
     var items = element.getElementsByClassName("item");
     var icons = element.getElementsByClassName("icon");
-    if (mode == 'dark')
-    {
-        element.style.backgroundColor = color_hover_background_dark;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_hover_text_dark;
-        }
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_hover_text_dark;
-        }
+
+    element.style.backgroundColor = "var(--color_hover_background)";
+    element.style.color = "var(--color_hover_text)";
+    for (i = 0; i < items.length; i++) {
+        items[i].style.color = "var(--color_hover_text)";
     }
-    else if (mode == 'light')
-    {
-        element.style.backgroundColor = color_hover_background_light;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_hover_text_light;
-        }
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_hover_text_light;
-        }
+    for (i = 0; i < icons.length; i++) {
+        icons[i].style.color = "var(--color_hover_text)";
     }
 }
 
 function hover_leave_function(element) {
     var items = element.getElementsByClassName("item");
     var icons = element.getElementsByClassName("icon");
-    if (mode == 'dark')
-    {
-        element.style.backgroundColor = color_background_dark;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_text_dark;
-        }
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_dark;
-        }
+
+    element.style.backgroundColor = "var(--color_background)";
+    element.style.color = "var(--color_text)";
+    for (i = 0; i < items.length; i++) {
+        items[i].style.color = "var(--color_text)";
     }
-    else if (mode == 'light')
-    {
-        element.style.backgroundColor = color_background_light;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_text_light;
-        }
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_light;
-        }
+    for (i = 0; i < icons.length; i++) {
+        icons[i].style.color = "var(--color_text)";
     }
 }
 
 function hover_enter_function_flash_pos(element) {
     var items = element.getElementsByClassName("item");
     var icons = element.getElementsByClassName("icon");
-    if (mode == 'dark')
-    {
-        element.style.backgroundColor = color_hover_background_dark;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_hover_text_dark;
-        }
-        for (i = 0; i < icons.length; i++) {
-            var fas = icons[i].getElementsByClassName("fa");
-            for (ii = 0; ii < fas.length; ii++) {
-                if (ii % 2 == 1) {fas[ii].style.color = color_hover_text_light;}
-                else {fas[ii].style.color = color_hover_text_dark;}
-            }
-        }
+
+    element.style.backgroundColor = "var(--color_hover_background)";
+    for (i = 0; i < items.length; i++) {
+        items[i].style.color = "var(--color_hover_text)";
     }
-    else if (mode == 'light')
-    {
-        element.style.backgroundColor = color_hover_background_light;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_hover_text_light;
-        }
-        for (i = 0; i < icons.length; i++) {
-            var fas = icons[i].getElementsByClassName("fa");
-            for (ii = 0; ii < fas.length; ii++) {
-                if (ii % 2 == 1) {fas[ii].style.color = color_hover_text_dark;}
-                else {fas[ii].style.color = color_hover_text_light;}
-            }
+    for (i = 0; i < icons.length; i++) {
+        var fas = icons[i].getElementsByClassName("fa");
+        for (ii = 0; ii < fas.length; ii++) {
+            if (ii % 2 == 1) {fas[ii].style.color = "var(--color_hover_background)";}
+            else {fas[ii].style.color = "var(--color_hover_text)";}
         }
     }
 }
@@ -446,32 +285,16 @@ function hover_enter_function_flash_pos(element) {
 function hover_leave_function_flash_pos(element) {
     var items = element.getElementsByClassName("item");
     var icons = element.getElementsByClassName("icon");
-    if (mode == 'dark')
-    {
-        element.style.backgroundColor = color_background_dark;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_text_dark;
-        }
-        for (i = 0; i < icons.length; i++) {
-            var fas = icons[i].getElementsByClassName("fa");
-            for (ii = 0; ii < fas.length; ii++) {
-                if (ii % 2 == 1) {fas[ii].style.color = color_text_light;}
-                else {fas[ii].style.color = color_text_dark;}
-            }
-        }
+
+    element.style.backgroundColor = "var(--color_background)";
+    for (i = 0; i < items.length; i++) {
+        items[i].style.color = "var(--color_text)";
     }
-    else if (mode == 'light')
-    {
-        element.style.backgroundColor = color_background_light;
-        for (i = 0; i < items.length; i++) {
-            items[i].style.color = color_text_light;
-        }
-        for (i = 0; i < icons.length; i++) {
-            var fas = icons[i].getElementsByClassName("fa");
-            for (ii = 0; ii < fas.length; ii++) {
-                if (ii % 2 == 1) {fas[ii].style.color = color_text_dark;}
-                else {fas[ii].style.color = color_text_light;}
-            }
+    for (i = 0; i < icons.length; i++) {
+        var fas = icons[i].getElementsByClassName("fa");
+        for (ii = 0; ii < fas.length; ii++) {
+            if (ii % 2 == 1) {fas[ii].style.color = "var(--color_background)";}
+            else {fas[ii].style.color = "var(--color_text)";}
         }
     }
 }
@@ -489,47 +312,44 @@ function hover_leave_function_force_import(element) {
     document.getElementById('force_import_button_tooltip').style.visibility = 'hidden';
 
     var icons = element.getElementsByClassName("icon");
-    if (mode == 'dark')
-    {
-        element.style.color = color_text_dark;
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_dark;
-        }
-    }
-    else if (mode == 'light')
-    {
-        element.style.color = color_text_light;
-        for (i = 0; i < icons.length; i++) {
-            icons[i].style.color = color_text_light;
-        }
+
+    element.style.color = "var(--color_text)";
+    for (i = 0; i < icons.length; i++) {
+        icons[i].style.color = "var(--color_text)";
     }
 }
 
 function hover_enter_function_roles(element) {
+
     if(element.id != role)
     {
-        if (mode == 'dark')
-        {
-            element.style.background = color_hover_background_dark;
-        }
-        else if (mode == 'light')
-        {
-            element.style.background = color_background_dark;
-        }
+        element.style.background = "var(--color_hover_background)";
     }
 }
 
 function hover_leave_function_roles(element) {
+
     if(element.id != role)
     {
-        if (mode == 'dark')
-        {
-            element.style.background = color_background_dark;
-        }
-        else if (mode == 'light')
-        {
-            element.style.background = color_background_light;
-        }
+        element.style.background = "var(--color_background)";
+    }
+}
+
+function hover_enter_function_runes(element) {
+
+    if(element.id != rune_page)
+    {
+        element.style.background = "var(--color_hover_background)";
+        element.style.color = "var(--color_hover_text)";
+    }
+}
+
+function hover_leave_function_runes(element) {
+
+    if(element.id != rune_page)
+    {
+        element.style.background = "var(--color_background)";
+        element.style.color = "var(--color_text)";
     }
 }
 
@@ -595,14 +415,100 @@ function bind_runes()
     document.getElementById("subperk2").addEventListener("mouseleave", function(){document.getElementById('rune-tooltip').style.visibility = 'hidden';});
 }
 
+function bind_items()
+{
+    document.getElementById("item1").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item1;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item1").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item2").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item2;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item2").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item3").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item3;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item3").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item4").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item4;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item4").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item5").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item5;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item5").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item6").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item6;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item6").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item7").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item7;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item7").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item8").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item8;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item8").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("item9").addEventListener("mouseenter", function(){document.getElementById('item-tooltip').innerHTML = text_item9;document.getElementById('item-tooltip').style.visibility = 'visible';});
+    document.getElementById("item9").addEventListener("mouseleave", function(){document.getElementById('item-tooltip').style.visibility = 'hidden';});
+}
+
+function bind_start_items()
+{
+    document.getElementById("start-item1").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_start_item1;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("start-item1").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("start-item2").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_start_item2;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("start-item2").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("start-item3").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_start_item3;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("start-item3").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("boots1").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_boot1;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("boots1").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("boots2").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_boot2;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("boots2").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("boots3").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_boot3;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("boots3").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("core-item1").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_core_item1;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("core-item1").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("core-item2").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_core_item2;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("core-item2").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("core-item3").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_core_item3;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("core-item3").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("core-item4").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_core_item4;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("core-item4").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("core-item5").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_core_item5;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("core-item5").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+
+    document.getElementById("core-item6").addEventListener("mouseenter", function(){document.getElementById('start-tooltip').innerHTML = text_core_item6;document.getElementById('start-tooltip').style.visibility = 'visible';});
+    document.getElementById("core-item6").addEventListener("mouseleave", function(){document.getElementById('start-tooltip').style.visibility = 'hidden';});
+}
+
 eel.expose(set_spell_img);
 function set_spell_img(id, img) {
     document.getElementById(id).src = img;
 }
 
+eel.expose(set_champion_img);
+function set_champion_img(id, img) {
+    document.getElementById(id).src = img;
+    document.getElementById(id).style = "width: 100%;height: 100%;";
+
+    document.getElementById("cover").style.visibility = "hidden";
+    document.getElementById("main_block").style.visibility = "visible";
+}
+
 eel.expose(set_title);
 function set_title(id, title) {
     document.getElementById(id).innerText = title;
+}
+
+eel.expose(set_spell_name);
+function set_spell_name(id, index) {
+    const names = ["Q", "W", "E", "R"];
+    const spell_colors = ["Crimson", "YellowGreen", "DeepSkyBlue", "Gold"];
+    document.getElementById(id).innerText = names[index-1];
+    document.getElementById(id).style.color = spell_colors[index-1];
 }
 
 eel.expose(set_spell_order);
@@ -621,6 +527,12 @@ eel.expose(set_rune);
 function set_rune(id, img) {
     document.getElementById(id).src = img;
     document.getElementById(id).className = "rune";
+}
+
+eel.expose(set_item);
+function set_item(id, img) {
+    document.getElementById(id).src = img;
+    document.getElementById(id).className = "item";
 }
 
 eel.expose(set_spell_text);
@@ -645,6 +557,43 @@ eel.expose(set_summ_text);
 function set_summ_text(summ1, summ2) {
     text_summ1 = summ1; 
     text_summ2 = summ2;
+}
+
+eel.expose(set_item_text);
+function set_item_text(item1, item2, item3, item4, item5, item6, item7, item8, item9) {
+    text_item1 = item1; 
+    text_item2 = item2;
+    text_item3 = item3;
+    text_item4 = item4; 
+    text_item5 = item5;
+    text_item6 = item6;
+    text_item7 = item7; 
+    text_item8 = item8;
+    text_item9 = item9;
+}
+
+eel.expose(set_start_item_text);
+function set_start_item_text(item1, item2, item3) {
+    text_start_item1 = item1; 
+    text_start_item2 = item2;
+    text_start_item3 = item3;
+}
+
+eel.expose(set_boots_text);
+function set_boots_text(item1, item2, item3) {
+    text_boot1 = item1; 
+    text_boot2 = item2;
+    text_boot3 = item3;
+}
+
+eel.expose(set_core_item_text);
+function set_core_item_text(item1, item2, item3, item4, item5, item6) {
+    text_core_item1 = item1; 
+    text_core_item2 = item2;
+    text_core_item3 = item3;
+    text_core_item4 = item4; 
+    text_core_item5 = item5;
+    text_core_item6 = item6;
 }
 
 eel.expose(set_rune_text);

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/font-awesome.min.css"> -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://kit.fontawesome.com/af6c787b1c.js" crossorigin="anonymous"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeagueBuilds</title>
 
@@ -97,108 +98,211 @@
                     </div>
                 </div>
 
-
-                <div class="spell-window" id="spell-window">
+                <div id="cover" style="position: absolute;left: 0px;top: 0px;width: 100%;height: 100%;background: var(--color_background);z-index: 1;visibility: visible;">
                     <h1 id="spells" class="title">Waiting for champion...</h1>
-                    <div class="spell-info">
-                        <div id="passive" class="tooltip">
-                            <img id="img_passive" src="">
-                        </div>
-        
-                        <div id="Q" class="tooltip">
-                            <img id="img_Q" src="">
-                        </div>
-                        <div id="W" class="tooltip">
-                            <img id="img_W" src="">
-                        </div>
-                        <div id="E" class="tooltip">
-                            <img id="img_E" src="">
-                        </div>
-                        <div id="R" class="tooltip">
-                            <img id="img_R" src="">
-                        </div>
-                    </div>
-                    <span id="spell-tooltip" class="tooltiptext" style="display: flex;flex-direction: column;">
-                        <span id="spell-tooltip-text">Tooltip Text</span>
-                        <video id="spell-video" src="https://d28xe8vt774jo5.cloudfront.net/champion-abilities/0021/ability_0021_Q1.webm" width="100%" style="max-width: 600px;align-self: center;" autoplay muted loop>
-                    </span>
                 </div>
-        
-                <div class="spellorder-window" id="spellorder-window">
-                    <h1 id="spell-order" class="title"></h1>
-                    <div class="spell-info">
-                        <div class="skilldiv">
-                            <a id="skill-1-name" class="skill"></a>
-                            <img id="skill-1"  class="" src="">
+
+                <div id="main_block" style="display:flex;flex-direction: row;width: 100%;gap: 5px;visibility: hidden;">
+                    <div id="left_block" style="display:flex;flex-direction: column;width: 75%;padding-top: 5px;gap: 5px;">
+                        <div id="left_1" style="display:flex;flex-direction: row;justify-content: space-between;gap: 5px;">
+                            <div id="left_1_1" style="display:flex;flex-direction: row;width: 25%;height: 100%;">
+                                <img id="champion" class="" src="">
+                            </div>
+
+                            <div id="left_1_2" style="display:flex;flex-direction: column;width: 25%;height: 100%;">
+                                <div class="summoner-window" id="summoner-window">
+                                    <h1 id="summoner-spells" class="title"></h1>
+                                    <div class="summs">
+                                        <img id="summ-1"  class="" src="">
+                                        <img id="summ-2"  class="" src="">
+                                    </div>
+                                    <span id="summ-tooltip" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_1_3" style="display:flex;flex-direction: column;width: 50%;height: 100%;">
+                                <div class="spell-window" id="spell-window">
+                                    <h1 id="spells" class="title">Waiting for champion...</h1>
+                                    <div class="spell-info">
+                                        <div id="passive" class="tooltip">
+                                            <img id="img_passive" src="">
+                                        </div>
+                        
+                                        <div id="Q" class="tooltip">
+                                            <img id="img_Q" src="">
+                                        </div>
+                                        <div id="W" class="tooltip">
+                                            <img id="img_W" src="">
+                                        </div>
+                                        <div id="E" class="tooltip">
+                                            <img id="img_E" src="">
+                                        </div>
+                                        <div id="R" class="tooltip">
+                                            <img id="img_R" src="">
+                                        </div>
+                                    </div>
+                                    <span id="spell-tooltip" class="tooltiptext" style="display: flex;flex-direction: column;">
+                                        <span id="spell-tooltip-text">Tooltip Text</span>
+                                        <video id="spell-video" src="https://d28xe8vt774jo5.cloudfront.net/champion-abilities/0021/ability_0021_Q1.webm" width="100%" style="max-width: 600px;align-self: center;" autoplay muted loop>
+                                    </span>
+                                </div>
+
+                                <div class="spellorder-window" id="spellorder-window">
+                                    <h1 id="spell-order" class="title"></h1>
+                                    <div class="spell-info">
+                                        <div class="skilldiv">
+                                            <a id="skill-1-name" class="skill"></a>
+                                            <img id="skill-1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-2-name" class="skill"></a>
+                                            <img id="skill-2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-3-name" class="skill"></a>
+                                            <img id="skill-3"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-4-name" class="skill"></a>
+                                            <img id="skill-4"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-5-name" class="skill"></a>
+                                            <img id="skill-5"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-6-name" class="skill"></a>
+                                            <img id="skill-6"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-7-name" class="skill"></a>
+                                            <img id="skill-7"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-8-name" class="skill"></a>
+                                            <img id="skill-8"  class="" src="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="skilldiv">
-                            <a id="skill-2-name" class="skill"></a>
-                            <img id="skill-2"  class="" src="">
+
+                        <div id="left_2" style="display:flex;flex-direction: row;gap: 5px;">
+                            <div id="left_2_1" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window">
+                                    <h1 id="start-items" class="title"></h1>
+                                    <div class="items">
+                                        <img id="start-item1"  class="" src="">
+                                        <img id="start-item2"  class="" src="">
+                                        <img id="start-item3"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_2_2" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window">
+                                    <h1 id="boots" class="title"></h1>
+                                    <div class="items">
+                                        <img id="boots1"  class="" src="">
+                                        <img id="boots2"  class="" src="">
+                                        <img id="boots3"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_2_3" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window">
+                                    <h1 id="core-items" class="title"></h1>
+                                    <div class="items">
+                                        <img id="core-item1"  class="" src="">
+                                        <img id="core-item2"  class="" src="">
+                                        <img id="core-item3"  class="" src="">
+                                        <img id="core-item4"  class="" src="">
+                                        <img id="core-item5"  class="" src="">
+                                        <img id="core-item6"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="skilldiv">
-                            <a id="skill-3-name" class="skill"></a>
-                            <img id="skill-3"  class="" src="">
-                        </div>
-                        <div class="skilldiv">
-                            <a id="skill-4-name" class="skill"></a>
-                            <img id="skill-4"  class="" src="">
-                        </div>
-                        <div class="skilldiv">
-                            <a id="skill-5-name" class="skill"></a>
-                            <img id="skill-5"  class="" src="">
-                        </div>
-                        <div class="skilldiv">
-                            <a id="skill-6-name" class="skill"></a>
-                            <img id="skill-6"  class="" src="">
-                        </div>
-                        <div class="skilldiv">
-                            <a id="skill-7-name" class="skill"></a>
-                            <img id="skill-7"  class="" src="">
-                        </div>
-                        <div class="skilldiv">
-                            <a id="skill-8-name" class="skill"></a>
-                            <img id="skill-8"  class="" src="">
+
+                        <div id="left_3" style="display: flex;flex-direction: column;">
+                            <div class="items-window" id="items-window">
+                                <h1 id="items" class="title"></h1>
+                                <div class="items">
+                                    <img id="item1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item3"  class="" src="">
+                                </div>
+                                <div class="items">
+                                    <img id="item4"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item5"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item6"  class="" src="">
+                                </div>
+                                <div class="items">
+                                    <img id="item7"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item8"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item9"  class="" src="">
+                                </div>
+                                <span id="item-tooltip" class="tooltiptext">Tooltip text</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-        
-                <div class="summoner-window" id="summoner-window">
-                    <h1 id="summoner-spells" class="title"></h1>
-                    <div class="summs">
-                        <img id="summ-1"  class="" src="">
-                        <img id="summ-2"  class="" src="">
-                    </div>
-                    <span id="summ-tooltip" class="tooltiptext">Tooltip text</span>
-                </div>
-        
-                <div class="runes-window" id="runes-window">
-                    <h1 id="runes" class="title"></h1>
-                    <div class="runes">
-                        <div class="runescolumn">
-                            <img id="primarystyle"  class="" src="">
-                            <img id="primaryperk1"  class="" src="">
-                            <img id="primaryperk2"  class="" src="">
-                            <img id="primaryperk3"  class="" src="">
-                            <img id="primaryperk4"  class="" src="">
+                    <div id="right_block" style="display:flex;flex-direction: column;width: 25%;padding-top: 5px;">
+                        <div id="right_1" style="display: flex;justify-content: center;height: 100%;">
+                            <div class="runes-window" id="runes-window">
+                                <h1 id="runes" class="title"></h1>
+
+                                <div class="spell-info" id="rune-list" style="display: flex;flex-direction: row;justify-content: space-evenly;padding-bottom: 10px;background-color: var(--color_background);">
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-1 fa-2x" id="rune_1" onclick="select_runes(0);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-2 fa-2x" id="rune_2" onclick="select_runes(1);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+                                    
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-3 fa-2x" id="rune_3" onclick="select_runes(2);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+                                </div>
+
+                                <div class="runes">
+                                    <div class="runescolumn">
+                                        <img id="primarystyle"  class="" src="">
+                                        <img id="primaryperk1"  class="" src="">
+                                        <img id="primaryperk2"  class="" src="">
+                                        <img id="primaryperk3"  class="" src="">
+                                        <img id="primaryperk4"  class="" src="">
+                                    </div>
+                                    <div class="runescolumn">
+                                        <img id="substyle"  class="" src="">
+                                        <img id="subperk1"  class="" src="">
+                                        <img id="subperk2"  class="" src="">
+                                        <img id="offense"  class="" src="">
+                                        <img id="flex" class="" src="">
+                                        <img id="defense" class="" src="">
+                                    </div>
+                                </div>
+                                <span id="rune-tooltip" class="tooltiptext">Tooltip text</span>
+                            </div>
                         </div>
-                        <div class="runescolumn">
-                            <img id="substyle"  class="" src="">
-                            <img id="subperk1"  class="" src="">
-                            <img id="subperk2"  class="" src="">
-                            <img id="offense"  class="" src="">
-                            <img id="flex" class="" src="">
-                            <img id="defense" class="" src="">
+
+                        <div id="right_2" style="display: flex;padding: 50px;">
+                            <a href="https://github.com/sponsors/CookieDecide?o=esb" class="donate" target="_blank">DONATE</a>
                         </div>
                     </div>
-                    <span id="rune-tooltip" class="tooltiptext">Tooltip text</span>
+
+                    
                 </div>
                 
             </div>
 
         </div>
     </div>
-    <footer><p id="version"></p></footer>
-    <a href="https://github.com/sponsors/CookieDecide?o=esb" class="donate" target="_blank">DONATE</a>
+    <footer><p id="version" style="text-align: right; color: var(--color_text);"></p></footer>
 </body>
 <div id="popup"></div>
 <script src="js/main.js"></script>
