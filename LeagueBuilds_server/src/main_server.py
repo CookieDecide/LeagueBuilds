@@ -91,6 +91,8 @@ while True:
         sortingProcess = threading.Thread(target=sort)
         sortingProcess.daemon = True
         sortingProcess.start()
+
+        time.sleep(60)
         
         dynamics.clean_builds()
         
