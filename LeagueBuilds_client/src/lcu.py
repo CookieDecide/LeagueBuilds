@@ -89,13 +89,16 @@ async def set_rune_summ_item(connection, champion, position = ""):
 
     championId,rune,summ,item,start_item,item_build,skills,position,champion_name, boots = client.get_build(champion, position, await get_summoner_name(connection))
 
+    if isinstance(rune, dict):
+        rune = [rune, rune, rune]
+    
     print(champion_name)
 
     accountId, summonerId = await get_acc_sum_id(connection)
 
     if(config.import_runes):
         await current_perks_delete(connection)
-        await set_perks(connection, champion, rune, champion_name)
+        await set_perks(connection, champion, rune[0], champion_name)
 
     if(config.import_summs):
         await set_summs(connection, summ)
@@ -104,7 +107,7 @@ async def set_rune_summ_item(connection, champion, position = ""):
         await set_itemset(connection, accountId, summonerId, champion, start_item, item_build, item, champion_name, boots)
 
     print(datetime.datetime.now() - start)
-    gui.set_info(championId,rune,summ,skills,position)
+    gui.set_info(championId,rune,summ,skills,position,item_build,start_item,boots,item)
 
 def get_block(name):
     block = {
