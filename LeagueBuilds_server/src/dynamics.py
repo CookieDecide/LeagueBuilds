@@ -126,7 +126,7 @@ def update_matches():
         try:
             matches = lol_watcher.match.matchlist_by_puuid(
                 region=my_region, puuid=summoner.puuid, count=10, start=0
-            )
+            , start_time=int(time.time() - 1250000))
         except ApiError as err:
             if err.response.status_code == 429:
                 logger.warning(
@@ -136,12 +136,18 @@ def update_matches():
                 logger.error("Summoner with that ridiculous name not found.")
             else:
                 logger.debug(err)
+                logger.warning(err)
             continue
 
-        logger.info(f"Summoner {str(j)}: {summoner.summonerName}")
+        logger.info(f'Summoner {str(j)}: {summoner.summonerName}')
+
+        if(len(matches) <= 0):
+            logger.warning(f'Removed: {summoner.summonerName}')
+            SUMMONER.delete().where(SUMMONER.summonerId == summoner.summonerId).execute()
+            continue
 
         for match in matches:
-            if not BUILDS.get_or_none(BUILDS.matchId == match):
+            if not BUILDS.get_or_none(BUILDS.matchId == match) or not ARAM.get_or_none(ARAM.matchId == match):
                 matches_list.append(
                     {
                         "matchId": match,
