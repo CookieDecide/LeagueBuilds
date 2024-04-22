@@ -132,6 +132,7 @@ CODE_OF_CONDUCT.md
 LICENSE
 riot.txt
 tester.py
+sorting_tester.py
 config.ini
 api_key.py
 

@@ -4,8 +4,9 @@ from models.dynamics_db import BUILDS, ARAM
 from models.builds_db import FINALBUILDS
 import time, datetime, queue, threading
 from peewee import chunked
-from joblib import Parallel, delayed, effective_n_jobs
+from joblib import Parallel, delayed, effective_n_jobs, parallel_backend
 import logging, os
+
 
 class MyFilter(object):
     def __init__(self, level):
@@ -14,8 +15,9 @@ class MyFilter(object):
     def filter(self, logRecord):
         return logRecord.levelno <= self.__level
 
-if (not os.path.exists('../../../log')):
-    os.mkdir('../../../log')
+
+if not os.path.exists("../../../log"):
+    os.mkdir("../../../log")
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
@@ -23,16 +25,16 @@ logger.setLevel(logging.DEBUG)
 
 # Create handlers
 c_handler = logging.StreamHandler()
-f_handler = logging.FileHandler('../../../log/sorting.log')
-debug_handler = logging.FileHandler('../../../log/debug.log')
+f_handler = logging.FileHandler("../../../log/sorting.log")
+debug_handler = logging.FileHandler("../../../log/debug.log")
 c_handler.setLevel(logging.INFO)
 f_handler.setLevel(logging.INFO)
 debug_handler.setLevel(logging.DEBUG)
 
 # Create formatters and add it to handlers
-c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-debug_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+debug_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
 debug_handler.setFormatter(debug_format)
@@ -45,148 +47,153 @@ logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 logger.addHandler(debug_handler)
 
+
 def init():
-    logger.info('Initialize Items')
+    logger.info("Initialize Items")
     items_all = ITEMS.select()
 
     valid_items, valid_start_items, valid_boots = [], [], []
 
     for item in items_all:
-        if('Trinket' not in item.tags):
+        if "Trinket" not in item.tags:
             valid_start_items.append(int(item.id))
-            if((int(item.depth) == 3 or item.into == '0') and '1001' not in item.from_ and 'Consumable' not in item.tags and 'GoldPer' not in item.tags and 'Jungle' not in item.tags and 'Lane' not in item.tags):
+            if (
+                (int(item.depth) == 3 or item.into == "0")
+                and "1001" not in item.from_
+                and "Consumable" not in item.tags
+                and "GoldPer" not in item.tags
+                and "Jungle" not in item.tags
+                and "Lane" not in item.tags
+            ):
                 valid_items.append(int(item.id))
-            if('1001' in item.from_):
+            if "1001" in item.from_:
                 valid_boots.append(int(item.id))
-    logger.info('Initialize Items finished')
+    logger.info("Initialize Items finished")
 
     return valid_items, valid_start_items, valid_boots
 
+
 def get_builds(champion, position):
-    if(position==''):
-        builds = BUILDS.select(
-            BUILDS.championId,
-            BUILDS.championName,
-            BUILDS.teamPosition,
-
-            BUILDS.item0,
-            BUILDS.item1,
-            BUILDS.item2,
-            BUILDS.item3,
-            BUILDS.item4,
-            BUILDS.item5,
-            BUILDS.item6,
-
-            BUILDS.start_items,
-            BUILDS.items,
-            BUILDS.skills,
-
-            BUILDS.summoner1Id,
-            BUILDS.summoner2Id,
-
-            BUILDS.defense,
-            BUILDS.flex,
-            BUILDS.offense,
-
-            BUILDS.primaryStyle,
-            BUILDS.primaryPerk1,
-            BUILDS.primaryPerk2,
-            BUILDS.primaryPerk3,
-            BUILDS.primaryPerk4,
-
-            BUILDS.subStyle,
-            BUILDS.subPerk1,
-            BUILDS.subPerk2,
-        ).where(
-            BUILDS.championId == str(champion),
-            BUILDS.teamPosition != "",
-            #BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
-        ).dicts()
+    if position == "":
+        builds = (
+            BUILDS.select(
+                BUILDS.championId,
+                BUILDS.championName,
+                BUILDS.teamPosition,
+                BUILDS.item0,
+                BUILDS.item1,
+                BUILDS.item2,
+                BUILDS.item3,
+                BUILDS.item4,
+                BUILDS.item5,
+                BUILDS.item6,
+                BUILDS.start_items,
+                BUILDS.items,
+                BUILDS.skills,
+                BUILDS.summoner1Id,
+                BUILDS.summoner2Id,
+                BUILDS.defense,
+                BUILDS.flex,
+                BUILDS.offense,
+                BUILDS.primaryStyle,
+                BUILDS.primaryPerk1,
+                BUILDS.primaryPerk2,
+                BUILDS.primaryPerk3,
+                BUILDS.primaryPerk4,
+                BUILDS.subStyle,
+                BUILDS.subPerk1,
+                BUILDS.subPerk2,
+            )
+            .where(
+                BUILDS.championId == str(champion),
+                BUILDS.teamPosition != "",
+                # BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
+            )
+            .dicts()
+        )
     else:
-        builds = BUILDS.select(
-            BUILDS.championId,
-            BUILDS.championName,
-            BUILDS.teamPosition,
-
-            BUILDS.item0,
-            BUILDS.item1,
-            BUILDS.item2,
-            BUILDS.item3,
-            BUILDS.item4,
-            BUILDS.item5,
-            BUILDS.item6,
-            
-            BUILDS.start_items,
-            BUILDS.items,
-            BUILDS.skills,
-
-            BUILDS.summoner1Id,
-            BUILDS.summoner2Id,
-
-            BUILDS.defense,
-            BUILDS.flex,
-            BUILDS.offense,
-
-            BUILDS.primaryStyle,
-            BUILDS.primaryPerk1,
-            BUILDS.primaryPerk2,
-            BUILDS.primaryPerk3,
-            BUILDS.primaryPerk4,
-
-            BUILDS.subStyle,
-            BUILDS.subPerk1,
-            BUILDS.subPerk2,
-        ).where(
-            BUILDS.championId == str(champion),
-            BUILDS.teamPosition == str(position).upper(),
-            #BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
-        ).dicts()
+        builds = (
+            BUILDS.select(
+                BUILDS.championId,
+                BUILDS.championName,
+                BUILDS.teamPosition,
+                BUILDS.item0,
+                BUILDS.item1,
+                BUILDS.item2,
+                BUILDS.item3,
+                BUILDS.item4,
+                BUILDS.item5,
+                BUILDS.item6,
+                BUILDS.start_items,
+                BUILDS.items,
+                BUILDS.skills,
+                BUILDS.summoner1Id,
+                BUILDS.summoner2Id,
+                BUILDS.defense,
+                BUILDS.flex,
+                BUILDS.offense,
+                BUILDS.primaryStyle,
+                BUILDS.primaryPerk1,
+                BUILDS.primaryPerk2,
+                BUILDS.primaryPerk3,
+                BUILDS.primaryPerk4,
+                BUILDS.subStyle,
+                BUILDS.subPerk1,
+                BUILDS.subPerk2,
+            )
+            .where(
+                BUILDS.championId == str(champion),
+                BUILDS.teamPosition == str(position).upper(),
+                # BUILDS.gameEndTimestamp >= time.time()*1000 - 1250000000,
+            )
+            .dicts()
+        )
 
     return list(builds)
+
 
 def get_aram(champion):
-    builds = ARAM.select(
-        ARAM.championId,
-        ARAM.championName,
-        ARAM.teamPosition,
-
-        ARAM.item0,
-        ARAM.item1,
-        ARAM.item2,
-        ARAM.item3,
-        ARAM.item4,
-        ARAM.item5,
-        ARAM.item6,
-        
-        ARAM.start_items,
-        ARAM.items,
-        ARAM.skills,
-
-        ARAM.summoner1Id,
-        ARAM.summoner2Id,
-
-        ARAM.defense,
-        ARAM.flex,
-        ARAM.offense,
-
-        ARAM.primaryStyle,
-        ARAM.primaryPerk1,
-        ARAM.primaryPerk2,
-        ARAM.primaryPerk3,
-        ARAM.primaryPerk4,
-
-        ARAM.subStyle,
-        ARAM.subPerk1,
-        ARAM.subPerk2,
-    ).where(
-        ARAM.championId == str(champion),
-        #ARAM.gameEndTimestamp >= time.time()*1000 - 1250000000,
-    ).dicts()
+    builds = (
+        ARAM.select(
+            ARAM.championId,
+            ARAM.championName,
+            ARAM.teamPosition,
+            ARAM.item0,
+            ARAM.item1,
+            ARAM.item2,
+            ARAM.item3,
+            ARAM.item4,
+            ARAM.item5,
+            ARAM.item6,
+            ARAM.start_items,
+            ARAM.items,
+            ARAM.skills,
+            ARAM.summoner1Id,
+            ARAM.summoner2Id,
+            ARAM.defense,
+            ARAM.flex,
+            ARAM.offense,
+            ARAM.primaryStyle,
+            ARAM.primaryPerk1,
+            ARAM.primaryPerk2,
+            ARAM.primaryPerk3,
+            ARAM.primaryPerk4,
+            ARAM.subStyle,
+            ARAM.subPerk1,
+            ARAM.subPerk2,
+        )
+        .where(
+            ARAM.championId == str(champion),
+            # ARAM.gameEndTimestamp >= time.time()*1000 - 1250000000,
+        )
+        .dicts()
+    )
 
     return list(builds)
 
+
 def info(champion, position, valid_items, valid_start_items, valid_boots):
-    if (position == 'aram'):
+    if position == "aram":
         builds = get_aram(champion)
     else:
         builds = get_builds(champion, position)
@@ -198,54 +205,67 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
     items_build = []
     skills = []
     boots = []
-    
+
     for build in builds:
-        runes.append(json.dumps({"primaryStyle": build['primaryStyle'],
-                                "primaryPerk1": build['primaryPerk1'],
-                                "primaryPerk2": build['primaryPerk2'],
-                                "primaryPerk3": build['primaryPerk3'],
-                                "primaryPerk4": build['primaryPerk4'],
-                                "subStyle": build['subStyle'],
-                                "subPerk1": build['subPerk1'],
-                                "subPerk2": build['subPerk2'],
-                                "defense": build['defense'],
-                                "flex": build['flex'],
-                                "offense": build['offense']}))
+        runes.append(
+            json.dumps(
+                {
+                    "primaryStyle": build["primaryStyle"],
+                    "primaryPerk1": build["primaryPerk1"],
+                    "primaryPerk2": build["primaryPerk2"],
+                    "primaryPerk3": build["primaryPerk3"],
+                    "primaryPerk4": build["primaryPerk4"],
+                    "subStyle": build["subStyle"],
+                    "subPerk1": build["subPerk1"],
+                    "subPerk2": build["subPerk2"],
+                    "defense": build["defense"],
+                    "flex": build["flex"],
+                    "offense": build["offense"],
+                }
+            )
+        )
 
-        summs.append(build['summoner1Id'])
-        summs.append(build['summoner2Id'])
+        summs.append(build["summoner1Id"])
+        summs.append(build["summoner2Id"])
 
-        for item in [build['item0'],build['item1'],build['item2'],build['item3'],build['item4'],build['item5']]:
-            if(int(item) in valid_items):
+        for item in [
+            build["item0"],
+            build["item1"],
+            build["item2"],
+            build["item3"],
+            build["item4"],
+            build["item5"],
+        ]:
+            if int(item) in valid_items:
                 items.append(int(item))
 
         start_item_list = []
-        for item in ast.literal_eval(build['start_items']):
-            if(item['itemId'] in valid_start_items):
-                start_item_list.append(item['itemId'])
-        if(start_item_list):
+        for item in ast.literal_eval(build["start_items"]):
+            if item["itemId"] in valid_start_items:
+                start_item_list.append(item["itemId"])
+        if start_item_list:
             start_items.append(json.dumps(start_item_list))
 
         items_build_list = []
         boots_list = []
-        for item in ast.literal_eval(build['items']):
-            if(item['itemId'] in valid_items):
-                items_build_list.append(item['itemId'])
-            elif (item['itemId'] in valid_boots):
-                boots_list.append(item['itemId'])
-        if(items_build_list and len(items_build_list)>2):
+        for item in ast.literal_eval(build["items"]):
+            if item["itemId"] in valid_items:
+                items_build_list.append(item["itemId"])
+            elif item["itemId"] in valid_boots:
+                boots_list.append(item["itemId"])
+        if items_build_list and len(items_build_list) > 2:
             items_build.append(json.dumps(items_build_list[0:3]))
-        if(boots_list and len(boots_list)>0):
+        if boots_list and len(boots_list) > 0:
             boots.append(json.dumps(boots_list[0]))
 
         skills_list = []
-        for skill in ast.literal_eval(build['skills']):
-            skills_list.append(skill['skillSlot'])
-        if(skills_list and len(skills_list)>7):
+        for skill in ast.literal_eval(build["skills"]):
+            skills_list.append(skill["skillSlot"])
+        if skills_list and len(skills_list) > 7:
             skills.append(json.dumps(skills_list[0:8]))
 
     for item in items:
-        if(int(item) not in valid_items):
+        if int(item) not in valid_items:
             items.remove(item)
 
     rune = sort_runes(runes)
@@ -264,33 +284,40 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
 
     return (rune, summ, item, start_item, item_build, skill_order, boot)
 
+
 def sort_runes(runes):
     rune, rune_count = numpy.unique(runes, return_counts=True)
     rune_count_sort_ind = numpy.argsort(-rune_count)
 
-    #if (len(rune)==0):
+    # if (len(rune)==0):
     #    return []
 
-    if (len(rune[rune_count_sort_ind])<3):
+    if len(rune[rune_count_sort_ind]) < 3:
         return [json.loads(rune[rune_count_sort_ind][0])]
     else:
-        return [json.loads(rune[rune_count_sort_ind][0]), json.loads(rune[rune_count_sort_ind][1]), json.loads(rune[rune_count_sort_ind][2])]
+        return [
+            json.loads(rune[rune_count_sort_ind][0]),
+            json.loads(rune[rune_count_sort_ind][1]),
+            json.loads(rune[rune_count_sort_ind][2]),
+        ]
+
 
 def sort_summs(summs):
     summ, summ_count = numpy.unique(summs, return_counts=True)
     summ_count_sort_ind = numpy.argsort(-summ_count)
 
-    #if (len(summ)==0):
+    # if (len(summ)==0):
     #    return []
 
     return summ[summ_count_sort_ind][0:2].tolist()
+
 
 def sort_items(items):
     item, item_count = numpy.unique(items, return_counts=True)
     item_count_sort_ind = numpy.argsort(-item_count)
     sorted_items = []
 
-    #if (len(item)==0):
+    # if (len(item)==0):
     #    return []
 
     for i in item[item_count_sort_ind].tolist():
@@ -298,53 +325,70 @@ def sort_items(items):
 
     return sorted_items
 
+
 def sort_start_items(start_items):
     start_item, start_item_count = numpy.unique(start_items, return_counts=True)
     start_item_count_sort_ind = numpy.argsort(-start_item_count)
 
-    #if (len(start_item)==0):
+    # if (len(start_item)==0):
     #    return []
 
-    if (len(start_item[start_item_count_sort_ind])<3):
+    if len(start_item[start_item_count_sort_ind]) < 3:
         return [json.loads(start_item[start_item_count_sort_ind][0])]
     else:
-        return [json.loads(start_item[start_item_count_sort_ind][0]), json.loads(start_item[start_item_count_sort_ind][1]), json.loads(start_item[start_item_count_sort_ind][2])]
+        return [
+            json.loads(start_item[start_item_count_sort_ind][0]),
+            json.loads(start_item[start_item_count_sort_ind][1]),
+            json.loads(start_item[start_item_count_sort_ind][2]),
+        ]
+
 
 def sort_items_build(items_build):
     item_build, item_build_count = numpy.unique(items_build, return_counts=True)
     item_build_count_sort_ind = numpy.argsort(-item_build_count)
 
-    #if (len(item_build)==0):
+    # if (len(item_build)==0):
     #    return []
 
-    if (len(item_build[item_build_count_sort_ind])<3):
+    if len(item_build[item_build_count_sort_ind]) < 3:
         return [json.loads(item_build[item_build_count_sort_ind][0])]
     else:
-        return [json.loads(item_build[item_build_count_sort_ind][0]), json.loads(item_build[item_build_count_sort_ind][1]), json.loads(item_build[item_build_count_sort_ind][2])]
+        return [
+            json.loads(item_build[item_build_count_sort_ind][0]),
+            json.loads(item_build[item_build_count_sort_ind][1]),
+            json.loads(item_build[item_build_count_sort_ind][2]),
+        ]
+
 
 def sort_skills(skills):
     skill, skill_count = numpy.unique(skills, return_counts=True)
     skill_count_sort_ind = numpy.argsort(-skill_count)
 
-    #if (len(skill)==0):
+    # if (len(skill)==0):
     #    return []
 
     return json.loads(skill[skill_count_sort_ind][0])
+
 
 def sort_boots(boots):
     boot, boot_count = numpy.unique(boots, return_counts=True)
     boot_count_sort_ind = numpy.argsort(-boot_count)
 
     # Cassiopeia fix
-    if (len(boot)==0):
+    if len(boot) == 0:
         return []
 
-    if (len(boot[boot_count_sort_ind])<3):
+    if len(boot[boot_count_sort_ind]) < 3:
         return [json.loads(boot[boot_count_sort_ind][0])]
     else:
-        return [json.loads(boot[boot_count_sort_ind][0]), json.loads(boot[boot_count_sort_ind][1]), json.loads(boot[boot_count_sort_ind][2])]
+        return [
+            json.loads(boot[boot_count_sort_ind][0]),
+            json.loads(boot[boot_count_sort_ind][1]),
+            json.loads(boot[boot_count_sort_ind][2]),
+        ]
 
-'''
+
+"""
 
 def sort_all():
     start = datetime.datetime.now()
@@ -449,7 +493,8 @@ def sort_worker(worker_id, q, final_builds):
         q.task_done()
         print(worker_id, '\tChampion: ', champion, '\tPosition: ', position, '\t', time.time() - start)
 
-'''
+"""
+
 
 def sort_pro():
     logger.info("Sorting started")
@@ -458,36 +503,58 @@ def sort_pro():
 
     valid_items, valid_start_items, valid_boots = init()
     njobs = effective_n_jobs()
-    logger.info(f'effective_n_jobs: {njobs}')
-    Parallel(n_jobs=njobs, backend="loky")(delayed(pro_worker)(champion, valid_items, valid_start_items, valid_boots) for champion in champion_query)
+    logger.info(f"effective_n_jobs: {njobs}")
+    with parallel_backend("loky"):
+        try:
+            Parallel(n_jobs=njobs)(
+                delayed(pro_worker)(
+                    champion, valid_items, valid_start_items, valid_boots
+                )
+                for champion in champion_query
+            )
+        except Exception as e:
+            logger.info(f"ERROR!:{e}")
 
-    logger.info(f'Sorting finished in: {time.time() - start}')
+    from joblib.externals.loky import get_reusable_executor
+
+    get_reusable_executor().shutdown(wait=True)
+
+    logger.info(f"Sorting finished in: {time.time() - start}")
+
 
 def pro_worker(champion, valid_items, valid_start_items, valid_boots):
-    logger.info(f'Sorting started for:\t{champion}\t{os.getpid()}')
+    logger.info(f"Sorting started for:\t{champion}\t{os.getpid()}")
 
-    for position in ['', 'top', 'bottom', 'jungle', 'utility', 'middle', 'aram']:
+    for position in ["", "top", "bottom", "jungle", "utility", "middle", "aram"]:
         start = time.time()
 
         try:
-            rune,summ,item,start_item,item_build,skills,boots = info(champion.key, position, valid_items, valid_start_items, valid_boots)
+            rune, summ, item, start_item, item_build, skills, boots = info(
+                champion.key, position, valid_items, valid_start_items, valid_boots
+            )
         except Exception as e:
-            logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}\tFAILED!')
+            logger.info(
+                f"Champion: {champion}\tPosition: {position}\t{time.time() - start}\tFAILED!"
+            )
             logger.error(e)
             continue
 
         FINALBUILDS.replace(
-            championId = champion.key,
-            runes = rune,
-            summ = summ,
-            item = item,
-            start_item = start_item,
-            item_build = item_build,
-            skill_order = skills,
-            position = position,
-            boots = boots,
+            championId=champion.key,
+            runes=rune,
+            summ=summ,
+            item=item,
+            start_item=start_item,
+            item_build=item_build,
+            skill_order=skills,
+            position=position,
+            boots=boots,
         ).execute()
 
-        logger.debug(f'****************{champion.name}\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n****************')
+        logger.debug(
+            f"****************{champion.name}\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n****************"
+        )
 
-        logger.info(f'Champion: {champion}\tPosition: {position}\t{time.time() - start}')
+        logger.info(
+            f"Champion: {champion}\tPosition: {position}\t{time.time() - start}"
+        )

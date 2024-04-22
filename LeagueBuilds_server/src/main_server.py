@@ -9,8 +9,8 @@ from models.builds_db import BUILDS_DB
 from models.log_db import LOG_DB
 import logging, os
 
-if (not os.path.exists('../../../log')):
-    os.mkdir('../../../log')
+if not os.path.exists("../../../log"):
+    os.mkdir("../../../log")
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
@@ -18,19 +18,20 @@ logger.setLevel(logging.DEBUG)
 
 # Create handlers
 c_handler = logging.StreamHandler()
-f_handler = logging.FileHandler('../../../log/main.log')
+f_handler = logging.FileHandler("../../../log/main.log")
 c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.INFO)
 
 # Create formatters and add it to handlers
-c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
 
 # Add handlers to the logger
 logger.addHandler(c_handler)
 logger.addHandler(f_handler)
+
 
 def close_db():
     DYNAMICS_DB.execute_sql("pragma wal_checkpoint;")
@@ -46,9 +47,15 @@ def close_db():
     LOG_DB.close()
     LOG_DB.stop()
     logger.info("stopped")
-    while (not DYNAMICS_DB.is_stopped() or not STATICS_DB.is_stopped() or not BUILDS_DB.is_stopped() or not LOG_DB.is_stopped()):
+    while (
+        not DYNAMICS_DB.is_stopped()
+        or not STATICS_DB.is_stopped()
+        or not BUILDS_DB.is_stopped()
+        or not LOG_DB.is_stopped()
+    ):
         time.sleep(1)
         logger.info("Waiting on DB")
+
 
 def open_db():
     DYNAMICS_DB.start()
@@ -60,9 +67,15 @@ def open_db():
     LOG_DB.start()
     LOG_DB.connect(reuse_if_open=True)
     logger.info("started")
-    while (not DYNAMICS_DB.is_connection_usable() or not STATICS_DB.is_connection_usable() or not BUILDS_DB.is_connection_usable() or not LOG_DB.is_connection_usable()):
+    while (
+        not DYNAMICS_DB.is_connection_usable()
+        or not STATICS_DB.is_connection_usable()
+        or not BUILDS_DB.is_connection_usable()
+        or not LOG_DB.is_connection_usable()
+    ):
         time.sleep(1)
         logger.info("Waiting on DB")
+
 
 def sort():
     import sorting, statics
@@ -92,26 +105,26 @@ while True:
         sortingProcess.daemon = True
         sortingProcess.start()
 
-        time.sleep(60)
-        
+        time.sleep(10)
+
         dynamics.clean_builds()
-        
+
         while True:
-            if(dynamics.update_builds()):
+            if dynamics.update_builds():
                 continue
             else:
                 break
-        
+
         dynamics.update_matches()
         dynamics.update_summoner()
 
-        logger.info(f'Finished dynamics in: {time.time() - start}')
+        logger.info(f"Finished dynamics in: {time.time() - start}")
 
         sortingProcess.join()
 
         close_db()
         time.sleep(60)
-        logger.info(f'Finished all in: {time.time() - start}')
+        logger.info(f"Finished all in: {time.time() - start}")
     except KeyboardInterrupt:
         close_db()
         sys.exit()

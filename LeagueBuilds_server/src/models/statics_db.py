@@ -2,11 +2,11 @@ import peewee as pw
 import os
 from playhouse.sqliteq import SqliteQueueDatabase
 
-if (not os.path.exists('../DB')):
-    os.mkdir('../DB')
+if not os.path.exists("../DB"):
+    os.mkdir("../DB")
 
-STATICS_DB = SqliteQueueDatabase('../DB/statics.db',
-                                autostart=False)
+STATICS_DB = SqliteQueueDatabase("../DB/statics.db", autostart=False)
+
 
 class CHAMPIONS(pw.Model):
     champion = pw.TextField(primary_key=True, unique=True)
@@ -73,13 +73,13 @@ class CHAMPIONS(pw.Model):
 
     version = pw.TextField()
 
-
     def __str__(self):
         return self.champion
 
     class Meta:
         database = STATICS_DB
-        db_table = 'champions'
+        db_table = "champions"
+
 
 class ITEMS(pw.Model):
     id = pw.TextField(primary_key=True, unique=True)
@@ -103,7 +103,8 @@ class ITEMS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'items'
+        db_table = "items"
+
 
 class SUMMONER(pw.Model):
     main_id = pw.TextField(primary_key=True, unique=True)
@@ -135,7 +136,8 @@ class SUMMONER(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'summoner'
+        db_table = "summoner"
+
 
 class MAPS(pw.Model):
     id = pw.TextField(primary_key=True, unique=True)
@@ -148,7 +150,8 @@ class MAPS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'maps'
+        db_table = "maps"
+
 
 class RUNES(pw.Model):
     id = pw.IntegerField(primary_key=True, unique=True)
@@ -163,7 +166,8 @@ class RUNES(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'runes'
+        db_table = "runes"
+
 
 class RUNESLOTS(pw.Model):
     rune_1 = pw.ForeignKeyField(RUNES, primary_key=True)
@@ -175,7 +179,8 @@ class RUNESLOTS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'runeslots'
+        db_table = "runeslots"
+
 
 class RUNEKEYS(pw.Model):
     id = pw.IntegerField(primary_key=True, unique=True)
@@ -192,7 +197,8 @@ class RUNEKEYS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'runekeys'
+        db_table = "runekeys"
+
 
 STATICS_DB.start()
 STATICS_DB.connect()

@@ -2,11 +2,11 @@ import peewee as pw
 import os
 from playhouse.sqliteq import SqliteQueueDatabase
 
-if (not os.path.exists('../DB')):
-    os.mkdir('../DB')
+if not os.path.exists("../DB"):
+    os.mkdir("../DB")
 
-LOG_DB = SqliteQueueDatabase('../DB/log.db',
-                            autostart=False)
+LOG_DB = SqliteQueueDatabase("../DB/log.db", autostart=False)
+
 
 class CONNECTION(pw.Model):
     time = pw.TextField(primary_key=True)
@@ -21,7 +21,8 @@ class CONNECTION(pw.Model):
 
     class Meta:
         database = LOG_DB
-        db_table = 'connection'
+        db_table = "connection"
+
 
 class PLAYER(pw.Model):
     time = pw.TextField(primary_key=True)
@@ -34,7 +35,8 @@ class PLAYER(pw.Model):
 
     class Meta:
         database = LOG_DB
-        db_table = 'player'
+        db_table = "player"
+
 
 LOG_DB.start()
 LOG_DB.connect()

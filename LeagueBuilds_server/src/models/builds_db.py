@@ -2,11 +2,11 @@ import peewee as pw
 import os
 from playhouse.sqliteq import SqliteQueueDatabase
 
-if (not os.path.exists('../DB')):
-    os.mkdir('../DB')
+if not os.path.exists("../DB"):
+    os.mkdir("../DB")
 
-BUILDS_DB = SqliteQueueDatabase('../DB/builds.db',
-                                autostart=False)
+BUILDS_DB = SqliteQueueDatabase("../DB/builds.db", autostart=False)
+
 
 class FINALBUILDS(pw.Model):
     championId = pw.TextField()
@@ -19,14 +19,14 @@ class FINALBUILDS(pw.Model):
     position = pw.TextField()
     boots = pw.TextField()
 
-
     def __str__(self):
         return self.championId
 
     class Meta:
         database = BUILDS_DB
-        db_table = 'finalbuilds'
-        primary_key = pw.CompositeKey('championId', 'position')
+        db_table = "finalbuilds"
+        primary_key = pw.CompositeKey("championId", "position")
+
 
 BUILDS_DB.start()
 BUILDS_DB.connect()
