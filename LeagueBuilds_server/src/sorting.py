@@ -4,7 +4,7 @@ from models.dynamics_db import BUILDS, ARAM
 from models.builds_db import FINALBUILDS
 import time, datetime, queue, threading
 from peewee import chunked
-from joblib import Parallel, delayed, effective_n_jobs
+from joblib import Parallel, delayed, effective_n_jobs, parallel_backend
 import logging, os
 
 class MyFilter(object):
@@ -459,7 +459,14 @@ def sort_pro():
     valid_items, valid_start_items, valid_boots = init()
     njobs = effective_n_jobs()
     logger.info(f'effective_n_jobs: {njobs}')
-    Parallel(n_jobs=njobs, backend="loky")(delayed(pro_worker)(champion, valid_items, valid_start_items, valid_boots) for champion in champion_query)
+    with parallel_backend("loky"):
+        try:
+            Parallel(n_jobs=njobs)(delayed(pro_worker)(champion, valid_items, valid_start_items, valid_boots) for champion in champion_query)
+        except Exception as e:
+            logger.info(f'ERROR!:{e}')
+
+    from joblib.externals.loky import get_reusable_executor
+    get_reusable_executor().shutdown(wait=True)
 
     logger.info(f'Sorting finished in: {time.time() - start}')
 
