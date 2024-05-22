@@ -58,16 +58,26 @@ def init():
         if "Trinket" not in item.tags:
             valid_start_items.append(int(item.id))
             if (
-                (int(item.depth) == 3 or item.into == "0")
+                (int(item.depth) in [2, 3, 4] or item.into == "0")
                 and "1001" not in item.from_
                 and "Consumable" not in item.tags
                 and "GoldPer" not in item.tags
                 and "Jungle" not in item.tags
                 and "Lane" not in item.tags
+                and int(ast.literal_eval(item.gold)['base']) != 0
+                and ast.literal_eval(item.gold)['purchasable']
+                and (ast.literal_eval(item.maps)['11'] or ast.literal_eval(item.maps)['12'])
+                and (ast.literal_eval(item.into) == 0 or len(ast.literal_eval(item.into)) == 1)
             ):
                 valid_items.append(int(item.id))
             if "1001" in item.from_:
                 valid_boots.append(int(item.id))
+
+    for item in valid_items:
+        for rem in ast.literal_eval(ITEMS.get(ITEMS.id == item).from_):
+            if int(rem) in valid_items:
+                valid_items.remove(int(rem))
+
     logger.info("Initialize Items finished")
 
     return valid_items, valid_start_items, valid_boots
