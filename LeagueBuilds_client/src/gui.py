@@ -517,7 +517,7 @@ def set_position(position):
 
 def start():
     try:
-        print("start")
+        # print("start")
         eel.start(
             "index.html",
             mode="chrome",
@@ -530,7 +530,7 @@ def start():
             close_callback=close_callback,
         )
     except EnvironmentError:
-        print("exe")
+        # print("exe")
         eel.start(
             "index.html",
             mode="default",
