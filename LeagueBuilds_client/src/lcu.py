@@ -310,7 +310,22 @@ async def get_summoner_name(connection):
     page = await connection.request("get", "/lol-summoner/v1/current-summoner")
     page = await page.content.read()
     summoner = json.loads(page)
-    return summoner["displayName"]
+
+    displayName = summoner["displayName"]
+    gameName = summoner["gameName"]
+    internalName = summoner["internalName"]
+    summonerId = summoner["summonerId"]
+
+    if displayName:
+        summonerName = displayName
+    elif gameName:
+        summonerName = gameName
+    elif internalName:
+        summonerName = internalName
+    else:
+        summonerName = str(summonerId)
+    
+    return summonerName
 
 
 def get_champion():
