@@ -56,6 +56,13 @@ def parse_timeline(lol_watcher, my_region, matchId):
 
     for frame in timeline["info"]["frames"]:
         for event in frame["events"]:
+            # Only interested in Events with ParticipantID
+            if "participantId" not in event:
+                continue
+            # skipping 0 because this is not an actual player, but game events
+            if event["participantId"] not in range(1, 11):
+                continue
+
             if event["type"] == "SKILL_LEVEL_UP":
                 participants[event["participantId"]]["SKILL_LEVEL_UP"].append(event)
                 continue

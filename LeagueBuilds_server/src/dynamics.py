@@ -20,8 +20,8 @@ c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.INFO)
 
 # Create formatters and add it to handlers
-c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
+f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
 
@@ -197,7 +197,7 @@ def update_builds():
         worker = threading.Thread(
             target=build_worker, args=[q, matches_delete, builds_create, aram_create]
         )
-        worker.setDaemon(True)
+        worker.daemon = True
         worker.start()
 
     logger.info("Workers started")
@@ -206,7 +206,7 @@ def update_builds():
         while True:
             if q.unfinished_tasks > 0:
                 time.sleep(1)
-                logger.debug(q.unfinished_tasks)
+                logger.debug(f"Unfinished Tasks: {q.unfinished_tasks}")
             else:
                 break
     except KeyboardInterrupt:
@@ -235,38 +235,98 @@ def build_worker(q, matches_delete, builds_create, aram_create):
         match_id = work[0]
         q.task_done()
 
-        try:
-            match = lol_watcher.match.by_id(my_region, match_id)
-        except ApiError as err:
-            if err.response.status_code == 429:
-                logger.warning(
-                    f'We should retry in {err.response.headers["Retry-After"]} seconds.'
-                )
-                continue
-            elif err.response.status_code == 404:
-                logger.error("Summoner with that ridiculous name not found.")
-                matches_delete.append(match_id)
-                continue
-            continue
-        except:
+        retries = 5
+        success = False
+
+        for i in range(retries):
+            try:
+                match = lol_watcher.match.by_id(my_region, match_id)
+                success = True
+                break
+            except ApiError as err:
+                if err.response.status_code == 429:
+                    logger.warning(
+                        f'We should retry in {err.response.headers["Retry-After"]} seconds.'
+                    )
+                    sleeptime = 60
+                    try:
+                        sleeptime = int(err.response.headers["Retry-After"]) + 1
+
+                    except ValueError:
+                        sleeptime = 60
+
+                    time.sleep(sleeptime)
+                    continue
+                elif err.response.status_code == 404:
+                    logger.error("Summoner with that ridiculous name not found.")
+                    matches_delete.append(match_id)
+                    break
+                elif err.response.status_code == 403:
+                    logger.error("Forbidden.")
+                    matches_delete.append(match_id)
+                    break
+                else:
+                    logger.debug(err)
+                    break
+            except:
+                logger.error(f"Unexpected error processing match {match_id}")
+                break
+
+        if not success:
+            logger.debug(f"Failed to fetch match {match_id}")
             continue
 
         if match["info"]["gameEndTimestamp"] < time.time() * 1000 - 1250000000:
             matches_delete.append(match_id)
+            logger.info(f"Old Match: {match['info']['gameEndTimestamp']}/{match_id}")
             continue
 
-        if match["info"]["gameType"] not in ["MATCHED_GAME"] or match["info"][
-            "gameMode"
-        ] not in ["CLASSIC", "ARAM"]:
+        if match["info"]["gameType"] not in ["MATCHED_GAME"]:
             matches_delete.append(match_id)
+            logger.info(f"Unwanted Type Match: {match['info']['gameType']}/{match_id}")
+            continue
+        elif match["info"]["gameMode"] not in ["CLASSIC", "ARAM"]:
+            matches_delete.append(match_id)
+            logger.info(f"Unwanted Mode Match: {match['info']['gameMode']}/{match_id}")
             continue
 
-        try:
-            timeline_info = timeline.parse_timeline(lol_watcher, my_region, match_id)
-        except ApiError as err:
-            logger.debug(err)
-            continue
-        except:
+        success = False
+        for i in range(retries):
+            try:
+                timeline_info = timeline.parse_timeline(lol_watcher, my_region, match_id)
+                success = True
+                break
+            except ApiError as err:
+                if err.response.status_code == 429:
+                    logger.warning(
+                        f'We should retry in {err.response.headers["Retry-After"]} seconds.'
+                    )
+                    sleeptime = 60
+                    try:
+                        sleeptime = int(err.response.headers["Retry-After"]) + 1
+
+                    except ValueError:
+                        sleeptime = 60
+
+                    time.sleep(sleeptime)
+                    continue
+                elif err.response.status_code == 404:
+                    logger.error("Summoner with that ridiculous name not found.")
+                    matches_delete.append(match_id)
+                    break
+                elif err.response.status_code == 403:
+                    logger.error("Forbidden.")
+                    matches_delete.append(match_id)
+                    break
+                else:
+                    logger.debug(err)
+                    break
+            except:
+                logger.error(f"Unexpected error processing Timeline for match {match_id}")
+                break
+
+        if not success:
+            logger.debug(f"Failed to fetch timeline for match {match_id}")
             continue
 
         patch = (

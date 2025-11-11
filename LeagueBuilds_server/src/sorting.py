@@ -32,9 +32,9 @@ f_handler.setLevel(logging.INFO)
 debug_handler.setLevel(logging.DEBUG)
 
 # Create formatters and add it to handlers
-c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-debug_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
+f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
+debug_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
 debug_handler.setFormatter(debug_format)
@@ -74,9 +74,10 @@ def init():
                 valid_boots.append(int(item.id))
 
     for item in valid_items:
-        for rem in ast.literal_eval(ITEMS.get(ITEMS.id == item).from_):
-            if int(rem) in valid_items:
-                valid_items.remove(int(rem))
+        if(ITEMS.get(ITEMS.id == item).from_ != "0"):
+            for rem in ast.literal_eval(ITEMS.get(ITEMS.id == item).from_):
+                if int(rem) in valid_items:
+                    valid_items.remove(int(rem))
 
     logger.info("Initialize Items finished")
 
@@ -546,7 +547,7 @@ def pro_worker(champion, valid_items, valid_start_items, valid_boots):
             logger.info(
                 f"Champion: {champion}\tPosition: {position}\t{time.time() - start}\tFAILED!"
             )
-            logger.error(e)
+            logger.warning(e)
             continue
 
         FINALBUILDS.replace(

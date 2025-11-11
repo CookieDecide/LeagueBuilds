@@ -22,8 +22,8 @@ c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.INFO)
 
 # Create formatters and add it to handlers
-c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+c_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
+f_format = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - T:%(thread)d/%(threadName)s - %(message)s")
 c_handler.setFormatter(c_format)
 f_handler.setFormatter(f_format)
 
@@ -152,6 +152,11 @@ class Builds_V1(Resource):
 
 class Version(Resource):
     def get(self):
+        ip = str(request.remote_addr)
+        port = str(12345)
+
+        logger.info(f"{ip}\t{port}\tVERSION_CHECK")
+        
         return version.version
 
 
