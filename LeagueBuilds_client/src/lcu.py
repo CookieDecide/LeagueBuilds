@@ -10,14 +10,14 @@ connector = Connector()
 
 
 def start():
-    print("Please start LoL client for LCU API to start.")
+    # print("Please start LoL client for LCU API to start.")
     connector.start()
 
 
 @connector.ready
 async def connect(connection):
     global old_action, champion
-    print("LCU API is ready to be used.")
+    # print("LCU API is ready to be used.")
     page_session = await connection.request("get", "/lol-champ-select/v1/session")
     page_session = await page_session.content.read()
     page_session = json.loads(page_session)
@@ -48,7 +48,8 @@ async def connect(connection):
 
 @connector.close
 async def disconnect(_):
-    print("The client has been closed!")
+    # print("The client has been closed!")
+    return
 
 
 @connector.ws.register(

@@ -52,7 +52,7 @@ def update_summoner():
 
     SUMMONER.insert_many(summoner).on_conflict_replace().execute()
 
-    print("Static Summoner")
+    # print("Static Summoner")
 
 
 def update_maps():
@@ -75,7 +75,7 @@ def update_maps():
 
     MAPS.insert_many(maps).on_conflict_replace().execute()
 
-    print("Static Map")
+    # print("Static Map")
 
 
 def update_runes():
@@ -130,7 +130,7 @@ def update_runes():
     RUNESLOTS.insert_many(runeslots).on_conflict_replace().execute()
     RUNEKEYS.insert_many(runekeys).on_conflict_replace().execute()
 
-    print("Static Runes")
+    # print("Static Runes")
 
 
 def update_items():
@@ -189,7 +189,7 @@ def update_items():
 
     ITEMS.insert_many(items).on_conflict_replace().execute()
 
-    print("Static Items")
+    # print("Static Items")
 
 
 def update_champions():
@@ -266,4 +266,4 @@ def update_champions():
 
     CHAMPIONS.insert_many(champions).on_conflict_replace().execute()
 
-    print("Static Champion")
+    # print("Static Champion")

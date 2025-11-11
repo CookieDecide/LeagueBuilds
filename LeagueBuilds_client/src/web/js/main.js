@@ -198,7 +198,9 @@ function reset_position() {
         img[i].style.background = "var(--color_background)";
     }
 
-    document.getElementById(role).style.background = "var(--color_hover_background)";
+    if (role != "") {
+        document.getElementById(role).style.background = "var(--color_hover_background)";
+    }
 }
 
 function force_position(position) {

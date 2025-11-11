@@ -1,3 +1,11 @@
+import sys, os
+
+if not os.path.exists("logs"):
+    os.mkdir("logs")
+
+sys.stdout = open('logs/output.txt', 'w')
+sys.stderr = open('logs/error.txt', 'w')
+
 import lcu, gui, client, version
 import threading, time
 import statics
