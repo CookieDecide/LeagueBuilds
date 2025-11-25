@@ -3,7 +3,7 @@ import gui
 
 from lcu_driver import Connector
 
-champion, rune, summ, skills = None, None, None, None
+champion, rune, summ, skills, quickplay_1, quickplay_2 = None, None, None, None, None, None
 
 old_action = None
 connector = Connector()
@@ -83,15 +83,175 @@ async def on_session_changed(connection, event):
                             await set_rune_summ_item(connection, champion)
 
 
+@connector.ws.register("/lol-settings/v2/account/LCUPreferences/lol-quick-play", event_types=["UPDATE"])
+async def on_quick_play(connection, event):
+    try:
+        page = await connection.request("get", "/lol-lobby/v2/lobby")
+        page = json.loads(await page.content.read())
+
+        if( page["gameConfig"]["queueId"] != 480 ):
+            return
+    except:
+        return
+
+    global quickplay_1, quickplay_2
+    print("Event Quick-Play")
+
+    page = await connection.request("delete", "/lol-perks/v1/pages")
+
+    page = await connection.request("get", "/lol-settings/v2/account/LCUPreferences/lol-quick-play")
+    page = await page.content.read()
+
+    page_id = json.loads(page)
+
+    try:
+        championId_1 = page_id["data"]["slotsByQueueId"]["480"][0]["championId"]
+        championId_2 = page_id["data"]["slotsByQueueId"]["480"][1]["championId"]
+
+        position_1 = page_id["data"]["slotsByQueueId"]["480"][0]["positionPreference"]
+        position_2 = page_id["data"]["slotsByQueueId"]["480"][1]["positionPreference"]
+
+        if championId_1 != 0 and position_1 != "":
+            (
+            championId_1,
+            rune_1,
+            summ_1,
+            item_1,
+            start_item_1,
+            item_build_1,
+            skills_1,
+            position_1,
+            champion_name_1,
+            boots_1,
+            ) = client.get_build(championId_1, position_1, await get_summoner_name(connection))
+
+        if championId_2 != 0 and position_2 != "":
+            (
+            championId_2,
+            rune_2,
+            summ_2,
+            item_2,
+            start_item_2,
+            item_build_2,
+            skills_2,
+            position_2,
+            champion_name_2,
+            boots_2,
+            ) = client.get_build(championId_2, position_2, await get_summoner_name(connection))
+
+        if isinstance(rune_1, dict):
+            rune_1 = [rune_1, rune_1, rune_1]
+
+        if isinstance(rune_2, dict):
+            rune_2 = [rune_2, rune_2, rune_2]
+
+        print(champion_name_1)
+        print(champion_name_2)
+
+        accountId, summonerId = await get_acc_sum_id(connection)
+
+        if config.import_runes:
+            await connection.request("delete", "/lol-perks/v1/pages")
+
+            await set_perks(connection, championId_1, rune_1[0], champion_name_1)
+            await set_perks(connection, championId_2, rune_2[0], champion_name_2)
+
+            body_1 = {
+                "championId": championId_1,
+                "perks": json.dumps(
+                    {
+                        "perkIds": [
+                            rune_1[0]["primaryPerk1"],
+                            rune_1[0]["primaryPerk2"],
+                            rune_1[0]["primaryPerk3"],
+                            rune_1[0]["primaryPerk4"],
+                            rune_1[0]["subPerk1"],
+                            rune_1[0]["subPerk2"],
+                            rune_1[0]["offense"],
+                            rune_1[0]["flex"],
+                            rune_1[0]["defense"],
+                        ],
+                        "perkStyle": rune_1[0]["primaryStyle"],
+                        "perkSubStyle": rune_1[0]["subStyle"],
+                    }
+                ),
+                "positionPreference": position_1.upper(),   
+                "skinId": 0,
+                "spell1": summ_1[0],
+                "spell2": summ_1[1],
+            }
+
+            body_2 = {
+                "championId": championId_2,
+                "perks": json.dumps(
+                    {
+                        "perkIds": [
+                            rune_2[0]["primaryPerk1"],
+                            rune_2[0]["primaryPerk2"],
+                            rune_2[0]["primaryPerk3"],
+                            rune_2[0]["primaryPerk4"],
+                            rune_2[0]["subPerk1"],
+                            rune_2[0]["subPerk2"],
+                            rune_2[0]["offense"],
+                            rune_2[0]["flex"],
+                            rune_2[0]["defense"],
+                        ],
+                        "perkStyle": rune_2[0]["primaryStyle"],
+                        "perkSubStyle": rune_2[0]["subStyle"],
+                    }
+                ),
+                "positionPreference": position_2.upper(),   
+                "skinId": 0,
+                "spell1": summ_2[0],
+                "spell2": summ_2[1],
+            }
+
+            await connection.request("put", "/lol-lobby/v1/lobby/members/localMember/player-slots", data=[body_1, body_2])
+
+        if config.import_items:
+            itemset_1 = create_itemset_body(
+                championId_1,
+                start_item_1,
+                item_build_1,
+                item_1,
+                champion_name_1,
+                boots_1,
+            )
+
+            itemset_2 = create_itemset_body(
+                championId_2,
+                start_item_2,
+                item_build_2,
+                item_2,
+                champion_name_2,
+                boots_2,
+            )
+
+            await set_itemset(
+                itemsets=[itemset_1, itemset_2],
+                connection=connection,
+                accountId=accountId,
+                summonerId=summonerId,
+            )
+
+        return
+
+
+    except Exception as e:
+        print("No Quick-Play builds found.")
+        print(e)
+        raise
+        
+
+
 async def set_rune_summ_item(connection, champion, position=""):
     if champion == None:
         return
 
     start = datetime.datetime.now()
 
-    localPlayerCellId = await get_localPlayerCellId(connection)
-
     if position == "":
+        localPlayerCellId = await get_localPlayerCellId(connection)
         if await is_aram(connection):
             position = "aram"
         else:
@@ -154,11 +314,7 @@ def get_block(name):
     }
     return block
 
-
-async def set_itemset(
-    connection,
-    accountId,
-    summonerId,
+def create_itemset_body(
     champion,
     start_item,
     item_build,
@@ -166,56 +322,82 @@ async def set_itemset(
     champion_name,
     boots,
 ):
-    body = {
-        "accountId": accountId,
-        "itemSets": [
-            {
-                "associatedChampions": [champion],
-                "associatedMaps": [],
-                "blocks": [],
-                "map": "any",
-                "mode": "any",
-                "preferredItemSlots": [],
-                "sortrank": 1,
-                "startedFrom": "blank",
-                "title": champion_name,
-                "type": "custom",
-                "uid": "1",
-            }
-        ],
-        "timestamp": 0,
+    itemset_body = {
+        "associatedChampions": [champion],
+        "associatedMaps": [],
+        "blocks": [],
+        "map": "any",
+        "mode": "any",
+        "preferredItemSlots": [],
+        "sortrank": 1,
+        "startedFrom": "blank",
+        "title": champion_name,
+        "type": "custom",
+        "uid": "1",
     }
 
     id = 0
     for liste in start_item:
-        body["itemSets"][0]["blocks"].append(get_block("Start Items"))
+        itemset_body["blocks"].append(get_block("Start Items"))
         for i in liste:
-            body["itemSets"][0]["blocks"][id]["items"].append(
+            itemset_body["blocks"][id]["items"].append(
                 {"count": 1, "id": str(i)}
             )
         id += 1
 
-    body["itemSets"][0]["blocks"].append(get_block("Boots"))
+    itemset_body["blocks"].append(get_block("Boots"))
     for i in boots:
-        body["itemSets"][0]["blocks"][id]["items"].append({"count": 1, "id": str(i)})
+        itemset_body["blocks"][id]["items"].append({"count": 1, "id": str(i)})
     id += 1
 
     for liste in item_build:
-        body["itemSets"][0]["blocks"].append(get_block(("Build " + str(id - 3))))
+        itemset_body["blocks"].append(get_block(("Build " + str(id - 3))))
         for i in liste:
-            body["itemSets"][0]["blocks"][id]["items"].append(
+            itemset_body["blocks"][id]["items"].append(
                 {"count": 1, "id": str(i)}
             )
         id += 1
 
-    body["itemSets"][0]["blocks"].append(get_block("Items"))
+    itemset_body["blocks"].append(get_block("Items"))
     for i in item:
-        body["itemSets"][0]["blocks"][id]["items"].append({"count": 1, "id": str(i)})
+        itemset_body["blocks"][id]["items"].append({"count": 1, "id": str(i)})
     id += 1
 
-    return await connection.request(
-        "put", "/lol-item-sets/v1/item-sets/" + str(summonerId) + "/sets", data=body
-    )
+    return itemset_body
+
+
+async def set_itemset(
+    connection,
+    accountId,
+    summonerId,
+    champion=None,
+    start_item=None,
+    item_build=None,
+    item=None,
+    champion_name=None,
+    boots=None,
+    itemsets=None,
+):
+    body = {
+        "accountId": accountId,
+        "itemSets": [],
+        "timestamp": 0,
+    }
+
+    if itemsets is not None:
+        body["itemSets"] = itemsets
+    else:
+        itemset_body = create_itemset_body(
+            champion, start_item, item_build, item, champion_name, boots
+        )
+        body["itemSets"].append(itemset_body)
+
+    # print("summonerId:", summonerId)
+    # print("body:", json.dumps(body, indent=4))
+
+    await connection.request("put", "/lol-item-sets/v1/item-sets/" + str(summonerId) + "/sets", data=body)
+
+    return
 
 
 async def set_perks(connection, champion, rune, champion_name):
@@ -234,6 +416,7 @@ async def set_perks(connection, champion, rune, champion_name):
             rune["flex"],
             rune["defense"],
         ],
+        "quickPlayChampionIds": [champion],
         "current": True,
     }
     return await connection.request("post", "/lol-perks/v1/pages", data=body)
@@ -255,14 +438,19 @@ async def set_summs(connection, summ):
 
 
 async def current_perks_delete(connection):
-    page = await connection.request("get", "/lol-perks/v1/pages")
+    page = await connection.request("get", "/lol-perks/v1/currentpage")
     page = await page.content.read()
+    print(page)
     try:
-        page_id = json.loads(page)[0]["id"]
+        if json.loads(page)["isTemporary"] == True:
+            return await connection.request("delete", "/lol-perks/v1/pages")
+        
+        page_id = json.loads(page)["id"]
+        print("page_id:", page_id)
 
         return await connection.request("delete", "/lol-perks/v1/pages/" + str(page_id))
     except:
-        return None
+        return await connection.request("delete", "/lol-perks/v1/pages")
 
 
 async def get_acc_sum_id(connection):
