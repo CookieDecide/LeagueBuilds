@@ -135,6 +135,9 @@ tester.py
 sorting_tester.py
 config.ini
 api_key.py
+LeagueBuilds_client/src/api_key.py
+LeagueBuilds_server/src/api_key.py
+**/api_key.local.py
 
 main_client.spec
 
@@ -143,3 +146,17 @@ main_client.spec
 build/
 dist/
 DB/
+LeagueBuilds_client/src/Runes_inspiration.ico
+
+# Server deployment scripts (uploaded manually)
+LeagueBuilds_server/deploy/
+
+# Client CI scripts (ignored, managed manually)
+LeagueBuilds_client/ci/
+
+# Client runtime logs (not tracked)
+LeagueBuilds_client/src/logs/
+LeagueBuilds_client/src/logs/*
+
+# General log directories
+**/logs/
