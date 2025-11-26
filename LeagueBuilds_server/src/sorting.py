@@ -60,6 +60,7 @@ def init():
             if (
                 (int(item.depth) in [2, 3, 4] or item.into == "0")
                 and "1001" not in item.from_
+                and "Boots" not in item.tags
                 and "Consumable" not in item.tags
                 and "GoldPer" not in item.tags
                 and "Jungle" not in item.tags

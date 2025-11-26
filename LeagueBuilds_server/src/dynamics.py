@@ -1,4 +1,4 @@
-from riotwatcher import LolWatcher, ApiError
+from riotwatcher import LolWatcher, ApiError, RiotWatcher
 from models.dynamics_db import SUMMONER, MATCHES, BUILDS, ARAM
 import time, timeline, threading, queue
 import api_key
@@ -46,26 +46,47 @@ def clean_builds():
 
 def update_summoner():
     lol_watcher = LolWatcher(api_key.api_key)
+    riot_watcher = RiotWatcher(api_key.api_key)
+
     logger.info("Update Summoner")
 
     my_region = "euw1"
 
     queue = "RANKED_SOLO_5x5"
 
-    try:
-        challenger = lol_watcher.league.challenger_by_queue(my_region, queue)
-        grandmaster = lol_watcher.league.grandmaster_by_queue(my_region, queue)
-        master = lol_watcher.league.masters_by_queue(my_region, queue)
-    except ApiError as err:
-        if err.response.status_code == 429:
-            logger.warning(
-                f'We should retry in {err.response.headers["Retry-After"]} seconds.'
-            )
-        elif err.response.status_code == 404:
-            logger.error("Summoner with that ridiculous name not found.")
-        else:
-            logger.debug(err)
+    retries = 5
+    success = False
+
+    for i in range(retries):
+        try:
+            challenger = lol_watcher.league.challenger_by_queue(my_region, queue)
+            grandmaster = lol_watcher.league.grandmaster_by_queue(my_region, queue)
+            master = lol_watcher.league.masters_by_queue(my_region, queue)
+            success = True
+            break
+        except ApiError as err:
+            if err.response.status_code == 429:
+                logger.warning(
+                    f'We should retry in {err.response.headers["Retry-After"]} seconds.'
+                )
+                sleeptime = 60
+                try:
+                    sleeptime = int(err.response.headers["Retry-After"]) + 1
+                except ValueError:
+                    sleeptime = 60
+                time.sleep(sleeptime)
+            elif err.response.status_code == 404:
+                logger.error("Summoner with that ridiculous name not found.")
+            else:
+                logger.debug(err)
+                logger.error(err)
+                raise
+        except Exception as e:
+            logger.error(e)
             raise
+
+    if not success:
+        logger.error("Failed to fetch summoner data")
         return
 
     data = challenger["entries"] + grandmaster["entries"] + master["entries"]
@@ -73,31 +94,54 @@ def update_summoner():
 
     summoner = []
 
+    logger.info(f"Total Summoners to check: {len(data)}")
+
     for item in data:
-        if not SUMMONER.get_or_none(SUMMONER.summonerId == item["summonerId"]):
-            try:
-                summ = lol_watcher.summoner.by_id(my_region, item["summonerId"])
-            except ApiError as err:
-                if err.response.status_code == 429:
-                    logger.warning(
-                        f'We should retry in {err.response.headers["Retry-After"]} seconds.'
-                    )
-                elif err.response.status_code == 404:
-                    logger.error("Summoner with that ridiculous name not found.")
-                else:
-                    logger.debug(err)
+        logger.debug(f"Summoner data: {item}")
+        if not SUMMONER.get_or_none(SUMMONER.puuid == item["puuid"]):
+            retries = 5
+            success = False
+
+            for i in range(retries):
+                try:
+                    summ = riot_watcher.account.by_puuid("EUROPE", item["puuid"])
+                    success = True
+                    break
+                except ApiError as err:
+                    if err.response.status_code == 429:
+                        logger.warning(
+                            f'We should retry in {err.response.headers["Retry-After"]} seconds.'
+                        )
+                        sleeptime = 60
+                        try:
+                            sleeptime = int(err.response.headers["Retry-After"]) + 1
+                        except ValueError:
+                            sleeptime = 60
+                        time.sleep(sleeptime)
+                    elif err.response.status_code == 404:
+                        logger.error("Summoner with that ridiculous name not found.")
+                    else:
+                        logger.debug(err)
+                        logger.error(err)
+                        raise
+                    continue
+                except Exception as e:
+                    logger.error(e)
                     raise
+
+            if not success:
+                logger.error(f"Failed to fetch summoner {item['puuid']}")
                 continue
 
             summoner.append(
                 {
-                    "summonerId": item["summonerId"],
-                    "summonerName": item["summonerName"],
-                    "puuid": summ["puuid"],
+                    "summonerId": item["puuid"],
+                    "summonerName": summ["gameName"]+"#"+summ["tagLine"],
+                    "puuid": item["puuid"],
                 }
             )
 
-            logger.info(f'Summoner {str(i)}: {item["summonerName"]}')
+            logger.info(f'Summoner {str(i)}: {summ["gameName"]+"#"+summ["tagLine"]}')
         i += 1
 
         if len(summoner) >= 1000:
@@ -123,27 +167,46 @@ def update_matches():
     matches_list = []
 
     for summoner in summoners:
-        try:
-            matches = lol_watcher.match.matchlist_by_puuid(
-                region=my_region, puuid=summoner.puuid, count=10, start=0
-            , start_time=int(time.time() - 1250000))
-        except ApiError as err:
-            if err.response.status_code == 429:
-                logger.warning(
-                    f'We should retry in {err.response.headers["Retry-After"]} seconds.'
-                )
-            elif err.response.status_code == 404:
-                logger.error("Summoner with that ridiculous name not found.")
-            else:
-                logger.debug(err)
-                logger.warning(err)
+        retries = 5
+        tries = 0
+        success = False
+        for tries in range(retries):
+            try:
+                matches = lol_watcher.match.matchlist_by_puuid(
+                    region=my_region, puuid=summoner.puuid, count=10, start=0
+                , start_time=int(time.time() - 1250000))
+                success = True
+                break
+            except ApiError as err:
+                if err.response.status_code == 429:
+                    logger.warning(
+                        f'We should retry in {err.response.headers["Retry-After"]} seconds.'
+                    )
+                    sleeptime = 60
+                    try:
+                        sleeptime = int(err.response.headers["Retry-After"]) + 1
+                    except ValueError:
+                        sleeptime = 60
+                    time.sleep(sleeptime)
+                elif err.response.status_code == 404:
+                    logger.error("Summoner with that ridiculous name not found.")
+                else:
+                    logger.debug(err)
+                    logger.warning(err)
+                continue
+            except Exception as e:
+                logger.error(e)
+                raise
+
+        if not success:
+            logger.error(f"Failed to fetch matches for summoner {summoner.summonerName}")
             continue
 
         logger.info(f'Summoner {str(j)}: {summoner.summonerName}')
 
         if(len(matches) <= 0):
             logger.warning(f'Removed: {summoner.summonerName}')
-            SUMMONER.delete().where(SUMMONER.summonerId == summoner.summonerId).execute()
+            SUMMONER.delete().where(SUMMONER.puuid == summoner.puuid).execute()
             continue
 
         for match in matches:
