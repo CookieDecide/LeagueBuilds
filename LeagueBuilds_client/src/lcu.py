@@ -154,6 +154,22 @@ async def on_quick_play(connection, event):
             summ_1 = [page_id["data"]["slotsByQueueId"]["480"][0]["spell1"], page_id["data"]["slotsByQueueId"]["480"][0]["spell2"]]
             summ_2 = [page_id["data"]["slotsByQueueId"]["480"][1]["spell1"], page_id["data"]["slotsByQueueId"]["480"][1]["spell2"]]
 
+        if 4 in summ_1:
+            if config.position_flash == 0 and summ_1[1] == 4:
+                summ_1[1] = summ_1[0]
+                summ_1[0] = 4
+            elif config.position_flash == 1 and summ_1[0] == 4:
+                summ_1[0] = summ_1[1]
+                summ_1[1] = 4
+
+        if 4 in summ_2:
+            if config.position_flash == 0 and summ_2[1] == 4:
+                summ_2[1] = summ_2[0]
+                summ_2[0] = 4
+            elif config.position_flash == 1 and summ_2[0] == 4:
+                summ_2[0] = summ_2[1]
+                summ_2[1] = 4
+
 
         if config.import_runes:
             await connection.request("delete", "/lol-perks/v1/pages")
