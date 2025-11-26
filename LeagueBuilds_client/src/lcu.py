@@ -150,6 +150,11 @@ async def on_quick_play(connection, event):
 
         accountId, summonerId = await get_acc_sum_id(connection)
 
+        if not config.import_summs:
+            summ_1 = [page_id["data"]["slotsByQueueId"]["480"][0]["spell1"], page_id["data"]["slotsByQueueId"]["480"][0]["spell2"]]
+            summ_2 = [page_id["data"]["slotsByQueueId"]["480"][1]["spell1"], page_id["data"]["slotsByQueueId"]["480"][1]["spell2"]]
+
+
         if config.import_runes:
             await connection.request("delete", "/lol-perks/v1/pages")
 
