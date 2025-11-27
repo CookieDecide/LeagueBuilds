@@ -21,7 +21,7 @@ class CONNECTION(pw.Model):
 
     class Meta:
         database = LOG_DB
-        db_table = "connection"
+        table_name = "connection"
 
 
 class PLAYER(pw.Model):
@@ -35,7 +35,7 @@ class PLAYER(pw.Model):
 
     class Meta:
         database = LOG_DB
-        db_table = "player"
+        table_name = "player"
 
 
 LOG_DB.start()

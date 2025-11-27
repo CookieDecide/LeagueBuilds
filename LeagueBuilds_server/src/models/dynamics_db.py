@@ -16,7 +16,7 @@ class MATCHES(pw.Model):
 
     class Meta:
         database = DYNAMICS_DB
-        db_table = "matches"
+        table_name = "matches"
 
 
 class SUMMONER(pw.Model):
@@ -29,7 +29,7 @@ class SUMMONER(pw.Model):
 
     class Meta:
         database = DYNAMICS_DB
-        db_table = "summoner"
+        table_name = "summoner"
 
 
 class BUILDS(pw.Model):
@@ -80,7 +80,7 @@ class BUILDS(pw.Model):
 
     class Meta:
         database = DYNAMICS_DB
-        db_table = "builds"
+        table_name = "builds"
         primary_key = pw.CompositeKey("matchId", "championId")
         indexes = ((("championId", "teamPosition"), False),)
 
@@ -133,7 +133,7 @@ class ARAM(pw.Model):
 
     class Meta:
         database = DYNAMICS_DB
-        db_table = "aram"
+        table_name = "aram"
         primary_key = pw.CompositeKey("matchId", "championId")
 
 

@@ -77,7 +77,7 @@ class CHAMPIONS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'champions'
+        table_name = 'champions'
 
 class ITEMS(pw.Model):
     id = pw.TextField(primary_key=True, unique=True)
@@ -101,7 +101,7 @@ class ITEMS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'items'
+        table_name = 'items'
 
 class SUMMONER(pw.Model):
     main_id = pw.TextField(primary_key=True, unique=True)
@@ -133,7 +133,7 @@ class SUMMONER(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'summoner'
+        table_name = 'summoner'
 
 class MAPS(pw.Model):
     id = pw.TextField(primary_key=True, unique=True)
@@ -146,7 +146,7 @@ class MAPS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'maps'
+        table_name = 'maps'
 
 class RUNES(pw.Model):
     id = pw.IntegerField(primary_key=True, unique=True)
@@ -161,7 +161,7 @@ class RUNES(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'runes'
+        table_name = 'runes'
 
 class RUNESLOTS(pw.Model):
     rune_1 = pw.ForeignKeyField(RUNES, primary_key=True)
@@ -173,7 +173,7 @@ class RUNESLOTS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'runeslots'
+        table_name = 'runeslots'
 
 class RUNEKEYS(pw.Model):
     id = pw.IntegerField(primary_key=True, unique=True)
@@ -190,7 +190,7 @@ class RUNEKEYS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = 'runekeys'
+        table_name = 'runekeys'
 
 STATICS_DB.connect()
 #STATICS_DB.drop_tables([CHAMPIONS, ITEMS, SUMMONER, MAPS, RUNEKEYS, RUNESLOTS, RUNES])

@@ -78,7 +78,7 @@ class CHAMPIONS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "champions"
+        table_name = "champions"
 
 
 class ITEMS(pw.Model):
@@ -103,7 +103,7 @@ class ITEMS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "items"
+        table_name = "items"
 
 
 class SUMMONER(pw.Model):
@@ -136,7 +136,7 @@ class SUMMONER(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "summoner"
+        table_name = "summoner"
 
 
 class MAPS(pw.Model):
@@ -150,7 +150,7 @@ class MAPS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "maps"
+        table_name = "maps"
 
 
 class RUNES(pw.Model):
@@ -166,7 +166,7 @@ class RUNES(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "runes"
+        table_name = "runes"
 
 
 class RUNESLOTS(pw.Model):
@@ -179,7 +179,7 @@ class RUNESLOTS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "runeslots"
+        table_name = "runeslots"
 
 
 class RUNEKEYS(pw.Model):
@@ -197,7 +197,7 @@ class RUNEKEYS(pw.Model):
 
     class Meta:
         database = STATICS_DB
-        db_table = "runekeys"
+        table_name = "runekeys"
 
 
 STATICS_DB.start()

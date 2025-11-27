@@ -24,7 +24,7 @@ class FINALBUILDS(pw.Model):
 
     class Meta:
         database = BUILDS_DB
-        db_table = "finalbuilds"
+        table_name = "finalbuilds"
         primary_key = pw.CompositeKey("championId", "position")
 
 
