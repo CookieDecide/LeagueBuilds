@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://kit.fontawesome.com/af6c787b1c.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeagueBuilds - Quickplay</title>
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/quickplay.css">
+    <script type="text/javascript" src="/eel.js"></script> 
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar" id="sidebar_1">
+            <ul id="sidebar_ul">
+                <li>
+                    <a id="mode_button" onclick="toggle_mode()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-circle-half-stroke fa-stack-1x"></i>
+                        </span>
+                        <span class="item" id="mode" style="user-select: none;">Dark Mode</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="import_runes_button" onclick="toggle_runes()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-book-open fa-stack-1x"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Import Runes</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="import_summs_button" onclick="toggle_summs()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-bolt fa-stack-1x"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Import Summs</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="import_items_button" onclick="toggle_items()" onmouseenter="hover_enter_function(this)" onmouseleave="hover_leave_function(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-store fa-stack-1x"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Import Items</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="flash_pos_button" onclick="toggle_flash_pos()" onmouseenter="hover_enter_function_flash_pos(this)" onmouseleave="hover_leave_function_flash_pos(this)">
+                        <span class="icon fa-stack">
+                            <i class="fa fa-square fa-stack-1x"></i>
+                            <i class="fa fa-f fa-stack-1x fa-xs"></i>
+                        </span>
+                        <span class="item" style="user-select: none;">Flash Position</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <div class="top_navbar" id="top_navbar" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="hamburger">
+                    <a href="#">
+                        <i class="fa fa-bars" id="bars_icon"></i>
+                    </a>
+                </div>
+                
+                <!-- Champion Tabs -->
+                <div id="champion-tabs" class="champion-tabs-navbar" style="visibility: hidden;">
+                    <button class="tab-button active" onclick="switchChampion(1)" id="tab-1">Champion 1</button>
+                    <button class="tab-button" onclick="switchChampion(2)" id="tab-2">Champion 2</button>
+                </div>
+                
+                <div>
+                    <a id="force_import_button" onclick="force_import()" onmouseenter="hover_enter_function_force_import(this)" onmouseleave="hover_leave_function_force_import(this)">
+                        <span class="icon tooltip">
+                            <i class="fa fa-hand-back-fist fa-lg"></i>
+                            <span id="force_import_button_tooltip" class="tooltiptext" style="width: auto; padding: 5px; top: -5px; white-space: nowrap; right: 150%; left: unset;">
+                                <span id="force_import_button_tooltip_text">Force Import</span>
+                            </span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+
+            <div id="content" class="content">
+
+                <div id="cover" style="position: absolute;left: 0px;top: 0px;width: 100%;height: 100%;background: var(--color_background);z-index: 1;visibility: visible;">
+                    <h1 id="cover_text" class="title">Waiting for champions...</h1>
+                </div>
+
+                <!-- Champion 1 Content -->
+                <div id="champion-1-content" class="champion-content active" style="display:flex;flex-direction: column;width: 100%;gap: 5px;visibility: hidden;">
+                    <div class="spell-window" id="position-window_1">
+                        <div class="spell-info" id="position-list_1">
+                            <img id="top_1" onclick="force_position(1, 'top');" src="https://static.wikia.nocookie.net/leagueoflegends/images/e/ef/Top_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="jungle_1" onclick="force_position(1, 'jungle');" src="https://static.wikia.nocookie.net/leagueoflegends/images/1/1b/Jungle_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="middle_1" onclick="force_position(1, 'middle');" src="https://static.wikia.nocookie.net/leagueoflegends/images/9/98/Middle_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="bottom_1" onclick="force_position(1, 'bottom');" src="https://static.wikia.nocookie.net/leagueoflegends/images/9/97/Bottom_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="utility_1" onclick="force_position(1, 'utility');" src="https://static.wikia.nocookie.net/leagueoflegends/images/e/e0/Support_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+
+                            <img id="aram_1" onclick="force_position(1, 'aram');" src="https://static.wikia.nocookie.net/leagueoflegends/images/0/02/Howling_Abyss_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                        </div>
+                    </div>
+
+                    <div style="display:flex;flex-direction: row;width: 100%;gap: 5px;">
+                    <div id="left_block_1" style="display:flex;flex-direction: column;width: 75%;padding-top: 5px;gap: 5px;">
+                        <div id="left_1_1" style="display:flex;flex-direction: row;justify-content: space-between;gap: 5px;">
+                            <div id="left_1_1_1" style="display:flex;flex-direction: row;width: 25%;height: 100%;">
+                                <img id="champion_1" class="" src="">
+                            </div>
+
+                            <div id="left_1_2_1" style="display:flex;flex-direction: column;width: 25%;height: 100%;">
+                                <div class="summoner-window" id="summoner-window_1">
+                                    <h1 id="summoner-spells_1" class="title"></h1>
+                                    <div class="summs">
+                                        <img id="summ-1_1"  class="" src="">
+                                        <img id="summ-2_1"  class="" src="">
+                                    </div>
+                                    <span id="summ-tooltip_1" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_1_3_1" style="display:flex;flex-direction: column;width: 50%;height: 100%;">
+                                <div class="spell-window" id="spell-window_1">
+                                    <h1 id="spells_1" class="title">Waiting for champion...</h1>
+                                    <div class="spell-info">
+                                        <div id="passive_1" class="tooltip">
+                                            <img id="img_passive_1" src="">
+                                        </div>
+                        
+                                        <div id="Q_1" class="tooltip">
+                                            <img id="img_Q_1" src="">
+                                        </div>
+                                        <div id="W_1" class="tooltip">
+                                            <img id="img_W_1" src="">
+                                        </div>
+                                        <div id="E_1" class="tooltip">
+                                            <img id="img_E_1" src="">
+                                        </div>
+                                        <div id="R_1" class="tooltip">
+                                            <img id="img_R_1" src="">
+                                        </div>
+                                    </div>
+                                    <span id="spell-tooltip_1" class="tooltiptext" style="display: flex;flex-direction: column;">
+                                        <span id="spell-tooltip-text_1">Tooltip Text</span>
+                                        <video id="spell-video_1" src="" width="100%" style="max-width: 600px;align-self: center;" autoplay muted loop>
+                                    </span>
+                                </div>
+
+                                <div class="spellorder-window" id="spellorder-window_1">
+                                    <h1 id="spell-order_1" class="title"></h1>
+                                    <div class="spell-info">
+                                        <div class="skilldiv">
+                                            <a id="skill-1-name_1" class="skill"></a>
+                                            <img id="skill-1_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-2-name_1" class="skill"></a>
+                                            <img id="skill-2_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-3-name_1" class="skill"></a>
+                                            <img id="skill-3_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-4-name_1" class="skill"></a>
+                                            <img id="skill-4_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-5-name_1" class="skill"></a>
+                                            <img id="skill-5_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-6-name_1" class="skill"></a>
+                                            <img id="skill-6_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-7-name_1" class="skill"></a>
+                                            <img id="skill-7_1"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-8-name_1" class="skill"></a>
+                                            <img id="skill-8_1"  class="" src="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="left_2_1" style="display:flex;flex-direction: row;gap: 5px;">
+                            <div id="left_2_1_1" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window_1">
+                                    <h1 id="start-items_1" class="title"></h1>
+                                    <div class="items">
+                                        <img id="start-item1_1"  class="" src="">
+                                        <img id="start-item2_1"  class="" src="">
+                                        <img id="start-item3_1"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip_1" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_2_2_1" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window_1b">
+                                    <h1 id="boots_1" class="title"></h1>
+                                    <div class="items">
+                                        <img id="boots1_1"  class="" src="">
+                                        <img id="boots2_1"  class="" src="">
+                                        <img id="boots3_1"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip_1b" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_2_3_1" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window_1c">
+                                    <h1 id="core-items_1" class="title"></h1>
+                                    <div class="items">
+                                        <img id="core-item1_1"  class="" src="">
+                                        <img id="core-item2_1"  class="" src="">
+                                        <img id="core-item3_1"  class="" src="">
+                                        <img id="core-item4_1"  class="" src="">
+                                        <img id="core-item5_1"  class="" src="">
+                                        <img id="core-item6_1"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip_1c" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="left_3_1" style="display: flex;flex-direction: column;">
+                            <div class="items-window" id="items-window_1d">
+                                <h1 id="items_1" class="title"></h1>
+                                <div class="items">
+                                    <img id="item1_1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item2_1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item3_1"  class="" src="">
+                                </div>
+                                <div class="items">
+                                    <img id="item4_1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item5_1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item6_1"  class="" src="">
+                                </div>
+                                <div class="items">
+                                    <img id="item7_1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item8_1"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item9_1"  class="" src="">
+                                </div>
+                                <span id="item-tooltip_1" class="tooltiptext">Tooltip text</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="right_block_1" style="display:flex;flex-direction: column;width: 25%;padding-top: 5px;">
+                        <div id="right_1_1" style="display: flex;justify-content: center;height: 100%;">
+                            <div class="runes-window" id="runes-window_1">
+                                <h1 id="runes_1" class="title"></h1>
+
+                                <div class="spell-info" id="rune-list_1" style="display: flex;flex-direction: row;justify-content: space-evenly;padding-bottom: 10px;background-color: var(--color_background);">
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-1 fa-2x" id="rune_1_1" onclick="select_runes(1, 0);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-2 fa-2x" id="rune_2_1" onclick="select_runes(1, 1);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+                                    
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-3 fa-2x" id="rune_3_1" onclick="select_runes(1, 2);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+                                </div>
+
+                                <div class="runes">
+                                    <div class="runescolumn">
+                                        <img id="primarystyle_1"  class="" src="">
+                                        <img id="primaryperk1_1"  class="" src="">
+                                        <img id="primaryperk2_1"  class="" src="">
+                                        <img id="primaryperk3_1"  class="" src="">
+                                        <img id="primaryperk4_1"  class="" src="">
+                                    </div>
+                                    <div class="runescolumn">
+                                        <img id="substyle_1"  class="" src="">
+                                        <img id="subperk1_1"  class="" src="">
+                                        <img id="subperk2_1"  class="" src="">
+                                        <img id="offense_1"  class="" src="">
+                                        <img id="flex_1" class="" src="">
+                                        <img id="defense_1" class="" src="">
+                                    </div>
+                                </div>
+                                <span id="rune-tooltip_1" class="tooltiptext">Tooltip text</span>
+                            </div>
+                        </div>
+
+                        <div id="right_2_1" style="display: flex;padding: 50px;">
+                            <a href="https://github.com/sponsors/CookieDecide?o=esb" class="donate" target="_blank">DONATE</a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Champion 2 Content (duplicate with _2 suffix) -->
+                <div id="champion-2-content" class="champion-content" style="display:flex;flex-direction: column;width: 100%;gap: 5px;visibility: hidden;">
+                    <div class="spell-window" id="position-window_2">
+                        <div class="spell-info" id="position-list_2">
+                            <img id="top_2" onclick="force_position(2, 'top');" src="https://static.wikia.nocookie.net/leagueoflegends/images/e/ef/Top_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="jungle_2" onclick="force_position(2, 'jungle');" src="https://static.wikia.nocookie.net/leagueoflegends/images/1/1b/Jungle_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="middle_2" onclick="force_position(2, 'middle');" src="https://static.wikia.nocookie.net/leagueoflegends/images/9/98/Middle_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="bottom_2" onclick="force_position(2, 'bottom');" src="https://static.wikia.nocookie.net/leagueoflegends/images/9/97/Bottom_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                            
+                            <img id="utility_2" onclick="force_position(2, 'utility');" src="https://static.wikia.nocookie.net/leagueoflegends/images/e/e0/Support_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+
+                            <img id="aram_2" onclick="force_position(2, 'aram');" src="https://static.wikia.nocookie.net/leagueoflegends/images/0/02/Howling_Abyss_icon.png" width="32" height="32" onmouseenter="hover_enter_function_roles(this)" onmouseleave="hover_leave_function_roles(this)">
+                        </div>
+                    </div>
+
+                    <div style="display:flex;flex-direction: row;width: 100%;gap: 5px;">
+                    <div id="left_block_2" style="display:flex;flex-direction: column;width: 75%;padding-top: 5px;gap: 5px;">
+                        <div id="left_1_2" style="display:flex;flex-direction: row;justify-content: space-between;gap: 5px;">
+                            <div id="left_1_1_2" style="display:flex;flex-direction: row;width: 25%;height: 100%;">
+                                <img id="champion_2" class="" src="">
+                            </div>
+
+                            <div id="left_1_2_2" style="display:flex;flex-direction: column;width: 25%;height: 100%;">
+                                <div class="summoner-window" id="summoner-window_2">
+                                    <h1 id="summoner-spells_2" class="title"></h1>
+                                    <div class="summs">
+                                        <img id="summ-1_2"  class="" src="">
+                                        <img id="summ-2_2"  class="" src="">
+                                    </div>
+                                    <span id="summ-tooltip_2" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_1_3_2" style="display:flex;flex-direction: column;width: 50%;height: 100%;">
+                                <div class="spell-window" id="spell-window_2">
+                                    <h1 id="spells_2" class="title">Waiting for champion...</h1>
+                                    <div class="spell-info">
+                                        <div id="passive_2" class="tooltip">
+                                            <img id="img_passive_2" src="">
+                                        </div>
+                        
+                                        <div id="Q_2" class="tooltip">
+                                            <img id="img_Q_2" src="">
+                                        </div>
+                                        <div id="W_2" class="tooltip">
+                                            <img id="img_W_2" src="">
+                                        </div>
+                                        <div id="E_2" class="tooltip">
+                                            <img id="img_E_2" src="">
+                                        </div>
+                                        <div id="R_2" class="tooltip">
+                                            <img id="img_R_2" src="">
+                                        </div>
+                                    </div>
+                                    <span id="spell-tooltip_2" class="tooltiptext" style="display: flex;flex-direction: column;">
+                                        <span id="spell-tooltip-text_2">Tooltip Text</span>
+                                        <video id="spell-video_2" src="" width="100%" style="max-width: 600px;align-self: center;" autoplay muted loop>
+                                    </span>
+                                </div>
+
+                                <div class="spellorder-window" id="spellorder-window_2">
+                                    <h1 id="spell-order_2" class="title"></h1>
+                                    <div class="spell-info">
+                                        <div class="skilldiv">
+                                            <a id="skill-1-name_2" class="skill"></a>
+                                            <img id="skill-1_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-2-name_2" class="skill"></a>
+                                            <img id="skill-2_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-3-name_2" class="skill"></a>
+                                            <img id="skill-3_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-4-name_2" class="skill"></a>
+                                            <img id="skill-4_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-5-name_2" class="skill"></a>
+                                            <img id="skill-5_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-6-name_2" class="skill"></a>
+                                            <img id="skill-6_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-7-name_2" class="skill"></a>
+                                            <img id="skill-7_2"  class="" src="">
+                                        </div>
+                                        <div class="skilldiv">
+                                            <a id="skill-8-name_2" class="skill"></a>
+                                            <img id="skill-8_2"  class="" src="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="left_2_2" style="display:flex;flex-direction: row;gap: 5px;">
+                            <div id="left_2_1_2" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window_2">
+                                    <h1 id="start-items_2" class="title"></h1>
+                                    <div class="items">
+                                        <img id="start-item1_2"  class="" src="">
+                                        <img id="start-item2_2"  class="" src="">
+                                        <img id="start-item3_2"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip_2" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_2_2_2" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window_2b">
+                                    <h1 id="boots_2" class="title"></h1>
+                                    <div class="items">
+                                        <img id="boots1_2"  class="" src="">
+                                        <img id="boots2_2"  class="" src="">
+                                        <img id="boots3_2"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip_2b" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+
+                            <div id="left_2_3_2" style="display:flex;flex-direction: column;flex-grow: 4;">
+                                <div class="items-window" id="items-window_2c">
+                                    <h1 id="core-items_2" class="title"></h1>
+                                    <div class="items">
+                                        <img id="core-item1_2"  class="" src="">
+                                        <img id="core-item2_2"  class="" src="">
+                                        <img id="core-item3_2"  class="" src="">
+                                        <img id="core-item4_2"  class="" src="">
+                                        <img id="core-item5_2"  class="" src="">
+                                        <img id="core-item6_2"  class="" src="">
+                                    </div>
+                                    <span id="start-tooltip_2c" class="tooltiptext">Tooltip text</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="left_3_2" style="display: flex;flex-direction: column;">
+                            <div class="items-window" id="items-window_2d">
+                                <h1 id="items_2" class="title"></h1>
+                                <div class="items">
+                                    <img id="item1_2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item2_2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item3_2"  class="" src="">
+                                </div>
+                                <div class="items">
+                                    <img id="item4_2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item5_2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item6_2"  class="" src="">
+                                </div>
+                                <div class="items">
+                                    <img id="item7_2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item8_2"  class="" src="">
+                                    <i class="fa-solid fa-greater-than"></i>
+                                    <img id="item9_2"  class="" src="">
+                                </div>
+                                <span id="item-tooltip_2" class="tooltiptext">Tooltip text</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="right_block_2" style="display:flex;flex-direction: column;width: 25%;padding-top: 5px;">
+                        <div id="right_1_2" style="display: flex;justify-content: center;height: 100%;">
+                            <div class="runes-window" id="runes-window_2">
+                                <h1 id="runes_2" class="title"></h1>
+
+                                <div class="spell-info" id="rune-list_2" style="display: flex;flex-direction: row;justify-content: space-evenly;padding-bottom: 10px;background-color: var(--color_background);">
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-1 fa-2x" id="rune_1_2" onclick="select_runes(2, 0);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-2 fa-2x" id="rune_2_2" onclick="select_runes(2, 1);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+                                    
+                                    <i style="color: var(--color_text);width: 32px;text-align: center;" class="fa-solid fa-3 fa-2x" id="rune_3_2" onclick="select_runes(2, 2);" onmouseenter="hover_enter_function_runes(this)" onmouseleave="hover_leave_function_runes(this)"></i>
+                                </div>
+
+                                <div class="runes">
+                                    <div class="runescolumn">
+                                        <img id="primarystyle_2"  class="" src="">
+                                        <img id="primaryperk1_2"  class="" src="">
+                                        <img id="primaryperk2_2"  class="" src="">
+                                        <img id="primaryperk3_2"  class="" src="">
+                                        <img id="primaryperk4_2"  class="" src="">
+                                    </div>
+                                    <div class="runescolumn">
+                                        <img id="substyle_2"  class="" src="">
+                                        <img id="subperk1_2"  class="" src="">
+                                        <img id="subperk2_2"  class="" src="">
+                                        <img id="offense_2"  class="" src="">
+                                        <img id="flex_2" class="" src="">
+                                        <img id="defense_2" class="" src="">
+                                    </div>
+                                </div>
+                                <span id="rune-tooltip_2" class="tooltiptext">Tooltip text</span>
+                            </div>
+                        </div>
+
+                        <div id="right_2_2" style="display: flex;padding: 50px;">
+                            <a href="https://github.com/sponsors/CookieDecide?o=esb" class="donate" target="_blank">DONATE</a>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                
+            </div>
+
+        </div>
+    </div>
+    <footer><p id="version" style="text-align: right; color: var(--color_text);"></p></footer>
+</body>
+<div id="popup"></div>
+<script src="js/quickplay.js"></script>
+</html>

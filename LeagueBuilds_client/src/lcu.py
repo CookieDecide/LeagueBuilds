@@ -255,6 +255,30 @@ async def on_quick_play(connection, event):
                 summonerId=summonerId,
             )
 
+        gui.set_info_champion_1(
+            championId_1,
+            rune_1,
+            summ_1,
+            skills_1,
+            position_1,
+            item_build_1,
+            start_item_1,
+            boots_1,
+            item_1,
+        )
+
+        gui.set_info_champion_2(
+            championId_2,
+            rune_2,
+            summ_2,
+            skills_2,
+            position_2,
+            item_build_2,
+            start_item_2,
+            boots_2,
+            item_2,
+        )
+
         return
 
 
@@ -321,7 +345,10 @@ async def set_rune_summ_item(connection, champion, position=""):
         )
 
     print(datetime.datetime.now() - start)
-    gui.set_info(
+    gui.set_info_champion_1(
+        championId, rune, summ, skills, position, item_build, start_item, boots, item
+    )
+    gui.set_info_champion_2(
         championId, rune, summ, skills, position, item_build, start_item, boots, item
     )
 

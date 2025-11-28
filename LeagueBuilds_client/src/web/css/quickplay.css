@@ -1,0 +1,41 @@
+/* Quickplay specific styles */
+
+.champion-tabs-navbar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tab-button {
+    padding: 8px 20px;
+    background-color: var(--color_document);
+    color: var(--color_text);
+    border: 2px solid var(--color_text);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background-color: var(--color_hover_background);
+    color: var(--color_hover_text);
+    border-color: var(--color_hover_background);
+}
+
+.tab-button.active {
+    background-color: var(--color_slash);
+    color: white;
+    border-color: var(--color_slash);
+}
+
+.champion-content {
+    display: none !important;
+    visibility: hidden;
+}
+
+.champion-content.active {
+    display: flex !important;
+    visibility: visible;
+}
