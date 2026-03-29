@@ -104,6 +104,7 @@ def get_builds(champion, position):
                 BUILDS.skills,
                 BUILDS.summoner1Id,
                 BUILDS.summoner2Id,
+                BUILDS.win,
                 BUILDS.defense,
                 BUILDS.flex,
                 BUILDS.offense,
@@ -141,6 +142,7 @@ def get_builds(champion, position):
                 BUILDS.skills,
                 BUILDS.summoner1Id,
                 BUILDS.summoner2Id,
+                BUILDS.win,
                 BUILDS.defense,
                 BUILDS.flex,
                 BUILDS.offense,
@@ -182,6 +184,7 @@ def get_aram(champion):
             ARAM.skills,
             ARAM.summoner1Id,
             ARAM.summoner2Id,
+            ARAM.win,
             ARAM.defense,
             ARAM.flex,
             ARAM.offense,
@@ -210,6 +213,10 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
     else:
         builds = get_builds(champion, position)
 
+    champ_n_picked = len(builds)
+    n_entries = BUILDS.select().count()
+    champ_pickrate = champ_n_picked / n_entries * 10
+
     runes = []
     summs = []
     items = []
@@ -217,6 +224,7 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
     items_build = []
     skills = []
     boots = []
+    wins = []
 
     for build in builds:
         runes.append(
@@ -239,6 +247,8 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
 
         summs.append(build["summoner1Id"])
         summs.append(build["summoner2Id"])
+        
+        wins.append(build["win"])
 
         for item in [
             build["item0"],
@@ -279,7 +289,12 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
     for item in items:
         if int(item) not in valid_items:
             items.remove(item)
+    
+    # Assuming wins is a list of bools
+    # Calculate winrate over all builds
+    champ_winrate = numpy.sum(wins) / len(wins)
 
+    # Sort everything by popularity and return most popular runes, summs, etc.
     rune = sort_runes(runes)
 
     summ = sort_summs(summs)
@@ -294,7 +309,7 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
 
     boot = sort_boots(boots)
 
-    return (rune, summ, item, start_item, item_build, skill_order, boot)
+    return (rune, summ, item, start_item, item_build, skill_order, boot, champ_winrate, champ_pickrate)
 
 
 def sort_runes(runes):
@@ -541,7 +556,7 @@ def pro_worker(champion, valid_items, valid_start_items, valid_boots):
         start = time.time()
 
         try:
-            rune, summ, item, start_item, item_build, skills, boots = info(
+            rune, summ, item, start_item, item_build, skills, boots, champ_winrate, champ_pickrate = info(
                 champion.key, position, valid_items, valid_start_items, valid_boots
             )
         except Exception as e:
@@ -561,10 +576,12 @@ def pro_worker(champion, valid_items, valid_start_items, valid_boots):
             skill_order=skills,
             position=position,
             boots=boots,
+            champ_winrate=champ_winrate,
+            champ_pickrate=champ_pickrate,
         ).execute()
 
         logger.debug(
-            f"****************{champion.name}\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n****************"
+            f"****************{champion.name}\n{rune}\n{summ}\n{item}\n{start_item}\n{item_build}\n{skills}\n{boots}\n{champ_winrate}\n{champ_pickrate}\n****************"
         )
 
         logger.info(

@@ -610,6 +610,43 @@ function set_rune_text(primarystyle, primaryperk1, primaryperk2, primaryperk3, p
     text_subperk2 = subperk2;
 }
 
+function animateValueDynamicColor(element, start, end, duration) {
+    let startTime = null;
+
+    function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const value = start + (end - start) * progress;
+
+        element.textContent = value.toFixed(1) + "%";
+
+        if (value >= 52) {
+            element.style.color = "#4caf50"; // green
+        } else if (value > 48) {
+            element.style.color = "#ffffff"; // white
+        } else {
+            element.style.color = "#f44336"; // red
+        }
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
+eel.expose(set_winrate_text);
+function set_winrate_text(winrate) {
+    animateValueDynamicColor(document.getElementById("champion_winrate"), 0, (parseFloat(winrate)*100), 1000);
+}
+
+eel.expose(set_pickrate_text);
+function set_pickrate_text(pickrate) {
+    document.getElementById("champion_pickrate").textContent = (parseFloat(pickrate)*100).toFixed(2) + "%";
+}
+
+
 eel.expose(update_available);
 function update_available(client_version, server_version) {
     document.getElementById("version").innerHTML = client_version;

@@ -514,6 +514,11 @@ def set_runes(index):
 def set_position(position):
     eel.set_position(position)
 
+def set_winrate(champ_winrate):
+    eel.set_winrate_text(str(champ_winrate))
+
+def set_pickrate(champ_winrate):
+    eel.set_pickrate_text(str(champ_winrate))
 
 def start():
     try:
@@ -545,7 +550,7 @@ def start():
 
 
 def set_info(
-    champion, rune, summ, skills, position, items, start_items, boots, core_items
+    champion, rune, summ, skills, position, items, start_items, boots, core_items, champ_winrate, champ_pickrate
 ):
     global runes
     runes = rune
@@ -560,6 +565,8 @@ def set_info(
     set_start_items(champion, start_items)
     set_boots(champion, boots)
     set_core_items(champion, core_items)
+    set_winrate(champ_winrate)
+    set_pickrate(champ_pickrate)
 
 
 @eel.expose

@@ -83,6 +83,8 @@ class Builds(Resource):
         buffer["position"] = build.position
         buffer["boots"] = build.boots
         buffer["champion"] = CHAMPIONS.get(CHAMPIONS.key == build.championId).champion
+        buffer["champ_winrate"] = build.champ_winrate
+        buffer["champ_pickrate"] = build.champ_pickrate
 
         CONNECTION.insert(
             time=datetime.now(),
@@ -137,6 +139,8 @@ class Builds_V1(Resource):
         buffer["position"] = build.position
         buffer["boots"] = build.boots
         buffer["champion"] = CHAMPIONS.get(CHAMPIONS.key == build.championId).champion
+        buffer["champ_winrate"] = build.champ_winrate
+        buffer["champ_pickrate"] = build.champ_pickrate
 
         CONNECTION.insert(
             time=datetime.now(),
