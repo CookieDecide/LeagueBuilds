@@ -20,6 +20,7 @@ def get_build(champion, position, summoner):
 
     print(datetime.datetime.now() - start)
 
+    # json.loads for lists and dicts
     return (
         response["championId"],
         ast.literal_eval(response["runes"]),
@@ -31,6 +32,8 @@ def get_build(champion, position, summoner):
         response["position"],
         response["champion"],
         json.loads(response["boots"]),
+        response["champ_winrate"],
+        response["champ_pickrate"],
     )
 
 

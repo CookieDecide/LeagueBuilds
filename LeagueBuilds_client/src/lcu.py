@@ -83,6 +83,14 @@ async def on_session_changed(connection, event):
                             await set_rune_summ_item(connection, champion)
 
 
+def fix_boots(boots):
+    # Assuming boots has non-zero length
+    if len(boots) == 1:
+        return [boots[0], boots[0], boots[0]]
+    elif len(boots) == 2:
+        return [boots[0], boots[1], boots[1]]
+    return boots
+
 @connector.ws.register("/lol-settings/v2/account/LCUPreferences/lol-quick-play", event_types=["UPDATE"])
 async def on_quick_play(connection, event):
     try:
@@ -123,7 +131,11 @@ async def on_quick_play(connection, event):
             position_1,
             champion_name_1,
             boots_1,
+            champ_winrate_1,
+            champ_pickrate_1,
             ) = client.get_build(championId_1, position_1, await get_summoner_name(connection))
+
+            boots_1 = fix_boots(boots_1)
 
         if championId_2 != 0 and position_2 != "":
             (
@@ -137,7 +149,11 @@ async def on_quick_play(connection, event):
             position_2,
             champion_name_2,
             boots_2,
+            champ_winrate_2,
+            champ_pickrate_2,
             ) = client.get_build(championId_2, position_2, await get_summoner_name(connection))
+
+            boots_2 = fix_boots(boots_2)
 
         if isinstance(rune_1, dict):
             rune_1 = [rune_1, rune_1, rune_1]
@@ -291,7 +307,11 @@ async def set_rune_summ_item(connection, champion, position=""):
         position,
         champion_name,
         boots,
+        champ_winrate,
+        champ_pickrate,
     ) = client.get_build(champion, position, await get_summoner_name(connection))
+
+    boots = fix_boots(boots)
 
     if isinstance(rune, dict):
         rune = [rune, rune, rune]
@@ -322,7 +342,7 @@ async def set_rune_summ_item(connection, champion, position=""):
 
     print(datetime.datetime.now() - start)
     gui.set_info(
-        championId, rune, summ, skills, position, item_build, start_item, boots, item
+        championId, rune, summ, skills, position, item_build, start_item, boots, item, champ_winrate, champ_pickrate
     )
 
 

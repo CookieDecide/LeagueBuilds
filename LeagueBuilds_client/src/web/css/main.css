@@ -480,3 +480,48 @@ body.active .wrapper .section{
   align-self: center;
   color: var(--color_text);
 }
+
+
+/*#######################################*/
+/* Winrate, Pickrate */
+/*#######################################*/
+
+.stats-window {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 10px;
+  border-radius: 8px;
+
+  background: var(--color_background);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* row */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+/* label */
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+
+  color: var(--color_text);
+  opacity: 0.6;
+}
+
+/* value */
+.stat-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  color: var(--color_text);
+}

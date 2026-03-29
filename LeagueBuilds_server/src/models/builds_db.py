@@ -18,6 +18,8 @@ class FINALBUILDS(pw.Model):
     skill_order = pw.TextField()
     position = pw.TextField()
     boots = pw.TextField()
+    champ_winrate = pw.FloatField()
+    champ_pickrate = pw.FloatField()
 
     def __str__(self):
         return self.championId
