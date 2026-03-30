@@ -111,6 +111,9 @@ async def on_quick_play(connection, event):
         position_1 = page_id["data"]["slotsByQueueId"]["480"][0]["positionPreference"]
         position_2 = page_id["data"]["slotsByQueueId"]["480"][1]["positionPreference"]
 
+        skinId_1 = page_id["data"]["slotsByQueueId"]["480"][0]["skinId"]
+        skinId_2 = page_id["data"]["slotsByQueueId"]["480"][1]["skinId"]
+
         if championId_1 != 0 and position_1 != "":
             (
             championId_1,
@@ -197,7 +200,7 @@ async def on_quick_play(connection, event):
                     }
                 ),
                 "positionPreference": position_1.upper(),   
-                "skinId": 0,
+                "skinId": skinId_1,
                 "spell1": summ_1[0],
                 "spell2": summ_1[1],
             }
@@ -222,7 +225,7 @@ async def on_quick_play(connection, event):
                     }
                 ),
                 "positionPreference": position_2.upper(),   
-                "skinId": 0,
+                "skinId": skinId_2,
                 "spell1": summ_2[0],
                 "spell2": summ_2[1],
             }
