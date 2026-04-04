@@ -79,8 +79,7 @@ def init():
                 and "Boots" not in item.tags
                 and "Consumable" not in item.tags
                 and "Jungle" not in item.tags
-                and "Lane" not in item.tags
-                and int(ast.literal_eval(item.gold)['base']) != 0
+                and ("Lane" not in item.tags or (isinstance(ast.literal_eval(item.from_), list) and len(ast.literal_eval(item.from_)) > 0))
                 and ast.literal_eval(item.gold)['purchasable']
                 and (ast.literal_eval(item.maps)['11'] or ast.literal_eval(item.maps)['12'])
                 and (ast.literal_eval(item.into) == 0 or len(ast.literal_eval(item.into)) == 1)
