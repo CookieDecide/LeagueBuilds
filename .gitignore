@@ -141,7 +141,6 @@ LeagueBuilds_server/src/api_key.py
 
 main_client.spec
 
-.github/
 .git
 build/
 dist/
