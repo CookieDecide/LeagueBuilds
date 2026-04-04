@@ -52,7 +52,7 @@ def init():
     logger.info("Initialize Items")
     items_all = ITEMS.select()
 
-    valid_items, valid_start_items, valid_boots = [], [], []
+    valid_items, valid_start_items, valid_boots, valid_support_items = [], [], [], []
 
     for item in items_all:
         if "Trinket" not in item.tags:
@@ -71,6 +71,22 @@ def init():
                 and (ast.literal_eval(item.into) == 0 or len(ast.literal_eval(item.into)) == 1)
             ):
                 valid_items.append(int(item.id))
+
+            # Track completed support upgrades separately so they can be surfaced for utility role core items.
+            if (
+                (int(item.depth) in [2, 3, 4] or item.into == "0")
+                and "GoldPer" in item.tags
+                and "Boots" not in item.tags
+                and "Consumable" not in item.tags
+                and "Jungle" not in item.tags
+                and "Lane" not in item.tags
+                and int(ast.literal_eval(item.gold)['base']) != 0
+                and ast.literal_eval(item.gold)['purchasable']
+                and (ast.literal_eval(item.maps)['11'] or ast.literal_eval(item.maps)['12'])
+                and (ast.literal_eval(item.into) == 0 or len(ast.literal_eval(item.into)) == 1)
+            ):
+                valid_support_items.append(int(item.id))
+
             if "1001" in item.from_:
                 valid_boots.append(int(item.id))
 
@@ -80,9 +96,15 @@ def init():
                 if int(rem) in valid_items:
                     valid_items.remove(int(rem))
 
+    for item in valid_support_items[:]:
+        if(ITEMS.get(ITEMS.id == item).from_ != "0"):
+            for rem in ast.literal_eval(ITEMS.get(ITEMS.id == item).from_):
+                if int(rem) in valid_support_items:
+                    valid_support_items.remove(int(rem))
+
     logger.info("Initialize Items finished")
 
-    return valid_items, valid_start_items, valid_boots
+    return valid_items, valid_start_items, valid_boots, valid_support_items
 
 
 def get_builds(champion, position):
@@ -207,7 +229,7 @@ def get_aram(champion):
     return list(builds)
 
 
-def info(champion, position, valid_items, valid_start_items, valid_boots):
+def info(champion, position, valid_items, valid_start_items, valid_boots, valid_support_items):
     if position == "aram":
         builds = get_aram(champion)
     else:
@@ -220,6 +242,7 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
     runes = []
     summs = []
     items = []
+    support_items = []
     start_items = []
     items_build = []
     skills = []
@@ -260,6 +283,8 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
         ]:
             if int(item) in valid_items:
                 items.append(int(item))
+            if str(position).lower() == "utility" and int(item) in valid_support_items:
+                support_items.append(int(item))
 
         start_item_list = []
         for item in ast.literal_eval(build["start_items"]):
@@ -300,6 +325,19 @@ def info(champion, position, valid_items, valid_start_items, valid_boots):
     summ = sort_summs(summs)
 
     item = sort_items(items)
+
+    if str(position).lower() == "utility" and len(support_items) > 0:
+        top_support_item = sort_items(support_items)[0]
+        if top_support_item in item:
+            item.remove(top_support_item)
+        item.insert(0, top_support_item)
+        logger.debug(
+            "Utility support core override: champion=%s position=%s support_item=%s core_items=%s",
+            champion,
+            position,
+            top_support_item,
+            item[:6],
+        )
 
     start_item = sort_start_items(start_items)
 
@@ -528,14 +566,14 @@ def sort_pro():
     start = time.time()
     champion_query = CHAMPIONS.select()
 
-    valid_items, valid_start_items, valid_boots = init()
+    valid_items, valid_start_items, valid_boots, valid_support_items = init()
     njobs = effective_n_jobs()
     logger.info(f"effective_n_jobs: {njobs}")
     with parallel_backend("loky"):
         try:
             Parallel(n_jobs=njobs)(
                 delayed(pro_worker)(
-                    champion, valid_items, valid_start_items, valid_boots
+                    champion, valid_items, valid_start_items, valid_boots, valid_support_items
                 )
                 for champion in champion_query
             )
@@ -549,7 +587,7 @@ def sort_pro():
     logger.info(f"Sorting finished in: {time.time() - start}")
 
 
-def pro_worker(champion, valid_items, valid_start_items, valid_boots):
+def pro_worker(champion, valid_items, valid_start_items, valid_boots, valid_support_items):
     logger.info(f"Sorting started for:\t{champion}\t{os.getpid()}")
 
     for position in ["", "top", "bottom", "jungle", "utility", "middle", "aram"]:
@@ -557,7 +595,7 @@ def pro_worker(champion, valid_items, valid_start_items, valid_boots):
 
         try:
             rune, summ, item, start_item, item_build, skills, boots, champ_winrate, champ_pickrate = info(
-                champion.key, position, valid_items, valid_start_items, valid_boots
+                champion.key, position, valid_items, valid_start_items, valid_boots, valid_support_items
             )
         except Exception as e:
             logger.info(
