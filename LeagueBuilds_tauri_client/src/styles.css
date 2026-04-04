@@ -1,0 +1,1297 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap");
+
+:root {
+  --bg-0: #101216;
+  --bg-1: #0d0f13;
+  --surface: #171b22f2;
+  --ink: #eef3ff;
+  --ink-soft: #b8c2d6;
+  --accent: #1db19a;
+  --accent-2: #ea6f2d;
+  --danger: #ff6b6b;
+  --shadow: 0 16px 36px -26px rgba(0, 0, 0, 0.7);
+  --card-bg: #171b22f2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 20% 5%, #1d2330 0%, transparent 34%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1));
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.app-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.25rem;
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 0.35rem;
+  align-items: start;
+}
+
+.main-content {
+  min-width: 0;
+}
+
+.import-sidebar {
+  background: var(--surface);
+  border: 1px solid #252b36;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  padding: 0.55rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.import-sidebar h2 {
+  margin: 0 0 0.1rem;
+  font-size: 0.82rem;
+  font-family: "Cinzel", serif;
+}
+
+.import-sidebar label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.import-sidebar select {
+  margin-left: auto;
+  border: 1px solid #384559;
+  border-radius: 6px;
+  padding: 0.2rem 0.4rem;
+  font: inherit;
+  color: #eaf1ff;
+  background: #111722;
+}
+
+.import-sidebar input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.hero {
+  animation: rise 420ms ease-out;
+  margin-bottom: 0.15rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: "Cinzel", serif;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+}
+
+.eyebrow {
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8ee4d3;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.lead {
+  color: var(--ink-soft);
+  max-width: 65ch;
+  margin: 0 0 0;
+  font-size: 0.8rem;
+}
+
+.panel {
+  margin-top: 0.2rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.3rem;
+}
+
+.lookup-form,
+.status-card,
+.error-box {
+  background: var(--surface);
+  border: 1px solid #252b36;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+}
+
+.lookup-form {
+  padding: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.lookup-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.secret-override-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #f7f1d1;
+  background: #614b0f;
+  border: 1px solid #8f7121;
+  border-radius: 999px;
+  padding: 0.08rem 0.4rem;
+}
+
+.lookup-form input,
+.lookup-form select {
+  border: 1px solid #384559;
+  border-radius: 6px;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  color: #eaf1ff;
+  background: #111722;
+}
+
+.input-with-inline-action {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.input-with-inline-action input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.inline-action-button {
+  padding: 0.28rem 0.56rem;
+  font-size: 0.72rem;
+  line-height: 1;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: #2e4058;
+}
+
+.inline-action-button:hover:not(:disabled) {
+  background: #3a5272;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 0.8rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button[type="button"] {
+  background: var(--accent-2);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status-card {
+  padding: 0.5rem;
+}
+
+.update-banner {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1200;
+  max-width: min(520px, calc(100vw - 2rem));
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #31445f;
+  background: rgba(17, 23, 34, 0.96);
+  box-shadow: var(--shadow);
+  font-size: 0.74rem;
+  color: var(--ink);
+}
+
+.update-banner a {
+  color: #8ee4d3;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.update-banner a:hover {
+  text-decoration: underline;
+}
+
+.error-box {
+  margin-top: 0.7rem;
+  padding: 0.7rem 0.85rem;
+  border-color: #ffccc7;
+  color: var(--danger);
+}
+
+/* Build Display Styles */
+.build-display {
+  margin-top: 0.2rem;
+  display: grid;
+  gap: 0.25rem;
+  animation: rise 320ms ease-out;
+}
+
+.dashboard-grid {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  align-items: stretch;
+}
+
+.champion-card {
+  background: var(--card-bg);
+  border: 1px solid #252b36;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  overflow: visible;
+  grid-column: 1 / span 6;
+  grid-row: 1;
+}
+
+.champion-header {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 0.3rem;
+  padding: 0.35rem;
+}
+
+.champion-splash-wrap {
+  position: relative;
+}
+
+.champion-splash {
+  width: 100%;
+  height: 180px;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.champion-info {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.champion-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.35rem;
+}
+
+.champion-heading {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.champion-summoners {
+  display: grid;
+  justify-items: end;
+  align-items: start;
+  gap: 0.22rem;
+}
+
+.champion-summoners-container {
+  padding: 0.28rem;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+}
+
+.champion-summoner-icons {
+  display: flex;
+  align-items: center;
+  gap: 0.26rem;
+  flex-wrap: nowrap;
+}
+
+.champion-summoners-title {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink);
+  text-transform: none;
+  font-weight: 700;
+  font-family: "Cinzel", serif;
+}
+
+.champion-summoner-item {
+  position: relative;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+  padding: 0.18rem;
+}
+
+.summoner-slot-label {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.56rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent-2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.champion-summoner-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  display: block;
+}
+
+.champion-info h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ink);
+  font-family: "Cinzel", serif;
+}
+
+.champion-title {
+  margin: 0;
+  font-size: 0.64rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+  margin-top: 0;
+}
+
+.stat {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.3rem;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.stat .label {
+  font-size: 0.55rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.stat .value {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.stat .value.winrate-high {
+  color: #4fe39b;
+}
+
+.stat .value.winrate-mid {
+  color: #ffd66b;
+}
+
+.stat .value.winrate-low {
+  color: #ff7a7a;
+}
+
+.stat .value.winrate-neutral {
+  color: var(--ink-soft);
+}
+
+.abilities-card,
+.summoners-card,
+.items-card,
+.starter-items-card,
+.skills-card,
+.boots-card,
+.runes-card,
+.build-paths-card {
+  background: var(--card-bg);
+  border: 1px solid #252b36;
+  box-shadow: var(--shadow);
+  border-radius: 8px;
+  padding: 0.3rem;
+  min-width: 0;
+  height: 100%;
+}
+
+.import-disabled {
+  opacity: 0.5;
+  filter: grayscale(0.7) saturate(0.55);
+}
+
+.import-disabled .champion-summoner-item,
+.import-disabled .item-card,
+.import-disabled .small-item,
+.import-disabled .build-path-item,
+.import-disabled .rune-perk,
+.import-disabled .rune-tree,
+.import-disabled .boot-item {
+  border-color: #394356;
+}
+
+.abilities-card {
+  grid-column: 7 / span 6;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.abilities-subcontainer {
+  padding: 0.25rem;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+}
+
+.abilities-bottom-section {
+  margin-top: auto;
+}
+
+.items-card {
+  grid-column: span 6;
+  order: 2;
+}
+
+.starter-items-card {
+  grid-column: span 3;
+  order: 1;
+}
+
+.runes-card {
+  grid-column: 1 / -1;
+  order: 4;
+}
+
+.boots-card {
+  grid-column: span 3;
+}
+
+.build-paths-card {
+  grid-column: span 3;
+  order: 3;
+}
+
+.abilities-card h3,
+.summoners-card h3,
+.items-card h3,
+.starter-items-card h3,
+.skills-card h3,
+.boots-card h3,
+.runes-card h3,
+.build-paths-card h3 {
+  margin: 0 0 0.2rem 0;
+  font-size: 0.8rem;
+  font-family: "Cinzel", serif;
+}
+
+.ability-grid,
+.summoners-grid,
+.items-grid,
+.boots-grid,
+.build-paths-grid {
+  display: grid;
+  gap: 0.3rem;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+.ability-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.2rem;
+}
+
+.abilities-card .ability-grid {
+  margin-bottom: 0;
+}
+
+.abilities-card .skill-order-title {
+  margin-top: 0;
+}
+
+.build-paths-grid {
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+}
+
+.build-path-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.path-arrow {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.tooltip-tile {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.22rem;
+  min-width: 0;
+  outline: none;
+  z-index: 0;
+}
+
+.tooltip-tile:hover,
+.tooltip-tile:focus-within {
+  z-index: 30;
+}
+
+.tooltip-tile:focus-visible {
+  box-shadow: 0 0 0 2px rgba(13, 140, 111, 0.25);
+  border-radius: 10px;
+}
+
+.tooltip-panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  width: min(260px, 42vw);
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(8, 10, 14, 0.97);
+  color: #f4f7f5;
+  box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.tooltip-panel.is-open,
+.tooltip-tile:hover .tooltip-panel,
+.tooltip-tile:focus-within .tooltip-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.tooltip-panel strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.72rem;
+  color: #fff;
+}
+
+.tooltip-panel p {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: #dce7e2;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.tooltip-panel a {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.68rem;
+  color: #7ce3c4;
+  text-decoration: none;
+}
+
+.tooltip-panel a:hover {
+  text-decoration: underline;
+}
+
+.tooltip-video {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+}
+
+.champion-splash-wrap .tooltip-panel {
+  width: min(320px, 46vw);
+}
+
+.rune-tree h4 {
+  display: none;
+}
+
+.ability-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.ability-tile,
+.summoner-item,
+.item-card,
+.boot-item,
+.build-path-item {
+  transition: all 120ms ease;
+}
+
+.summoner-item,
+.item-card,
+.small-item,
+.boot-item,
+.build-path-item {
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+  padding: 0.25rem;
+  text-align: center;
+}
+
+.ability-tile:hover,
+.summoner-item:hover,
+.item-card:hover,
+.boot-item:hover,
+.build-path-item:hover {
+  background: #172131;
+  transform: translateY(-1px);
+}
+
+.ability-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ability-icon-placeholder {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(13, 140, 111, 0.2);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.spell-letter {
+  font-weight: 700;
+}
+
+.spell-p {
+  color: #c9b6ff;
+}
+
+.spell-q {
+  color: #59d7ff;
+}
+
+.spell-w {
+  color: #82e07b;
+}
+
+.spell-e {
+  color: #ffc86b;
+}
+
+.spell-r {
+  color: #ff7aa8;
+}
+
+/* Summoners Card */
+.summoners-card {
+  padding: 0.75rem;
+}
+
+.summoner-item {
+  gap: 0.25rem;
+}
+
+.summoner-icon {
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summoner-icon-placeholder,
+.rune-icon-placeholder {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: 8px;
+  background: rgba(13, 140, 111, 0.2);
+  border: 1px solid rgba(13, 140, 111, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.rune-loadout {
+  display: grid;
+  gap: 0.2rem;
+  text-align: left;
+  padding: 0.3rem;
+}
+
+.rune-loadout-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 0.35rem;
+}
+
+.rune-tree {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.38rem;
+  border-radius: 6px;
+  background: #111722;
+  border: 1px solid #273142;
+}
+
+.rune-tree-icon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.rune-tree h4 {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.rune-perk-group {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.rune-perk-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 0.35rem;
+}
+
+.rune-perk-column {
+  min-width: 0;
+}
+
+.rune-perks-grid {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.rune-perks-grid-primary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rune-perks-grid-secondary {
+  grid-template-columns: 1fr;
+}
+
+.rune-perks-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  gap: 0.15rem;
+}
+
+.rune-perk {
+  display: grid;
+  justify-items: center;
+  gap: 0.18rem;
+  padding: 0.22rem 0.2rem;
+  border-radius: 6px;
+  background: #111722;
+  border: 1px solid #202837;
+  text-align: center;
+}
+
+.rune-perk span {
+  font-size: 0.6rem;
+  color: var(--ink);
+  line-height: 1.15;
+  display: none;
+}
+
+.rune-shards-row {
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+}
+
+.rune-shard .rune-icon-placeholder,
+.rune-shard .rune-icon {
+  width: 30px;
+  height: 30px;
+}
+
+@media (max-width: 900px) {
+  .rune-loadout-header {
+    grid-template-columns: 1fr;
+  }
+
+  .rune-perk-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .rune-perks-row,
+  .rune-shards-row {
+    grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+  }
+}
+
+/* Items Card */
+.items-card,
+.boots-card {
+  padding: 0.75rem;
+}
+
+.items-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.items-subcontainer {
+  padding: 0.3rem;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+}
+
+.items-bottom-section {
+  margin-top: auto;
+}
+
+.items-grid,
+.boots-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.boots-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.boots-grid .boot-item {
+  flex: 0 0 auto;
+}
+
+.core-items-hint {
+  margin: 0 0 0.3rem 0;
+  font-size: 0.62rem;
+  color: #8fa1bd;
+}
+
+.item-card,
+.boot-item {
+  padding: 0.45rem;
+}
+
+.item-card h4,
+.boot-item h4 {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--ink);
+  display: none;
+}
+
+.items-subtitle {
+  margin-top: 0.45rem !important;
+}
+
+.boot-item img {
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  border-radius: 6px;
+  display: block;
+}
+
+.item-icon {
+  width: 42px;
+  height: 42px;
+  margin: 0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Starter Items */
+.starter-items-card {
+  padding: 0.75rem;
+}
+
+.starter-sets {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.starter-set {
+  padding: 0.25rem;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+}
+
+.set-label {
+  margin: 0 0 0.28rem 0;
+  font-weight: 700;
+  font-size: 0.62rem;
+  color: #9eb0cc;
+}
+
+.items-row {
+  display: flex;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+}
+
+.small-item {
+  width: 46px;
+  height: 46px;
+  padding: 0.24rem;
+}
+
+.small-item img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Runes Card */
+.runes-card {
+  padding: 0.75rem;
+}
+
+.runes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.rune-item {
+  padding: 0.45rem;
+  background: #121923;
+  border: 1px solid #273142;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.rune-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.rune-option-button {
+  border: 1px solid #30425c;
+  background: #0f1724;
+  color: #b5c7df;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 0.16rem 0.5rem;
+  cursor: pointer;
+}
+
+.rune-option-button.selected {
+  border-color: #5fb4ff;
+  color: #d9efff;
+  background: #15314f;
+}
+
+.rune-loadout-selected {
+  border-color: #4a92c9;
+  box-shadow: inset 0 0 0 1px rgba(113, 182, 239, 0.24);
+}
+
+.rune-icon,
+.rune-icon-placeholder {
+  width: 20px;
+  height: 20px;
+}
+
+.rune-item h4 {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--ink);
+}
+
+.rune-item .short-desc {
+  margin: 0.15rem 0 0;
+  font-size: 0.62rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
+.rune-item .long-desc {
+  margin: 0.2rem 0 0;
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
+/* Skills Card */
+.skills-card {
+  padding: 0.75rem;
+}
+
+.skill-order {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.2rem;
+  width: 100%;
+}
+
+.skill-level {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.16rem;
+  background: #111722;
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid #273142;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08rem;
+}
+
+.skill-level .level {
+  display: block;
+  font-size: 0.44rem;
+  color: var(--ink-soft);
+  margin-bottom: 0;
+  text-transform: uppercase;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.skill-level .skill-id {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.skill-level .skill-id.spell-p {
+  color: #c9b6ff;
+}
+
+.skill-level .skill-id.spell-q {
+  color: #59d7ff;
+}
+
+.skill-level .skill-id.spell-w {
+  color: #82e07b;
+}
+
+.skill-level .skill-id.spell-e {
+  color: #ffc86b;
+}
+
+.skill-level .skill-id.spell-r {
+  color: #ff7aa8;
+}
+
+.build-paths-card {
+  padding: 0.32rem;
+}
+
+.build-paths-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+}
+
+.build-path-option {
+  padding: 0.25rem;
+  background: #111722;
+  border: 1px solid #273142;
+  border-radius: 6px;
+}
+
+.build-path-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.22rem;
+}
+
+.build-path-item {
+  display: flex;
+  align-items: center;
+  gap: 0.22rem;
+  padding: 0.24rem 0.28rem;
+}
+
+.build-path-item img {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+}
+
+.path-arrow {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #dbe8ff;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .champion-card,
+  .abilities-card,
+  .summoners-card,
+  .items-card,
+  .starter-items-card,
+  .skills-card,
+  .boots-card,
+  .runes-card {
+    grid-column: span 6;
+  }
+
+  .ability-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .champion-header {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+
+  .champion-splash {
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .import-sidebar {
+    order: -1;
+  }
+
+  .panel,
+  .lookup-form {
+    grid-template-columns: 1fr;
+  }
+
+  .lookup-form {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+  }
+
+  .dashboard-grid,
+  .ability-grid,
+  .summoners-grid,
+  .boots-grid,
+  .runes-grid,
+  .skill-order {
+    grid-template-columns: 1fr;
+  }
+
+  .items-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .champion-card,
+  .abilities-card,
+  .summoners-card,
+  .items-card,
+  .starter-items-card,
+  .skills-card,
+  .boots-card,
+  .runes-card,
+  .build-paths-card {
+    grid-column: 1 / -1;
+  }
+
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .champion-header {
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
+  }
+
+  .champion-splash {
+    height: 180px;
+  }
+}
