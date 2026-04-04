@@ -8,7 +8,7 @@ def get_build(champion, position, summoner):
     # Request the most popular builds for champion and position from the LeagueBuilds server
     start = datetime.datetime.now()
 
-    api_url = "http://" + config.server_ip + ":12345/builds_v1/" + str(champion)
+    api_url = "https://" + config.server_ip + "/builds_v1/" + str(champion)
     if position != "":
         api_url += "/" + str(position).lower()
 
@@ -39,7 +39,7 @@ def get_build(champion, position, summoner):
 
 def get_version():
     # Request the current App Version used by the LeagueBuilds server
-    api_url = "http://" + config.server_ip + ":12345/version"
+    api_url = "https://" + config.server_ip + "/version"
 
     print(api_url)
 
