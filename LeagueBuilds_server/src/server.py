@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask import Flask, request
 from flask_restful import Resource, Api
+from werkzeug.middleware.proxy_fix import ProxyFix
 from models.builds_db import FINALBUILDS
 from models.statics_db import CHAMPIONS
 import version
@@ -32,6 +33,7 @@ logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 api = Api(app)
 
 
