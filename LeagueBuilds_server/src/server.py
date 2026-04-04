@@ -60,8 +60,42 @@ def start_server():
         return
 
     thread_count = int(os.getenv("LEAGUEBUILDS_SERVER_THREADS", "8"))
-    logger.info(f"Starting production server (waitress) on {host}:{port} with {thread_count} threads")
-    serve(app, host=host, port=port, threads=thread_count)
+    trusted_proxy = os.getenv("LEAGUEBUILDS_TRUSTED_PROXY", "127.0.0.1")
+    trusted_proxy_count = int(os.getenv("LEAGUEBUILDS_TRUSTED_PROXY_COUNT", "1"))
+    trusted_proxy_headers = {
+        "x-forwarded-for",
+        "x-forwarded-host",
+        "x-forwarded-proto",
+        "x-forwarded-port",
+        "x-forwarded-by",
+    }
+
+    logger.info(
+        "Starting production server (waitress) on %s:%s with %s threads (trusted_proxy=%s, trusted_proxy_count=%s)",
+        host,
+        port,
+        thread_count,
+        trusted_proxy,
+        trusted_proxy_count,
+    )
+
+    serve_kwargs = {
+        "host": host,
+        "port": port,
+        "threads": thread_count,
+        "trusted_proxy": trusted_proxy,
+        "trusted_proxy_count": trusted_proxy_count,
+        "trusted_proxy_headers": trusted_proxy_headers,
+    }
+
+    try:
+        serve(app, **serve_kwargs)
+    except TypeError:
+        logger.warning(
+            "Installed waitress does not support trusted_proxy options; "
+            "falling back to default waitress settings."
+        )
+        serve(app, host=host, port=port, threads=thread_count)
 
 
 class Builds(Resource):
