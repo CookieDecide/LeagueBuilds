@@ -36,7 +36,30 @@ api = Api(app)
 
 
 def start_server():
-    app.run(host="0.0.0.0", port=12345)
+    host = "127.0.0.1"
+    port = 12345
+    force_dev_server = os.getenv("LEAGUEBUILDS_DEV_SERVER", "0") == "1"
+    flask_env = os.getenv("FLASK_ENV", "production").lower()
+    use_dev_server = force_dev_server or flask_env in {"development", "dev"}
+
+    if use_dev_server:
+        logger.info(f"Starting Flask dev server on {host}:{port}")
+        app.run(host=host, port=port, debug=True, use_reloader=False)
+        return
+
+    try:
+        from waitress import serve
+    except ImportError:
+        logger.warning(
+            "waitress is not installed; falling back to Flask dev server. "
+            "Install waitress for production usage."
+        )
+        app.run(host=host, port=port, debug=False, use_reloader=False)
+        return
+
+    thread_count = int(os.getenv("LEAGUEBUILDS_SERVER_THREADS", "8"))
+    logger.info(f"Starting production server (waitress) on {host}:{port} with {thread_count} threads")
+    serve(app, host=host, port=port, threads=thread_count)
 
 
 class Builds(Resource):
