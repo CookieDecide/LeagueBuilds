@@ -87,7 +87,7 @@ jobs:
 
             $serverVersionPath = "LeagueBuilds_server/src/version.py"
             $serverVersionContent = Get-Content $serverVersionPath -Raw
-            $serverVersionContent = [regex]::Replace($serverVersionContent, 'version\s*=\s*"V[^"]+"', "version = \"V$targetVersion\"")
+            $serverVersionContent = [regex]::Replace($serverVersionContent, 'version\s*=\s*"V[^"]+"', ('version = "V' + $targetVersion + '"'))
             Set-Content $serverVersionPath $serverVersionContent
 
             Write-Host "Bumped versions to $targetVersion for release build."
