@@ -7,7 +7,7 @@ on:
         description: 'Optional release tag (defaults to pushed tag, or v<tauri-version> on manual runs)'
         required: false
       release_details:
-        description: 'Optional markdown release notes. If empty, notes are auto-generated for new releases.'
+        description: 'Optional custom markdown for the Release Details section. Current Release and Major Changes are filled automatically.'
         required: false
       publish_release:
         description: 'If false, run build only and skip GitHub release publishing'
@@ -172,25 +172,77 @@ jobs:
           fi
 
           details='${{ github.event.inputs.release_details || '' }}'
+          release_tag='${{ needs.build.outputs.release_tag }}'
+          release_name='${{ needs.build.outputs.release_name }}'
+          release_version='${{ needs.build.outputs.release_version }}'
+          repo='${{ github.repository }}'
+          ref_name='${{ github.ref_name }}'
 
-          if gh release view "${{ needs.build.outputs.release_tag }}" > /dev/null 2>&1; then
-            if [[ -n "$details" ]]; then
-              gh release edit "${{ needs.build.outputs.release_tag }}" \
-                --title "${{ needs.build.outputs.release_name }}" \
-                --notes "$details"
-            else
-              gh release edit "${{ needs.build.outputs.release_tag }}" \
-                --title "${{ needs.build.outputs.release_name }}"
-            fi
-            gh release upload "${{ needs.build.outputs.release_tag }}" "$asset" --clobber
+          major_changes=$(gh api "repos/$repo/releases/generate-notes" \
+            -f tag_name="$release_tag" \
+            -f target_commitish="$ref_name" \
+            --jq '.body')
+
+          if [[ -n "$details" ]]; then
+            release_details="$details"
           else
+            release_details="No custom release details provided."
+          fi
+
+          body_file="release-asset/release-notes.md"
+          cat > "$body_file" <<EOF
+# LeagueBuilds Release Notes
+
+## Code signing policy
+
+Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+
+Privacy policy: [PRIVACY.md](https://github.com/CookieDecide/LeagueBuilds/blob/main/PRIVACY.md)
+
+Project roles:
+- Committers and reviewers: CookieDecide
+- Approvers: CookieDecide
+
+Signing rules:
+- Only release artifacts built from this repository are signed.
+- Only binaries produced by the LeagueBuilds build pipeline are included in signed packages.
+- Version numbers must match across all signed binaries in a release.
+- Third-party libraries may be included as unsigned upstream components when required by the package format.
+
+## Instructions
+
+- Download LeaguBuilds.exe from the Assets section of this release page.
+- Run the executable on Windows after League of Legends and the Riot Client are installed.
+- Open the client, let it detect the selected champion, and use the import flow to apply the recommended setup.
+- If the client shows a version mismatch, download the newest release from this page.
+
+## Current Release
+
+- Tag: $release_tag
+- Version: $release_version
+
+## Major Changes
+
+$major_changes
+
+## Release Details
+
+$release_details
+EOF
+
+          if gh release view "$release_tag" > /dev/null 2>&1; then
             if [[ -n "$details" ]]; then
-              gh release create "${{ needs.build.outputs.release_tag }}" "$asset" \
-                --title "${{ needs.build.outputs.release_name }}" \
-                --notes "$details"
+              gh release edit "$release_tag" \
+                --title "$release_name" \
+                --notes-file "$body_file"
             else
-              gh release create "${{ needs.build.outputs.release_tag }}" "$asset" \
-                --title "${{ needs.build.outputs.release_name }}" \
-                --generate-notes
+              gh release edit "$release_tag" \
+                --title "$release_name" \
+                --notes-file "$body_file"
             fi
+            gh release upload "$release_tag" "$asset" --clobber
+          else
+            gh release create "$release_tag" "$asset" \
+              --title "$release_name" \
+              --notes-file "$body_file"
           fi
