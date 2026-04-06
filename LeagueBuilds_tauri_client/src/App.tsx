@@ -29,7 +29,7 @@ import type { RichBuild } from "./types";
 
 const positions = ["", "top", "jungle", "middle", "bottom", "utility"];
 const LATEST_RELEASE_URL = "https://github.com/CookieDecide/LeagueBuilds/releases/latest";
-const FALLBACK_CLIENT_VERSION = "0.7.7";
+const FALLBACK_CLIENT_VERSION = "1.0.0";
 const INCOGNITO_TOGGLE_KEY = "F10";
 
 function parseVersionParts(version: string): [number, number, number] | null {

@@ -1,4 +1,4 @@
-﻿version = "V0.7.7"
+﻿version = "V1.0.0"
 
 
 

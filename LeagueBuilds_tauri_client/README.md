@@ -1,6 +1,6 @@
 # LeagueBuilds Tauri Client
 
-Current version: `0.7.7`
+Current version: `1.0.0`
 
 LeagueBuilds Tauri Client is the primary desktop app for LeagueBuilds. It uses:
 
