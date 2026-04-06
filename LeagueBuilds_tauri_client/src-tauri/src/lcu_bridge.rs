@@ -164,6 +164,7 @@ fn read_lockfile(path: &PathBuf) -> Result<LockfileInfo, String> {
 
 fn build_lcu_connection(lockfile: &LockfileInfo) -> Result<LcuConnection, String> {
     let client = reqwest::Client::builder()
+        // Match common LCU client libraries: trust loopback endpoint and rely on lockfile auth.
         .danger_accept_invalid_certs(true)
         .build()
         .map_err(|error| format!("failed to create LCU client: {error}"))?;
