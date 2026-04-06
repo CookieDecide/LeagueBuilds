@@ -11,7 +11,6 @@ Current stable versions:
 - `LeagueBuilds_tauri_client/` - Main desktop client (Tauri + React + TypeScript)
 - `LeagueBuilds_server/` - Backend API and data update/sorting pipeline (Python)
 - `LeagueBuilds_client/` - Legacy Python desktop client (still present)
-- `LeagueBuilds_tests/` - test utilities and experiments
 
 ## Current Production Stack
 
