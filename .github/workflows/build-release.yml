@@ -190,45 +190,30 @@ jobs:
           fi
 
           body_file="release-asset/release-notes.md"
-          cat > "$body_file" <<EOF
-# LeagueBuilds Release Notes
-
-## Code signing policy
-
-Free code signing provided by SignPath.io, certificate by SignPath Foundation.
-
-Privacy policy: [PRIVACY.md](https://github.com/CookieDecide/LeagueBuilds/blob/main/PRIVACY.md)
-
-Project roles:
-- Committers and reviewers: CookieDecide
-- Approvers: CookieDecide
-
-Signing rules:
-- Only release artifacts built from this repository are signed.
-- Only binaries produced by the LeagueBuilds build pipeline are included in signed packages.
-- Version numbers must match across all signed binaries in a release.
-- Third-party libraries may be included as unsigned upstream components when required by the package format.
-
-## Instructions
-
-- Download LeaguBuilds.exe from the Assets section of this release page.
-- Run the executable on Windows after League of Legends and the Riot Client are installed.
-- Open the client, let it detect the selected champion, and use the import flow to apply the recommended setup.
-- If the client shows a version mismatch, download the newest release from this page.
-
-## Current Release
-
-- Tag: $release_tag
-- Version: $release_version
-
-## Major Changes
-
-$major_changes
-
-## Release Details
-
-$release_details
-EOF
+          {
+            printf '# LeagueBuilds Release Notes\n\n'
+            printf '## Code signing policy\n\n'
+            printf 'Free code signing provided by SignPath.io, certificate by SignPath Foundation.\n\n'
+            printf 'Privacy policy: [PRIVACY.md](https://github.com/CookieDecide/LeagueBuilds/blob/main/PRIVACY.md)\n\n'
+            printf 'Project roles:\n'
+            printf -- '- Committers and reviewers: CookieDecide\n'
+            printf -- '- Approvers: CookieDecide\n\n'
+            printf 'Signing rules:\n'
+            printf -- '- Only release artifacts built from this repository are signed.\n'
+            printf -- '- Only binaries produced by the LeagueBuilds build pipeline are included in signed packages.\n'
+            printf -- '- Version numbers must match across all signed binaries in a release.\n'
+            printf -- '- Third-party libraries may be included as unsigned upstream components when required by the package format.\n\n'
+            printf '## Instructions\n\n'
+            printf -- '- Download LeaguBuilds.exe from the Assets section of this release page.\n'
+            printf -- '- Run the executable on Windows after League of Legends and the Riot Client are installed.\n'
+            printf -- '- Open the client, let it detect the selected champion, and use the import flow to apply the recommended setup.\n'
+            printf -- '- If the client shows a version mismatch, download the newest release from this page.\n\n'
+            printf '## Current Release\n\n'
+            printf -- '- Tag: %s\n' "$release_tag"
+            printf -- '- Version: %s\n\n' "$release_version"
+            printf '## Major Changes\n\n%s\n\n' "$major_changes"
+            printf '## Release Details\n\n%s\n' "$release_details"
+          } > "$body_file"
 
           if gh release view "$release_tag" > /dev/null 2>&1; then
             if [[ -n "$details" ]]; then
