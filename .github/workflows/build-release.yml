@@ -70,8 +70,8 @@ jobs:
               return 0
             }
 
-            if ((Compare-Semver $targetVersion $currentVersion) -le 0) {
-              Write-Error "Release tag version $targetVersion must be newer than current version $currentVersion"
+            if ((Compare-Semver $targetVersion $currentVersion) -lt 0) {
+              Write-Error "Release tag version $targetVersion must be at least the current version $currentVersion"
               exit 1
             }
 
@@ -90,7 +90,11 @@ jobs:
             $serverVersionContent = [regex]::Replace($serverVersionContent, 'version\s*=\s*"V[^"]+"', ('version = "V' + $targetVersion + '"'))
             Set-Content $serverVersionPath $serverVersionContent
 
-            Write-Host "Bumped versions to $targetVersion for release build."
+            if ($targetVersion -ne $currentVersion) {
+              Write-Host "Bumped versions to $targetVersion for release build."
+            } else {
+              Write-Host "Release tag matches current version $currentVersion; leaving version files unchanged."
+            }
           } else {
             if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)$') {
               Write-Host "Build-only run: skipping release tag validation for '$tag'."
