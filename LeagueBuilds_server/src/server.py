@@ -8,6 +8,7 @@ import version
 from models.log_db import CONNECTION, PLAYER
 import logging, os
 import ast
+from uuid import uuid4
 
 if not os.path.exists("../../../log"):
     os.mkdir("../../../log")
@@ -32,6 +33,20 @@ f_handler.setFormatter(f_format)
 logger.addHandler(c_handler)
 logger.addHandler(f_handler)
 
+
+def redact_ip(address):
+    if not address:
+        return "unknown"
+
+    if ":" in address:
+        return "[redacted-ipv6]"
+
+    parts = address.split(".")
+    if len(parts) == 4:
+        return ".".join(parts[:3] + ["0"])
+
+    return "[redacted-ip]"
+
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 api = Api(app)
@@ -40,24 +55,10 @@ api = Api(app)
 def start_server():
     host = "127.0.0.1"
     port = 12345
-    force_dev_server = os.getenv("LEAGUEBUILDS_DEV_SERVER", "0") == "1"
-    flask_env = os.getenv("FLASK_ENV", "production").lower()
-    use_dev_server = force_dev_server or flask_env in {"development", "dev"}
-
-    if use_dev_server:
-        logger.info(f"Starting Flask dev server on {host}:{port}")
-        app.run(host=host, port=port, debug=True, use_reloader=False)
-        return
-
     try:
         from waitress import serve
     except ImportError:
-        logger.warning(
-            "waitress is not installed; falling back to Flask dev server. "
-            "Install waitress for production usage."
-        )
-        app.run(host=host, port=port, debug=False, use_reloader=False)
-        return
+        raise RuntimeError("waitress is required to run the server")
 
     thread_count = int(os.getenv("LEAGUEBUILDS_SERVER_THREADS", "8"))
     trusted_proxy = os.getenv("LEAGUEBUILDS_TRUSTED_PROXY", "127.0.0.1")
@@ -71,12 +72,10 @@ def start_server():
     }
 
     logger.info(
-        "Starting production server (waitress) on %s:%s with %s threads (trusted_proxy=%s, trusted_proxy_count=%s)",
+        "Starting production server (waitress) on %s:%s with %s threads",
         host,
         port,
         thread_count,
-        trusted_proxy,
-        trusted_proxy_count,
     )
 
     serve_kwargs = {
@@ -100,6 +99,7 @@ def start_server():
 
 class Builds(Resource):
     def get(self, champion, position=""):
+        request_id = uuid4().hex[:8]
         ip = str(request.remote_addr)
         port = str(12345)
 
@@ -108,7 +108,13 @@ class Builds(Resource):
         if not summoner:
             summoner = "INCOGNITO"
 
-        logger.info(f"{ip}\t{port}\t{summoner}\t{champion}\t{position}")
+        logger.info(
+            "%s\t%s\t%s\t%s",
+            request_id,
+            redact_ip(ip),
+            champion,
+            position,
+        )
 
         PLAYER.insert(
             time=datetime.now(), ip=ip, port=port, summonername=summoner
@@ -159,6 +165,7 @@ class Builds(Resource):
 
 class Builds_V1(Resource):
     def get(self, champion, position=""):
+        request_id = uuid4().hex[:8]
         ip = str(request.remote_addr)
         port = str(12345)
 
@@ -167,7 +174,13 @@ class Builds_V1(Resource):
         if not summoner:
             summoner = "INCOGNITO"
 
-        logger.info(f"{ip}\t{port}\t{summoner}\t{champion}\t{position}")
+        logger.info(
+            "%s\t%s\t%s\t%s",
+            request_id,
+            redact_ip(ip),
+            champion,
+            position,
+        )
 
         PLAYER.insert(
             time=datetime.now(), ip=ip, port=port, summonername=summoner
