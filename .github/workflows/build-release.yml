@@ -1,121 +1,192 @@
-name: Build and release Windows EXE
+name: Build and release Tauri client
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag name for the release (e.g. v1.2.3). If omitted when manually dispatching, the workflow will still run but release creation may use run ID.'
+        description: 'Optional release tag (defaults to pushed tag, or v<tauri-version> on manual runs)'
         required: false
-      in_repo:
-        description: 'If true, build will put artifacts inside the repository (src/dist) instead of runner temp. Default: true'
+      release_details:
+        description: 'Optional markdown release notes. If empty, notes are auto-generated for new releases.'
         required: false
+      publish_release:
+        description: 'If false, run build only and skip GitHub release publishing'
+        required: true
         type: boolean
         default: true
 
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: windows-latest
-    name: Build EXE
+    name: Build Tauri EXE
     outputs:
-      artifact-name: LeagueBuilds-client-exe
+      release_tag: ${{ steps.versioning.outputs.tag }}
+      release_name: ${{ steps.versioning.outputs.release_name }}
+      release_version: ${{ steps.versioning.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Build client EXE (PowerShell script — inside repo)
-        if: ${{ github.event.inputs.in_repo != 'false' }}
-        working-directory: LeagueBuilds_client
+      - name: Resolve release tag and optionally bump versions
+        id: versioning
         shell: pwsh
         run: |
-          # Build into repository's src/dist (safe if dist/ and build/ are in .gitignore)
-          ./ci/build-windows.ps1 -InRepo
+          $publishRelease = "${{ github.event.inputs.publish_release }}" -eq "true"
+          $tagInput = "${{ github.event.inputs.tag || '' }}".Trim()
 
-      - name: Build client EXE (PowerShell script — outside repo)
-        if: ${{ github.event.inputs.in_repo == 'false' }}
-        working-directory: LeagueBuilds_client
+          if ($tagInput -ne "") {
+            $tag = $tagInput
+          } else {
+            $currentTauriVersion = (Get-Content "LeagueBuilds_tauri_client/src-tauri/tauri.conf.json" -Raw | ConvertFrom-Json).version
+            $tag = "v$currentTauriVersion"
+          }
+
+          if (-not $tag.StartsWith("v")) {
+            $tag = "v$tag"
+          }
+
+          if ($publishRelease) {
+            if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)$') {
+              Write-Error "Invalid release tag '$tag'. Expected format vX.Y.Z"
+              exit 1
+            }
+
+            $targetVersion = $tag.Substring(1)
+            $currentVersion = (Get-Content "LeagueBuilds_tauri_client/src-tauri/tauri.conf.json" -Raw | ConvertFrom-Json).version
+
+            function Compare-Semver([string]$a, [string]$b) {
+              $pa = $a.Split('.') | ForEach-Object { [int]$_ }
+              $pb = $b.Split('.') | ForEach-Object { [int]$_ }
+              for ($i = 0; $i -lt 3; $i++) {
+                if ($pa[$i] -gt $pb[$i]) { return 1 }
+                if ($pa[$i] -lt $pb[$i]) { return -1 }
+              }
+              return 0
+            }
+
+            if ((Compare-Semver $targetVersion $currentVersion) -le 0) {
+              Write-Error "Release tag version $targetVersion must be newer than current version $currentVersion"
+              exit 1
+            }
+
+            $tauriConfigPath = "LeagueBuilds_tauri_client/src-tauri/tauri.conf.json"
+            $tauriConfig = Get-Content $tauriConfigPath -Raw | ConvertFrom-Json
+            $tauriConfig.version = $targetVersion
+            $tauriConfig | ConvertTo-Json -Depth 100 | Set-Content $tauriConfigPath
+
+            $packagePath = "LeagueBuilds_tauri_client/package.json"
+            $packageJson = Get-Content $packagePath -Raw | ConvertFrom-Json
+            $packageJson.version = $targetVersion
+            $packageJson | ConvertTo-Json -Depth 100 | Set-Content $packagePath
+
+            $serverVersionPath = "LeagueBuilds_server/src/version.py"
+            $serverVersionContent = Get-Content $serverVersionPath -Raw
+            $serverVersionContent = [regex]::Replace($serverVersionContent, 'version\s*=\s*"V[^"]+"', "version = \"V$targetVersion\"")
+            Set-Content $serverVersionPath $serverVersionContent
+
+            Write-Host "Bumped versions to $targetVersion for release build."
+          } else {
+            if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)$') {
+              Write-Host "Build-only run: skipping release tag validation for '$tag'."
+              $targetVersion = ((Get-Content "LeagueBuilds_tauri_client/src-tauri/tauri.conf.json" -Raw | ConvertFrom-Json).version)
+            } else {
+              $targetVersion = $tag.Substring(1)
+            }
+          }
+
+          "tag=$tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "version=$targetVersion" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          "release_name=Tauri Client $tag" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: LeagueBuilds_tauri_client/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: LeagueBuilds_tauri_client
+        shell: pwsh
+        run: npm ci
+
+      - name: Build Tauri application
+        working-directory: LeagueBuilds_tauri_client
+        shell: pwsh
+        run: npm run tauri build
+
+      - name: Prepare release executable
         shell: pwsh
         run: |
-          # Ensure a build location outside the repo (runner temp) so repo remains clean
-          $out = Join-Path $env:RUNNER_TEMP 'LeagueBuilds-dist'
-          ./ci/build-windows.ps1 -OutputDir $out
+          $builtExe = "LeagueBuilds_tauri_client/src-tauri/target/release/leaguebuilds_tauri_client.exe"
+          if (!(Test-Path $builtExe)) {
+            Write-Error "Expected executable not found: $builtExe"
+            exit 1
+          }
 
-      - name: Upload EXE as workflow artifact (in-repo)
-        if: ${{ github.event.inputs.in_repo != 'false' }}
+          $releaseExe = Join-Path $env:RUNNER_TEMP "LeaguBuilds.exe"
+          Copy-Item $builtExe $releaseExe -Force
+
+      - name: Upload release artifact
         uses: actions/upload-artifact@v4
         with:
-          name: LeagueBuilds-client-exe
-          path: LeagueBuilds_client/src/dist/LeagueBuilds.exe
-
-      - name: Upload EXE as workflow artifact (outside repo)
-        if: ${{ github.event.inputs.in_repo == 'false' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: LeagueBuilds-client-exe
-          path: ${{ runner.temp }}/LeagueBuilds-dist/LeagueBuilds.exe
+          name: tauri-client-exe
+          path: ${{ runner.temp }}/LeaguBuilds.exe
 
   release:
     runs-on: ubuntu-latest
     needs: build
-    # This environment should be protected by GitHub to require manual approval/review.
-    environment: release-approval
-    name: Create Release (requires approval)
+    name: Publish release
+    if: ${{ github.event.inputs.publish_release == 'true' }}
     steps:
-      - name: Download built EXE artifact
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download release artifact
         uses: actions/download-artifact@v4
         with:
-          name: LeagueBuilds-client-exe
-
-      - name: Verify exe exists
-        run: |
-          if [ ! -f "./LeagueBuilds-client-exe/LeagueBuilds.exe" ]; then echo "exe not found"; exit 1; fi
+          name: tauri-client-exe
+          path: release-asset
 
       - name: Create or update GitHub release
-        id: create_release
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          # prefer manual 'tag' input when available, otherwise use the tag that triggered the push
-          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
-          release_name: ${{ github.event.inputs.tag || github.ref_name || format('build-{0}', github.run_number) }}
-          body: |
-            Automated build produced by GitHub Actions (run ${{ github.run_id }})
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
 
-            ## Code signing policy
+          asset="release-asset/LeaguBuilds.exe"
+          if [[ ! -f "$asset" ]]; then
+            echo "Missing release asset: $asset"
+            exit 1
+          fi
 
-            Free code signing provided by SignPath.io, certificate by SignPath Foundation.
+          details='${{ github.event.inputs.release_details || '' }}'
 
-            Privacy policy: [PRIVACY.md](https://github.com/CookieDecide/LeagueBuilds/blob/main/PRIVACY.md)
-
-            Project roles:
-            - Committers and reviewers: CookieDecide
-            - Approvers: CookieDecide
-
-            Signing rules:
-            - Only release artifacts built from this repository are signed.
-            - Only binaries produced by the LeagueBuilds build pipeline are included in signed packages.
-            - Version numbers must match across all signed binaries in a release.
-            - Third-party libraries may be included as unsigned upstream components when required by the package format.
-          draft: false
-          prerelease: false
-
-      - name: Upload EXE to GitHub release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./LeagueBuilds-client-exe/LeagueBuilds.exe
-          asset_name: LeagueBuilds-Client-${{ github.event.inputs.tag || github.ref_name || github.run_number }}.exe
-          asset_content_type: application/octet-stream
+          if gh release view "${{ needs.build.outputs.release_tag }}" > /dev/null 2>&1; then
+            if [[ -n "$details" ]]; then
+              gh release edit "${{ needs.build.outputs.release_tag }}" \
+                --title "${{ needs.build.outputs.release_name }}" \
+                --notes "$details"
+            else
+              gh release edit "${{ needs.build.outputs.release_tag }}" \
+                --title "${{ needs.build.outputs.release_name }}"
+            fi
+            gh release upload "${{ needs.build.outputs.release_tag }}" "$asset" --clobber
+          else
+            if [[ -n "$details" ]]; then
+              gh release create "${{ needs.build.outputs.release_tag }}" "$asset" \
+                --title "${{ needs.build.outputs.release_name }}" \
+                --notes "$details"
+            else
+              gh release create "${{ needs.build.outputs.release_tag }}" "$asset" \
+                --title "${{ needs.build.outputs.release_name }}" \
+                --generate-notes
+            fi
+          fi
