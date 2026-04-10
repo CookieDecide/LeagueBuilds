@@ -1,6 +1,6 @@
 Kivy==2.3.1
 lcu_driver==3.0.2
-numpy==2.0.2
-peewee==4.0.3
+numpy==2.4.4
+peewee==4.0.4
 riotwatcher==3.3.1
 eel==0.18.2

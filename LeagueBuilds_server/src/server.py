@@ -1,6 +1,8 @@
 from datetime import datetime
 from flask import Flask, request
 from flask_restful import Resource, Api
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from werkzeug.middleware.proxy_fix import ProxyFix
 from models.builds_db import FINALBUILDS
 from models.statics_db import CHAMPIONS
@@ -51,6 +53,22 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 api = Api(app)
 
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=[os.getenv("LEAGUEBUILDS_RATE_LIMIT_DEFAULT", "120 per minute")],
+    storage_uri=os.getenv("LEAGUEBUILDS_RATE_LIMIT_STORAGE_URI", "memory://"),
+    headers_enabled=True,
+)
+
+
+@app.errorhandler(429)
+def handle_ratelimit(_error):
+    return {
+        "error": "rate_limited",
+        "message": "Too many requests, please try again later.",
+    }, 429
+
 
 def start_server():
     host = "127.0.0.1"
@@ -97,7 +115,10 @@ def start_server():
         serve(app, host=host, port=port, threads=thread_count)
 
 
+# Deprecated: Endpoint for v1.0.0, will be removed in future versions. Use /builds_v1 instead.
 class Builds(Resource):
+    decorators = [limiter.limit(os.getenv("LEAGUEBUILDS_RATE_LIMIT_BUILDS", "60 per minute;10 per second"))]
+
     def get(self, champion, position=""):
         request_id = uuid4().hex[:8]
         ip = str(request.remote_addr)
@@ -164,6 +185,8 @@ class Builds(Resource):
 
 
 class Builds_V1(Resource):
+    decorators = [limiter.limit(os.getenv("LEAGUEBUILDS_RATE_LIMIT_BUILDS_V1", "60 per minute;10 per second"))]
+
     def get(self, champion, position=""):
         request_id = uuid4().hex[:8]
         ip = str(request.remote_addr)
@@ -227,6 +250,8 @@ class Builds_V1(Resource):
 
 
 class Version(Resource):
+    decorators = [limiter.limit(os.getenv("LEAGUEBUILDS_RATE_LIMIT_VERSION", "600 per minute"))]
+
     def get(self):
         ip = str(request.remote_addr)
         port = str(12345)

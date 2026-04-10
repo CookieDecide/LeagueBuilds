@@ -1,7 +1,9 @@
-numpy==1.22.0
-peewee==3.14.10
-riotwatcher==3.2.0
+numpy==2.4.4
+peewee==4.0.4
+riotwatcher==3.3.1
 flask==3.1.3
 flask_restful==0.3.10
 joblib==1.5.3
 waitress==3.0.2
+flask-limiter==4.1.1
+redis==7.4.0
