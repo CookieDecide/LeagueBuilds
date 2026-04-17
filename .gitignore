@@ -159,3 +159,6 @@ LeagueBuilds_client/src/logs/*
 
 # General log directories
 **/logs/
+
+# Local load/perf test assets
+LeagueBuilds_tests/
