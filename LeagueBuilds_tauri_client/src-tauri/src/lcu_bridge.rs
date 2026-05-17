@@ -3,6 +3,10 @@ use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 use std::path::PathBuf;
+#[cfg(target_os = "windows")]
+use winreg::enums::*;
+#[cfg(target_os = "windows")]
+use winreg::RegKey;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
     Arc, Mutex, OnceLock,
@@ -117,33 +121,101 @@ fn bridge_state() -> Arc<BridgeState> {
         .clone()
 }
 
-fn candidate_lockfiles() -> Vec<PathBuf> {
-    let mut candidates = Vec::new();
+fn candidate_lockfiles() -> Vec<(PathBuf, &'static str)> {
+    let mut candidates: Vec<(PathBuf, &'static str)> = Vec::new();
+
+    // Try registry lookup first on Windows
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(install_dir) = find_league_install_from_registry() {
+            candidates.push((install_dir.join("lockfile"), "registry"));
+        }
+    }
 
     if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
         let base = PathBuf::from(local_app_data);
-        candidates.push(base.join("Riot Games").join("League of Legends").join("lockfile"));
+        candidates.push((base.join("Riot Games").join("League of Legends").join("lockfile"), "local_appdata"));
     }
 
     if let Ok(program_files) = std::env::var("PROGRAMFILES") {
-        candidates.push(PathBuf::from(program_files).join("Riot Games").join("League of Legends").join("lockfile"));
+        candidates.push((PathBuf::from(program_files).join("Riot Games").join("League of Legends").join("lockfile"), "program_files"));
     }
 
-    candidates.push(PathBuf::from(r"C:\Riot Games\League of Legends\lockfile"));
-
-    // Keep Riot Client lockfiles as a last-resort fallback; they do not always expose LoL champ-select endpoints.
-    if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
-        let base = PathBuf::from(local_app_data);
-        candidates.push(base.join("Riot Games").join("Riot Client").join("Config").join("lockfile"));
-    }
-
-    candidates.push(PathBuf::from(r"C:\Riot Games\Riot Client\Config\lockfile"));
+    candidates.push((PathBuf::from(r"C:\Riot Games\League of Legends\lockfile"), "c_default"));
 
     candidates
 }
 
-fn find_lockfile_path() -> Option<PathBuf> {
-    candidate_lockfiles().into_iter().find(|candidate| candidate.exists())
+/// On Windows attempt to read the uninstall registry keys to find the League install location.
+#[cfg(target_os = "windows")]
+fn find_league_install_from_registry() -> Option<PathBuf> {
+    // Check both 64-bit and 32-bit uninstall hives under HKLM and also HKCU (per-user installs)
+    let roots = [HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER];
+    let subkeys = [
+        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+        "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+    ];
+
+    for &root in &roots {
+        let reg_root = RegKey::predef(root);
+        for sub in &subkeys {
+            if let Ok(key) = reg_root.open_subkey(sub) {
+                for item in key.enum_keys().filter_map(Result::ok) {
+                    if let Ok(subk) = key.open_subkey(&item) {
+                        // Look for DisplayName that mentions League
+                        if let Ok(display_name) = subk.get_value::<String, &str>("DisplayName") {
+                            if display_name.to_lowercase().contains("league") {
+                                // Prefer InstallLocation value
+                                if let Ok(install_loc) = subk.get_value::<String, &str>("InstallLocation") {
+                                    if !install_loc.is_empty() {
+                                        return Some(PathBuf::from(install_loc));
+                                    }
+                                }
+
+                                // Fallback: try DisplayIcon or UninstallString to extract path
+                                if let Ok(display_icon) = subk.get_value::<String, &str>("DisplayIcon") {
+                                    let path_part = display_icon.split(',').next().unwrap_or("").trim().trim_matches('"').to_string();
+                                    if !path_part.is_empty() {
+                                        if let Some(parent) = std::path::Path::new(&path_part).parent() {
+                                            return Some(parent.to_path_buf());
+                                        }
+                                    }
+                                }
+
+                                if let Ok(uninstall_string) = subk.get_value::<String, &str>("UninstallString") {
+                                    // Try to extract a path from a quoted executable path
+                                    let extract = uninstall_string.split_whitespace().next().unwrap_or("");
+                                    let extract = extract.trim().trim_matches('"');
+                                    if !extract.is_empty() {
+                                        if let Some(parent) = std::path::Path::new(&extract).parent() {
+                                            return Some(parent.to_path_buf());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
+#[cfg(not(target_os = "windows"))]
+fn find_league_install_from_registry() -> Option<PathBuf> {
+    None
+}
+
+fn find_lockfile_path() -> Option<(PathBuf, String)> {
+    for (path, source) in candidate_lockfiles().into_iter() {
+        if path.exists() {
+            return Some((path, source.to_string()));
+        }
+    }
+
+    None
 }
 
 fn read_lockfile(path: &PathBuf) -> Result<LockfileInfo, String> {
@@ -685,10 +757,10 @@ async fn run_lcu_bridge(state: Arc<BridgeState>) {
     loop {
         let settings = state.settings.lock().unwrap().clone();
 
-        if let Some(lockfile_path) = find_lockfile_path() {
+        if let Some((lockfile_path, method)) = find_lockfile_path() {
             let lockfile_path_string = lockfile_path.to_string_lossy().to_string();
             if last_lockfile_path.as_deref() != Some(lockfile_path_string.as_str()) {
-                eprintln!("LeagueBuilds LCU bridge using lockfile: {}", lockfile_path_string);
+                eprintln!("LeagueBuilds LCU bridge using lockfile (method: {}): {}", method, lockfile_path_string);
                 last_lockfile_path = Some(lockfile_path_string);
             }
 
@@ -782,7 +854,7 @@ async fn apply_current_selection_once(state: &Arc<BridgeState>) -> Result<String
         .map_err(|_| "failed to acquire LCU bridge settings lock".to_string())?
         .clone();
 
-    let lockfile_path = find_lockfile_path().ok_or_else(|| "could not find a League lockfile".to_string())?;
+    let (lockfile_path, _method) = find_lockfile_path().ok_or_else(|| "could not find a League lockfile".to_string())?;
     let connection = read_lockfile(&lockfile_path).and_then(|lockfile| build_lcu_connection(&lockfile))?;
 
     let champion_id = fetch_current_champion(&connection)
@@ -843,7 +915,7 @@ async fn apply_specific_champion_once(
         .map_err(|_| "failed to acquire LCU bridge settings lock".to_string())?
         .clone();
 
-    let lockfile_path = find_lockfile_path().ok_or_else(|| "could not find a League lockfile".to_string())?;
+    let (lockfile_path, _method) = find_lockfile_path().ok_or_else(|| "could not find a League lockfile".to_string())?;
     let connection = read_lockfile(&lockfile_path).and_then(|lockfile| build_lcu_connection(&lockfile))?;
 
     let normalized_position = position.trim().to_lowercase();
@@ -972,7 +1044,7 @@ pub async fn get_lcu_bridge_last_applied() -> Result<Option<BridgeAppliedState>,
 
 #[tauri::command]
 pub async fn get_lcu_current_summoner_name() -> Result<Option<String>, String> {
-    let lockfile_path = find_lockfile_path().ok_or_else(|| "could not find a League lockfile".to_string())?;
+    let (lockfile_path, _method) = find_lockfile_path().ok_or_else(|| "could not find a League lockfile".to_string())?;
     let connection = read_lockfile(&lockfile_path).and_then(|lockfile| build_lcu_connection(&lockfile))?;
 
     let summoner_name = fetch_current_summoner_name(&connection).await?;
