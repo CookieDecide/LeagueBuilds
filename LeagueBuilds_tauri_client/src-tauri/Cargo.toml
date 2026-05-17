@@ -1,6 +1,6 @@
 [package]
 name = "leaguebuilds_tauri_client"
-version = "0.7.8"
+version = "1.0.1"
 description = "LeagueBuilds desktop client built with Tauri + React"
 authors = ["LeagueBuilds"]
 license = "MIT"
