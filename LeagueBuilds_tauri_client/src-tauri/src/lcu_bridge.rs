@@ -168,6 +168,7 @@ fn find_league_install_from_registry() -> Option<PathBuf> {
                                 // Prefer InstallLocation value
                                 if let Ok(install_loc) = subk.get_value::<String, &str>("InstallLocation") {
                                     if !install_loc.is_empty() {
+                                        let install_loc = install_loc.trim().trim_matches('"').to_string();
                                         return Some(PathBuf::from(install_loc));
                                     }
                                 }
